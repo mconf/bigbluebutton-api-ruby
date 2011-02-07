@@ -1,7 +1,6 @@
 # 
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
- 
 
 require 'rubygems'
 require 'rake'
@@ -12,14 +11,14 @@ require 'rake/testtask'
 
 spec = Gem::Specification.new do |s|
   s.name = 'bigbluebutton'
-  s.version = '0.0.3'
+  s.version = '0.0.4'
   s.has_rdoc = true
   s.extra_rdoc_files = ['README', 'LICENSE']
-  s.summary = 'Provides an interface to the BigBlueButton web meeting API (http://code.google.com/p/bigbluebutton/)'
+  s.summary = 'Provides an interface to the BigBlueButton web meeting API (https://github.com/mconf/bigbluebutton-api-ruby)'
   s.description = s.summary
-  s.author = 'Joe Kinsella'
-  s.email = 'joe.kinsella@gmail.com'
-  s.homepage = "http://code.google.com/p/bigbluebuttongem/"
+  s.author = 'Leonardo Crauss Daronco'
+  s.email = 'leonardodaronco@gmail.com'
+  s.homepage = "https://github.com/mconf/bigbluebutton-api-ruby/"
   # s.executables = ['your_executable_here']
   s.files = %w(LICENSE README Rakefile) + Dir.glob("{bin,lib,doc,test,spec}/**/*")
   s.require_path = "lib"
