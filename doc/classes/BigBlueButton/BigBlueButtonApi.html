@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: BigBlueButton::BigBlueButtonApi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">BigBlueButton::BigBlueButtonApi</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/bigbluebutton_rb.html">
+                lib/bigbluebutton.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+This class provides access to the <a
+href="../BigBlueButton.html">BigBlueButton</a> API. <a
+href="../BigBlueButton.html">BigBlueButton</a> is an open source project
+that provides web conferencing for distance education (<a
+href="http://code.google.com/p/bigbluebutton/wiki/API">code.google.com/p/bigbluebutton/wiki/API</a>).
+This API was developed to the 0.64 version of bbb.
+</p>
+<p>
+Sample usage of the API is as follows: 1) Create a meeting with the <a
+href="BigBlueButtonApi.html#M000004">create_meeting</a> call 2) Direct a
+user to either <a href="BigBlueButtonApi.html#M000002">moderator_url</a> or
+<a href="BigBlueButtonApi.html#M000003">attendee_url</a> 3) To force
+meeting to end, call <a
+href="BigBlueButtonApi.html#M000005">end_meeting</a>
+</p>
+<table>
+<tr><td valign="top">Author:</td><td>Joe Kinsella (<a
+href="mailto:joe.kinsella@gmail.com">joe.kinsella@gmail.com</a>)
+
+</td></tr>
+<tr><td valign="top">Copyright:</td><td>Copyright (c) 2010 Joe Kinsella
+
+</td></tr>
+<tr><td valign="top">License:</td><td>Distributes under same terms as Ruby
+
+</td></tr>
+</table>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000003">attendee_url</a>&nbsp;&nbsp;
+      <a href="#M000004">create_meeting</a>&nbsp;&nbsp;
+      <a href="#M000005">end_meeting</a>&nbsp;&nbsp;
+      <a href="#M000008">get_meeting_info</a>&nbsp;&nbsp;
+      <a href="#M000009">get_url</a>&nbsp;&nbsp;
+      <a href="#M000006">is_meeting_running</a>&nbsp;&nbsp;
+      <a href="#M000007">join_meeting</a>&nbsp;&nbsp;
+      <a href="#M000002">moderator_url</a>&nbsp;&nbsp;
+      <a href="#M000001">new</a>&nbsp;&nbsp;
+      <a href="#M000010">send_api_request</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000001" class="method-detail">
+        <a name="M000001"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000001.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000001.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(base_url = 'http://devbuild.bigbluebutton.org/bigbluebutton/api', salt = '639259d4-9dd8-4b25-bf01-95f9567eaf4b', debug=false)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Initializes an instance
+</p>
+<table>
+<tr><td valign="top">base_url:</td><td>URL to a <a href="../BigBlueButton.html">BigBlueButton</a> server (defaults
+to bbb development server)
+
+</td></tr>
+<tr><td valign="top">salt:</td><td>Secret salt for this server (defaults to bbb development server)&quot;<a
+href="http://devbuild.bigbluebu">devbuild.bigbluebu</a>
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000003" class="method-detail">
+        <a name="M000003"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000003.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000003.html');return false;">
+          <span class="method-name">attendee_url</span><span class="method-args">(meeting_id, user_name, attendee_password)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns url to login as attendee
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+<tr><td valign="top">user_name:</td><td>Name of the user
+
+</td></tr>
+<tr><td valign="top">password:</td><td>Attendee password for this meeting
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000004" class="method-detail">
+        <a name="M000004"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000004.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000004.html');return false;">
+          <span class="method-name">create_meeting</span><span class="method-args">(meeting_id, meeting_name, moderator_password, attendee_password, welcome_message = nil, dialin_number = nil, logout_url = nil, max_participants = nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Creates a <a href="BigBlueButtonApi.html#M000001">new</a> meeting. Throws
+BigBlueButtonException on failure.
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+<tr><td valign="top">meeting_name:</td><td>Name for the meeting
+
+</td></tr>
+<tr><td valign="top">moderator_password:</td><td>Moderator password
+
+</td></tr>
+<tr><td valign="top">attendee_password:</td><td>Attendee password
+
+</td></tr>
+<tr><td valign="top">welcome_message:</td><td>Welcome message to display in chat window
+
+</td></tr>
+<tr><td valign="top">dialin_number:</td><td>Dial in number for conference
+
+</td></tr>
+<tr><td valign="top">logout_url:</td><td>URL to return user to after exiting meeting
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000005" class="method-detail">
+        <a name="M000005"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000005.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000005.html');return false;">
+          <span class="method-name">end_meeting</span><span class="method-args">(meeting_id, moderator_password)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Ends an existing meeting. Throws BigBlueButtonException on failure.
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+<tr><td valign="top">moderator_password:</td><td>Moderator password
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000008" class="method-detail">
+        <a name="M000008"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000008.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000008.html');return false;">
+          <span class="method-name">get_meeting_info</span><span class="method-args">(meeting_id, password)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns a REXML::Document object containing the meeting information. See
+the API documentation for details on the return XML (<a
+href="http://code.google.com/p/bigbluebutton/wiki/API">code.google.com/p/bigbluebutton/wiki/API</a>).
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+<tr><td valign="top">password:</td><td>Moderator password for this meeting
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000006" class="method-detail">
+        <a name="M000006"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000006.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000006.html');return false;">
+          <span class="method-name">is_meeting_running</span><span class="method-args">(meeting_id)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns true or false as to whether meeting is open. A meeting is only open
+after at least one participant has joined.
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000007" class="method-detail">
+        <a name="M000007"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000007.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000007.html');return false;">
+          <span class="method-name">join_meeting</span><span class="method-args">(meeting_id, user_name, password)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Warning: As of this version of the gem, this bbb call does not work
+(instead of returning XML response, joins meeting).
+</p>
+<p>
+Joins a user into the meeting using an API call, instead of directing the
+user&#8216;s browser to <a
+href="BigBlueButtonApi.html#M000002">moderator_url</a> or <a
+href="BigBlueButtonApi.html#M000003">attendee_url</a> (note: this will
+still be required however to actually use bbb). Returns the URL a user can
+use to enter this meeting.
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+<tr><td valign="top">user_name:</td><td>Name of the user
+
+</td></tr>
+<tr><td valign="top">password:</td><td>Moderator or attendee password for this meeting
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000002" class="method-detail">
+        <a name="M000002"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000002.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000002.html');return false;">
+          <span class="method-name">moderator_url</span><span class="method-args">(meeting_id, user_name, password)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns url to login as moderator
+</p>
+<table>
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+
+</td></tr>
+<tr><td valign="top">user_name:</td><td>Name of the user
+
+</td></tr>
+<tr><td valign="top">password:</td><td>Moderator password for this meeting
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Protected Instance methods</h3>
+
+      <div id="method-M000009" class="method-detail">
+        <a name="M000009"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000009.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000009.html');return false;">
+          <span class="method-name">get_url</span><span class="method-args">(method, data)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000010" class="method-detail">
+        <a name="M000010"></a>
+
+        <div class="method-heading">
+          <a href="BigBlueButtonApi.src/M000010.html" target="Code" class="method-signature"
+            onclick="popupCode('BigBlueButtonApi.src/M000010.html');return false;">
+          <span class="method-name">send_api_request</span><span class="method-args">(method, data = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>
