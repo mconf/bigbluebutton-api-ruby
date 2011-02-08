@@ -55,8 +55,8 @@
         <tr class="top-aligned-row">
             <td><strong>In:</strong></td>
             <td>
-                <a href="../../files/lib/bigbluebutton_rb.html">
-                lib/bigbluebutton.rb
+                <a href="../../files/lib/bigbluebutton-api_rb.html">
+                lib/bigbluebutton-api.rb
                 </a>
         <br />
             </td>
@@ -85,15 +85,33 @@ href="../BigBlueButton.html">BigBlueButton</a> API. <a
 href="../BigBlueButton.html">BigBlueButton</a> is an open source project
 that provides web conferencing for distance education (<a
 href="http://code.google.com/p/bigbluebutton/wiki/API">code.google.com/p/bigbluebutton/wiki/API</a>).
-This API was developed to the 0.64 version of bbb.
+This API was developed to support the following version of bbb: 0.64, 0.7
 </p>
 <p>
 Sample usage of the API is as follows: 1) Create a meeting with the <a
-href="BigBlueButtonApi.html#M000004">create_meeting</a> call 2) Direct a
-user to either <a href="BigBlueButtonApi.html#M000002">moderator_url</a> or
-<a href="BigBlueButtonApi.html#M000003">attendee_url</a> 3) To force
+href="BigBlueButtonApi.html#M000008">create_meeting</a> call 2) Direct a
+user to either <a href="BigBlueButtonApi.html#M000006">moderator_url</a> or
+<a href="BigBlueButtonApi.html#M000007">attendee_url</a> 3) To force
 meeting to end, call <a
-href="BigBlueButtonApi.html#M000005">end_meeting</a>
+href="BigBlueButtonApi.html#M000009">end_meeting</a>
+</p>
+<p>
+0.0.4+:
+</p>
+<table>
+<tr><td valign="top">Author:</td><td>Leonardo Crauss Daronco (<a
+href="mailto:leonardodaronco@gmail.com">leonardodaronco@gmail.com</a>)
+
+</td></tr>
+<tr><td valign="top">Copyright:</td><td>Copyright (c) 2011 Leonardo Crauss Daronco
+
+</td></tr>
+<tr><td valign="top">License:</td><td>Distributes under same terms as Ruby
+
+</td></tr>
+</table>
+<p>
+0.0.3 and below:
 </p>
 <table>
 <tr><td valign="top">Author:</td><td>Joe Kinsella (<a
@@ -107,6 +125,9 @@ href="mailto:joe.kinsella@gmail.com">joe.kinsella@gmail.com</a>)
 
 </td></tr>
 </table>
+<p>
+TODO: api version returned on index - added in 0.7
+</p>
 
     </div>
 
@@ -117,16 +138,17 @@ href="mailto:joe.kinsella@gmail.com">joe.kinsella@gmail.com</a>)
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000003">attendee_url</a>&nbsp;&nbsp;
-      <a href="#M000004">create_meeting</a>&nbsp;&nbsp;
-      <a href="#M000005">end_meeting</a>&nbsp;&nbsp;
-      <a href="#M000008">get_meeting_info</a>&nbsp;&nbsp;
-      <a href="#M000009">get_url</a>&nbsp;&nbsp;
-      <a href="#M000006">is_meeting_running</a>&nbsp;&nbsp;
-      <a href="#M000007">join_meeting</a>&nbsp;&nbsp;
-      <a href="#M000002">moderator_url</a>&nbsp;&nbsp;
-      <a href="#M000001">new</a>&nbsp;&nbsp;
-      <a href="#M000010">send_api_request</a>&nbsp;&nbsp;
+      <a href="#M000007">attendee_url</a>&nbsp;&nbsp;
+      <a href="#M000008">create_meeting</a>&nbsp;&nbsp;
+      <a href="#M000009">end_meeting</a>&nbsp;&nbsp;
+      <a href="#M000012">get_meeting_info</a>&nbsp;&nbsp;
+      <a href="#M000013">get_meetings</a>&nbsp;&nbsp;
+      <a href="#M000014">get_url</a>&nbsp;&nbsp;
+      <a href="#M000010">is_meeting_running?</a>&nbsp;&nbsp;
+      <a href="#M000011">join_meeting</a>&nbsp;&nbsp;
+      <a href="#M000006">moderator_url</a>&nbsp;&nbsp;
+      <a href="#M000005">new</a>&nbsp;&nbsp;
+      <a href="#M000015">send_api_request</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -148,13 +170,12 @@ href="mailto:joe.kinsella@gmail.com">joe.kinsella@gmail.com</a>)
     <div id="methods">
       <h3 class="section-bar">Public Class methods</h3>
 
-      <div id="method-M000001" class="method-detail">
-        <a name="M000001"></a>
+      <div id="method-M000005" class="method-detail">
+        <a name="M000005"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000001.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000001.html');return false;">
-          <span class="method-name">new</span><span class="method-args">(base_url = 'http://devbuild.bigbluebutton.org/bigbluebutton/api', salt = '639259d4-9dd8-4b25-bf01-95f9567eaf4b', debug=false)</span>
+          <a href="#M000005" class="method-signature">
+          <span class="method-name">new</span><span class="method-args">(base_url, salt, version='0.7', debug=false)</span>
           </a>
         </div>
       
@@ -163,27 +184,47 @@ href="mailto:joe.kinsella@gmail.com">joe.kinsella@gmail.com</a>)
 Initializes an instance
 </p>
 <table>
-<tr><td valign="top">base_url:</td><td>URL to a <a href="../BigBlueButton.html">BigBlueButton</a> server (defaults
-to bbb development server)
+<tr><td valign="top">base_url:</td><td>URL to a <a href="../BigBlueButton.html">BigBlueButton</a> server (e.g. <a
+href="http://demo.bigbluebutton.org/bigbluebutton/api">demo.bigbluebutton.org/bigbluebutton/api</a>)
 
 </td></tr>
-<tr><td valign="top">salt:</td><td>Secret salt for this server (defaults to bbb development server)&quot;<a
-href="http://devbuild.bigbluebu">devbuild.bigbluebu</a>
+<tr><td valign="top">salt:</td><td>Secret salt for this server
+
+</td></tr>
+<tr><td valign="top">version:</td><td>API version: 0.64 or 0.7
 
 </td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000005-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000005-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 43</span>
+43:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">base_url</span>, <span class="ruby-identifier">salt</span>, <span class="ruby-identifier">version</span>=<span class="ruby-value str">'0.7'</span>, <span class="ruby-identifier">debug</span>=<span class="ruby-keyword kw">false</span>)
+44:       <span class="ruby-ivar">@supported_versions</span> = [<span class="ruby-value str">'0.7'</span>, <span class="ruby-value str">'0.64'</span>]
+45:       <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@supported_versions</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">version</span>)
+46:         <span class="ruby-identifier">raise</span> <span class="ruby-constant">BigBlueButtonException</span>.<span class="ruby-identifier">new</span>(<span class="ruby-node">&quot;BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}&quot;</span>)
+47:       <span class="ruby-keyword kw">end</span>
+48:       <span class="ruby-ivar">@session</span> = {}
+49:       <span class="ruby-ivar">@base_url</span> = <span class="ruby-identifier">base_url</span>
+50:       <span class="ruby-ivar">@salt</span> = <span class="ruby-identifier">salt</span>
+51:       <span class="ruby-ivar">@debug</span> = <span class="ruby-identifier">debug</span>
+52:       <span class="ruby-ivar">@version</span> = <span class="ruby-identifier">version</span>
+53:       <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;BigBlueButtonAPI: Using version #{@version}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@debug</span>
+54:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
       <h3 class="section-bar">Public Instance methods</h3>
 
-      <div id="method-M000003" class="method-detail">
-        <a name="M000003"></a>
+      <div id="method-M000007" class="method-detail">
+        <a name="M000007"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000003.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000003.html');return false;">
-          <span class="method-name">attendee_url</span><span class="method-args">(meeting_id, user_name, attendee_password)</span>
+          <a href="#M000007" class="method-signature">
+          <span class="method-name">attendee_url</span><span class="method-args">(meeting_id, user_name, attendee_password, user_id = nil, web_voice_conf = nil)</span>
           </a>
         </div>
       
@@ -201,30 +242,53 @@ Returns url to login as attendee
 <tr><td valign="top">password:</td><td>Attendee password for this meeting
 
 </td></tr>
+<tr><td valign="top">user_id:</td><td>Unique identifier for this user (&gt;=0.7)
+
+</td></tr>
+<tr><td valign="top">web_voice_conf:</td><td>Custom voice-extension for users using VoIP (&gt;=0.7)
+
+</td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000007-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000007-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 70</span>
+70:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attendee_url</span>(<span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">user_name</span>, <span class="ruby-identifier">attendee_password</span>,
+71:                      <span class="ruby-identifier">user_id</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">web_voice_conf</span> = <span class="ruby-keyword kw">nil</span>)
+72: 
+73:       <span class="ruby-identifier">params</span> = { <span class="ruby-identifier">:meetingID</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">:password</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">attendee_password</span>, <span class="ruby-identifier">:fullName</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">user_name</span> }
+74:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@version</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'0.7'</span>
+75:         <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:userID</span>] = <span class="ruby-identifier">user_id</span>
+76:         <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:webVoiceConf</span>] = <span class="ruby-identifier">web_voice_conf</span>
+77:       <span class="ruby-keyword kw">end</span>
+78:       <span class="ruby-identifier">get_url</span>(<span class="ruby-identifier">:join</span>, <span class="ruby-identifier">params</span>)
+79:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000004" class="method-detail">
-        <a name="M000004"></a>
+      <div id="method-M000008" class="method-detail">
+        <a name="M000008"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000004.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000004.html');return false;">
-          <span class="method-name">create_meeting</span><span class="method-args">(meeting_id, meeting_name, moderator_password, attendee_password, welcome_message = nil, dialin_number = nil, logout_url = nil, max_participants = nil)</span>
+          <a href="#M000008" class="method-signature">
+          <span class="method-name">create_meeting</span><span class="method-args">(meeting_name, meeting_id, moderator_password, attendee_password, welcome_message = nil, dial_number = nil, logout_url = nil, max_participants = nil, voice_bridge = nil)</span>
           </a>
         </div>
       
         <div class="method-description">
           <p>
-Creates a <a href="BigBlueButtonApi.html#M000001">new</a> meeting. Throws
-BigBlueButtonException on failure.
+Creates a <a href="BigBlueButtonApi.html#M000005">new</a> meeting. Returns
+the hash with the response or throws <a
+href="BigBlueButtonException.html">BigBlueButtonException</a> on failure.
 </p>
 <table>
-<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
+<tr><td valign="top">meeting_name:</td><td>Name for the meeting
 
 </td></tr>
-<tr><td valign="top">meeting_name:</td><td>Name for the meeting
+<tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
 
 </td></tr>
 <tr><td valign="top">moderator_password:</td><td>Moderator password
@@ -236,29 +300,53 @@ BigBlueButtonException on failure.
 <tr><td valign="top">welcome_message:</td><td>Welcome message to display in chat window
 
 </td></tr>
-<tr><td valign="top">dialin_number:</td><td>Dial in number for conference
+<tr><td valign="top">dialin_number:</td><td>Dial in number for conference using a regular phone
 
 </td></tr>
 <tr><td valign="top">logout_url:</td><td>URL to return user to after exiting meeting
 
 </td></tr>
+<tr><td valign="top">voice_bridge:</td><td>Voice conference number (&gt;=0.7)
+
+</td></tr>
 </table>
+<p>
+TODO check if voice_bridge exists in 0.64
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000008-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000008-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 92</span>
+ 92:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">create_meeting</span>(<span class="ruby-identifier">meeting_name</span>, <span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">moderator_password</span>, <span class="ruby-identifier">attendee_password</span>, 
+ 93:                        <span class="ruby-identifier">welcome_message</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">dial_number</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">logout_url</span> = <span class="ruby-keyword kw">nil</span>,
+ 94:                        <span class="ruby-identifier">max_participants</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">voice_bridge</span> = <span class="ruby-keyword kw">nil</span>)
+ 95: 
+ 96:       <span class="ruby-identifier">params</span> = { <span class="ruby-identifier">:name</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_name</span>, <span class="ruby-identifier">:meetingID</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_id</span>,
+ 97:                  <span class="ruby-identifier">:moderatorPW</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">moderator_password</span>, <span class="ruby-identifier">:attendeePW</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">attendee_password</span>,
+ 98:                  <span class="ruby-identifier">:welcome</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">welcome_message</span>, <span class="ruby-identifier">:dialNumber</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">dial_number</span>,
+ 99:                  <span class="ruby-identifier">:logoutURL</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">logout_url</span>, <span class="ruby-identifier">:maxParticpants</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">max_participants</span> }
+100:       <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:voiceBridge</span>] = <span class="ruby-identifier">voice_bridge</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@version</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'0.7'</span>
+101:       <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">:create</span>, <span class="ruby-identifier">params</span>)
+102:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000005" class="method-detail">
-        <a name="M000005"></a>
+      <div id="method-M000009" class="method-detail">
+        <a name="M000009"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000005.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000005.html');return false;">
+          <a href="#M000009" class="method-signature">
           <span class="method-name">end_meeting</span><span class="method-args">(meeting_id, moderator_password)</span>
           </a>
         </div>
       
         <div class="method-description">
           <p>
-Ends an existing meeting. Throws BigBlueButtonException on failure.
+Ends an existing meeting. Throws <a
+href="BigBlueButtonException.html">BigBlueButtonException</a> on failure.
 </p>
 <table>
 <tr><td valign="top">meeting_id:</td><td>Unique identifier for the meeting
@@ -268,23 +356,32 @@ Ends an existing meeting. Throws BigBlueButtonException on failure.
 
 </td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000009-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000009-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 107</span>
+107:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">end_meeting</span>(<span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">moderator_password</span>)
+108:       <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">:end</span>, { <span class="ruby-identifier">:meetingID</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">:password</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">moderator_password</span> } )
+109:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000008" class="method-detail">
-        <a name="M000008"></a>
+      <div id="method-M000012" class="method-detail">
+        <a name="M000012"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000008.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000008.html');return false;">
+          <a href="#M000012" class="method-signature">
           <span class="method-name">get_meeting_info</span><span class="method-args">(meeting_id, password)</span>
           </a>
         </div>
       
         <div class="method-description">
           <p>
-Returns a REXML::Document object containing the meeting information. See
-the API documentation for details on the return XML (<a
+Returns a hash object containing the meeting information. See the API
+documentation for details on the return XML (<a
 href="http://code.google.com/p/bigbluebutton/wiki/API">code.google.com/p/bigbluebutton/wiki/API</a>).
 </p>
 <table>
@@ -295,16 +392,61 @@ href="http://code.google.com/p/bigbluebutton/wiki/API">code.google.com/p/bigblue
 
 </td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000012-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000012-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 148</span>
+148:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">get_meeting_info</span>(<span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">password</span>)
+149:       <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">:getMeetingInfo</span>, { <span class="ruby-identifier">:meetingID</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">:password</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">password</span> } )
+150:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000006" class="method-detail">
-        <a name="M000006"></a>
+      <div id="method-M000013" class="method-detail">
+        <a name="M000013"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000006.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000006.html');return false;">
-          <span class="method-name">is_meeting_running</span><span class="method-args">(meeting_id)</span>
+          <a href="#M000013" class="method-signature">
+          <span class="method-name">get_meetings</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns a hash object containing the meeting information. See the API
+documentation for details on the return XML (<a
+href="http://code.google.com/p/bigbluebutton/wiki/API">code.google.com/p/bigbluebutton/wiki/API</a>).
+&gt;= 0.7
+</p>
+<p>
+TODO check if getMeetings exists in 0.64
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000013-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000013-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 158</span>
+158:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">get_meetings</span>
+159:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@version</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'0.7'</span>
+160:         <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">:getMeetings</span>, { <span class="ruby-identifier">:random</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">rand</span>(<span class="ruby-value">9999999999</span>) } )
+161:       <span class="ruby-keyword kw">else</span>
+162:         {}
+163:       <span class="ruby-keyword kw">end</span>
+164:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000010" class="method-detail">
+        <a name="M000010"></a>
+
+        <div class="method-heading">
+          <a href="#M000010" class="method-signature">
+          <span class="method-name">is_meeting_running?</span><span class="method-args">(meeting_id)</span>
           </a>
         </div>
       
@@ -318,29 +460,39 @@ after at least one participant has joined.
 
 </td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000010-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000010-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 114</span>
+114:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">is_meeting_running?</span>(<span class="ruby-identifier">meeting_id</span>)
+115:       <span class="ruby-identifier">hash</span> = <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">:isMeetingRunning</span>, { <span class="ruby-identifier">:meetingID</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_id</span> } )
+116:       <span class="ruby-identifier">hash</span>[<span class="ruby-identifier">:running</span>] <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;true&quot;</span>
+117:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000007" class="method-detail">
-        <a name="M000007"></a>
+      <div id="method-M000011" class="method-detail">
+        <a name="M000011"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000007.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000007.html');return false;">
-          <span class="method-name">join_meeting</span><span class="method-args">(meeting_id, user_name, password)</span>
+          <a href="#M000011" class="method-signature">
+          <span class="method-name">join_meeting</span><span class="method-args">(meeting_id, user_name, password, user_id = nil, web_voice_conf = nil)</span>
           </a>
         </div>
       
         <div class="method-description">
           <p>
-Warning: As of this version of the gem, this bbb call does not work
-(instead of returning XML response, joins meeting).
+Warning: As of this version of the gem, this call does not work (instead of
+returning XML response, it should join the meeting).
 </p>
 <p>
 Joins a user into the meeting using an API call, instead of directing the
 user&#8216;s browser to <a
-href="BigBlueButtonApi.html#M000002">moderator_url</a> or <a
-href="BigBlueButtonApi.html#M000003">attendee_url</a> (note: this will
+href="BigBlueButtonApi.html#M000006">moderator_url</a> or <a
+href="BigBlueButtonApi.html#M000007">attendee_url</a> (note: this will
 still be required however to actually use bbb). Returns the URL a user can
 use to enter this meeting.
 </p>
@@ -354,16 +506,38 @@ use to enter this meeting.
 <tr><td valign="top">password:</td><td>Moderator or attendee password for this meeting
 
 </td></tr>
+<tr><td valign="top">user_id:</td><td>Unique identifier for this user (&gt;=0.7)
+
+</td></tr>
+<tr><td valign="top">web_voice_conf:</td><td>Custom voice-extension for users using VoIP (&gt;=0.7)
+
+</td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000011-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000011-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 131</span>
+131:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">join_meeting</span>(<span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">user_name</span>, <span class="ruby-identifier">password</span>, <span class="ruby-identifier">user_id</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">web_voice_conf</span> = <span class="ruby-keyword kw">nil</span>)
+132:       <span class="ruby-identifier">params</span> = { <span class="ruby-identifier">:meetingID</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">:password</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">password</span>, <span class="ruby-identifier">:fullName</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">user_name</span> }
+133:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@version</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'0.64'</span>
+134:         <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:redirectImmediately</span>] = <span class="ruby-value">0</span> 
+135:       <span class="ruby-keyword kw">elsif</span> <span class="ruby-ivar">@version</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'0.7'</span>
+136:         <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:userID</span>] = <span class="ruby-identifier">user_id</span>
+137:         <span class="ruby-identifier">params</span>[<span class="ruby-identifier">:webVoiceConf</span>] = <span class="ruby-identifier">web_voice_conf</span>
+138:       <span class="ruby-keyword kw">end</span>
+139:       <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">:join</span>, <span class="ruby-identifier">params</span>)
+140:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000002" class="method-detail">
-        <a name="M000002"></a>
+      <div id="method-M000006" class="method-detail">
+        <a name="M000006"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000002.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000002.html');return false;">
+          <a href="#M000006" class="method-signature">
           <span class="method-name">moderator_url</span><span class="method-args">(meeting_id, user_name, password)</span>
           </a>
         </div>
@@ -383,36 +557,88 @@ Returns url to login as moderator
 
 </td></tr>
 </table>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000006-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000006-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 60</span>
+60:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">moderator_url</span>(<span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">user_name</span>, <span class="ruby-identifier">password</span>)
+61:       <span class="ruby-identifier">attendee_url</span>(<span class="ruby-identifier">meeting_id</span>, <span class="ruby-identifier">user_name</span>, <span class="ruby-identifier">password</span>)
+62:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
       <h3 class="section-bar">Protected Instance methods</h3>
 
-      <div id="method-M000009" class="method-detail">
-        <a name="M000009"></a>
+      <div id="method-M000014" class="method-detail">
+        <a name="M000014"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000009.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000009.html');return false;">
+          <a href="#M000014" class="method-signature">
           <span class="method-name">get_url</span><span class="method-args">(method, data)</span>
           </a>
         </div>
       
         <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000014-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000014-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 168</span>
+168:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">get_url</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">data</span>)
+169:       <span class="ruby-identifier">base_url</span> = <span class="ruby-node">&quot;#{@base_url}/#{method}?&quot;</span>
+170:       <span class="ruby-identifier">params</span> = <span class="ruby-value str">&quot;&quot;</span>
+171:       <span class="ruby-identifier">params</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">map</span>{ <span class="ruby-operator">|</span><span class="ruby-identifier">k</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-node">&quot;#{k}=&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-constant">CGI</span><span class="ruby-operator">::</span><span class="ruby-identifier">escape</span>(<span class="ruby-identifier">v</span>.<span class="ruby-identifier">to_s</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">k</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">nil?</span> }.<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;&amp;&quot;</span>)
+172:       <span class="ruby-identifier">checksum_param</span> = <span class="ruby-identifier">params</span> <span class="ruby-operator">+</span> <span class="ruby-ivar">@salt</span>
+173:       <span class="ruby-identifier">checksum_param</span> = <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">checksum_param</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@version</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'0.7'</span>
+174:       <span class="ruby-identifier">checksum</span> = <span class="ruby-constant">Digest</span><span class="ruby-operator">::</span><span class="ruby-constant">SHA1</span>.<span class="ruby-identifier">hexdigest</span>(<span class="ruby-identifier">checksum_param</span>)
+175:       <span class="ruby-node">&quot;#{base_url}#{params}&amp;checksum=#{checksum}&quot;</span>
+176:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 
-      <div id="method-M000010" class="method-detail">
-        <a name="M000010"></a>
+      <div id="method-M000015" class="method-detail">
+        <a name="M000015"></a>
 
         <div class="method-heading">
-          <a href="BigBlueButtonApi.src/M000010.html" target="Code" class="method-signature"
-            onclick="popupCode('BigBlueButtonApi.src/M000010.html');return false;">
+          <a href="#M000015" class="method-signature">
           <span class="method-name">send_api_request</span><span class="method-args">(method, data = {})</span>
           </a>
         </div>
       
         <div class="method-description">
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000015-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000015-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/bigbluebutton-api.rb, line 178</span>
+178:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">send_api_request</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">data</span> = {})
+179:       <span class="ruby-identifier">url</span> = <span class="ruby-identifier">get_url</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">data</span>)
+180:       <span class="ruby-identifier">res</span> = <span class="ruby-constant">Net</span><span class="ruby-operator">::</span><span class="ruby-constant">HTTP</span>.<span class="ruby-identifier">get_response</span>(<span class="ruby-constant">URI</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">url</span>))
+181:       <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;BigBlueButtonAPI: URL request = #{url}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@debug</span>
+182:       <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;BigBlueButtonAPI: URL response = #{res.body}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@debug</span>
+183: 
+184:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">res</span>.<span class="ruby-identifier">body</span>.<span class="ruby-identifier">empty?</span>
+185:         <span class="ruby-identifier">raise</span> <span class="ruby-constant">BigBlueButtonException</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">&quot;BigBlueButton error: No XML in the response body&quot;</span>)
+186:       <span class="ruby-keyword kw">end</span>
+187: 
+188:       <span class="ruby-comment cmt"># 'Hashfy' the XML and remove the &quot;response&quot; node</span>
+189:       <span class="ruby-identifier">hash</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">from_xml</span> <span class="ruby-identifier">res</span>.<span class="ruby-identifier">body</span>
+190:       <span class="ruby-identifier">hash</span> = <span class="ruby-constant">Hash</span>[<span class="ruby-identifier">hash</span>[<span class="ruby-identifier">:response</span>]].<span class="ruby-identifier">inject</span>({}){<span class="ruby-operator">|</span><span class="ruby-identifier">h</span>,(<span class="ruby-identifier">k</span>,<span class="ruby-identifier">v</span>)<span class="ruby-operator">|</span> <span class="ruby-identifier">h</span>[<span class="ruby-identifier">k</span>] = <span class="ruby-identifier">v</span>; <span class="ruby-identifier">h</span>}
+191:       <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;BigBlueButtonAPI: URL response hash = #{hash.inspect}&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@debug</span>
+192: 
+193:       <span class="ruby-identifier">return_code</span> = <span class="ruby-identifier">hash</span>[<span class="ruby-identifier">:returncode</span>]
+194:       <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">return_code</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;SUCCESS&quot;</span>
+195:         <span class="ruby-identifier">raise</span> <span class="ruby-constant">BigBlueButtonException</span>.<span class="ruby-identifier">new</span>(<span class="ruby-node">&quot;BigBlueButton error: #{hash[:message]}&quot;</span>)
+196:       <span class="ruby-keyword kw">end</span>
+197:       <span class="ruby-identifier">hash</span>
+198:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 

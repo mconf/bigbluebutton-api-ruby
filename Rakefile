@@ -10,7 +10,7 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 
 spec = Gem::Specification.new do |s|
-  s.name = 'bigbluebutton'
+  s.name = 'bigbluebutton-api-ruby'
   s.version = '0.0.4'
   s.has_rdoc = true
   s.extra_rdoc_files = ['README', 'LICENSE']
@@ -35,18 +35,14 @@ Rake::RDocTask.new do |rdoc|
   files =['README', 'LICENSE', 'lib/**/*.rb']
   rdoc.rdoc_files.add(files)
   rdoc.main = "README" # page to start on
-  rdoc.title = "bigbluebutton Docs"
-  rdoc.rdoc_dir = 'doc/rdoc' # rdoc output folder
+  rdoc.title = "bigbluebutton-api-ruby Docs"
+  rdoc.rdoc_dir = 'doc/' # rdoc output folder
   rdoc.options << '--line-numbers'
-end
-
-Rake::TestTask.new do |t|
-  t.test_files = FileList['test/**/*.rb']
 end
 
 desc 'Test the gem.'
 Rake::TestTask.new(:test) do |t|
-  t.pattern = 'test/**/*_test.rb'
+  t.pattern = 'test/**/*test.rb'
   t.verbose = true
   t.libs << 'test'
 end

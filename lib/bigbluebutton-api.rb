@@ -22,12 +22,14 @@ module BigBlueButton
   # 2) Direct a user to either moderator_url or attendee_url
   # 3) To force meeting to end, call end_meeting
   #
-  # Author::    Joe Kinsella  (mailto:joe.kinsella@gmail.com)
-  # Copyright:: Copyright (c) 2010 Joe Kinsella
+  # 0.0.4+:
+  # Author::    Leonardo Crauss Daronco  (mailto:leonardodaronco@gmail.com)
+  # Copyright:: Copyright (c) 2011 Leonardo Crauss Daronco
   # License::   Distributes under same terms as Ruby
   #
-  # As of 2011:
-  # Author::    Leonardo Crauss Daronco  (mailto:leonardodaronco@gmail.com)
+  # 0.0.3 and below:
+  # Author::    Joe Kinsella  (mailto:joe.kinsella@gmail.com)
+  # Copyright:: Copyright (c) 2010 Joe Kinsella
   # License::   Distributes under same terms as Ruby
   #
   # TODO: api version returned on index - added in 0.7
@@ -60,12 +62,20 @@ module BigBlueButton
     end
 
     # Returns url to login as attendee
-    # meeting_id::  Unique identifier for the meeting
-    # user_name::   Name of the user
-    # password::    Attendee password for this meeting
-    #TODO add userID and webVoiceConf
-    def attendee_url(meeting_id, user_name, attendee_password)
-      get_url(:join, { :meetingID => meeting_id, :password => attendee_password, :fullName => user_name })
+    # meeting_id::        Unique identifier for the meeting
+    # user_name::         Name of the user
+    # password::          Attendee password for this meeting
+    # user_id::           Unique identifier for this user (>=0.7)
+    # web_voice_conf::    Custom voice-extension for users using VoIP (>=0.7)
+    def attendee_url(meeting_id, user_name, attendee_password,
+                     user_id = nil, web_voice_conf = nil)
+
+      params = { :meetingID => meeting_id, :password => attendee_password, :fullName => user_name }
+      if @version == '0.7'
+        params[:userID] = user_id
+        params[:webVoiceConf] = web_voice_conf
+      end
+      get_url(:join, params)
     end
 
     # Creates a new meeting. Returns the hash with the response or
@@ -106,8 +116,8 @@ module BigBlueButton
       hash[:running] == "true"
     end
 
-    # Warning: As of this version of the gem, this bbb call does not work
-    # (instead of returning XML response, joins meeting).
+    # Warning: As of this version of the gem, this call does not work
+    # (instead of returning XML response, it should join the meeting).
     #
     # Joins a user into the meeting using an API call, instead of
     # directing the user's browser to moderator_url or attendee_url
@@ -168,8 +178,12 @@ module BigBlueButton
     def send_api_request(method, data = {})
       url = get_url(method, data)
       res = Net::HTTP.get_response(URI.parse(url))
-      puts "BigBlueButtonAPI: URL = #{url}" if @debug
+      puts "BigBlueButtonAPI: URL request = #{url}" if @debug
       puts "BigBlueButtonAPI: URL response = #{res.body}" if @debug
+
+      if res.body.empty?
+        raise BigBlueButtonException.new("BigBlueButton error: No XML in the response body")
+      end
 
       # 'Hashfy' the XML and remove the "response" node
       hash = Hash.from_xml res.body
@@ -177,9 +191,8 @@ module BigBlueButton
       puts "BigBlueButtonAPI: URL response hash = #{hash.inspect}" if @debug
 
       return_code = hash[:returncode]
-      message = hash[:message]
       unless return_code == "SUCCESS"
-        raise BigBlueButtonException.new("BigBlueButton error: #{message}")
+        raise BigBlueButtonException.new("BigBlueButton error: #{hash[:message]}")
       end
       hash
     end
