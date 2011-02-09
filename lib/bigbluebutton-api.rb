@@ -25,6 +25,7 @@ module BigBlueButton
   # 0.0.4+:
   # Author::    Leonardo Crauss Daronco  (mailto:leonardodaronco@gmail.com)
   # Copyright:: Copyright (c) 2011 Leonardo Crauss Daronco
+  # Project::   GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS
   # License::   Distributes under same terms as Ruby
   #
   # 0.0.3 and below:

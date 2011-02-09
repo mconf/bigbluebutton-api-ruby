@@ -19,7 +19,7 @@ Changes:
 Fixes module issue preventing proper throwing of exceptions.
 
 === Version 0.0.1
-This is the first version of this gem.  It provides an implementation of the 0.64 bbb API, with the following exceptions:
+This is the first version of this gem. It provides an implementation of the 0.64 bbb API, with the following exceptions:
 
 - Does not implement meeting token, and instead relies on meeting id as the unique identifier for a meeting.
 - Documentation suggests there is way to call join_meeting as API call (instead of browser URL). This call currently does not work as documented.
@@ -30,6 +30,7 @@ This is the first version of this gem.  It provides an implementation of the 0.6
 
 Author::     Leonardo Crauss Daronco
 Email::      leonardodaronco@gmail.com
+Project::    GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS
 Home Page::  http://www.inf.ufrgs.br/prav/gtmconf/
 License::    Distributed under same terms as Ruby
 
