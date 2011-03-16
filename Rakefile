@@ -1,4 +1,4 @@
-# 
+#
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
 
@@ -16,10 +16,9 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README', 'LICENSE']
   s.summary = 'Provides an interface to the BigBlueButton web meeting API (https://github.com/mconf/bigbluebutton-api-ruby)'
   s.description = s.summary
-  s.author = 'Leonardo Crauss Daronco'
-  s.email = 'leonardodaronco@gmail.com'
+  s.authors = ['Leonardo Crauss Daronco', 'Joe Kinsella']
+  s.email = ['leonardodaronco@gmail.com', 'joe.kinsella@gmail.com']
   s.homepage = "https://github.com/mconf/bigbluebutton-api-ruby/"
-  # s.executables = ['your_executable_here']
   s.files = %w(LICENSE README Rakefile) + Dir.glob("{bin,lib,doc,test,spec}/**/*")
   s.require_path = "lib"
   s.bindir = "bin"

@@ -4,6 +4,12 @@
 
 Provide access to the BigBlueButton web conferencing API.
 
+== Dependencies
+
+Tested in Ruby 1.8.7 and Ruby 1.9.2.
+
+Needs: rake, rubygems, nokogiri
+
 == Releases
 
 === Version 0.0.4
