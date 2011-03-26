@@ -8,7 +8,7 @@ desc 'Default: run tests.'
 task :default => :test
 
 Rake::RDocTask.new do |rdoc|
-  files =['README', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb']
+  files =['README.rdoc', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb']
   rdoc.rdoc_files.add(files)
   rdoc.main = "README" # page to start on
   rdoc.title = "bigbluebutton-api-ruby Docs"
