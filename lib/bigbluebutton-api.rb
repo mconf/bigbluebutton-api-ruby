@@ -12,11 +12,11 @@ module BigBlueButton
 
   end
 
-  # This class provides access to the BigBlueButton API.  BigBlueButton
+  # This class provides access to the BigBlueButton API. BigBlueButton
   # is an open source project that provides web conferencing for distance
   # education (http://code.google.com/p/bigbluebutton/wiki/API). This API
-  # was developed to support the following version of bbb: 0.64, 0.7
-  # 
+  # was developed to support the following version of BBB: 0.64, 0.7
+  #
   # Sample usage of the API is as follows:
   # 1) Create a meeting with the create_meeting call
   # 2) Direct a user to either moderator_url or attendee_url
@@ -33,21 +33,22 @@ module BigBlueButton
   # Copyright:: Copyright (c) 2010 Joe Kinsella
   # License::   Distributes under same terms as Ruby
   #
-  # TODO: api version returned on index - added in 0.7
+  # TODO: Automatically detect API version using request to index - added in 0.7
   #
   class BigBlueButtonApi
 
+    attr_accessor :url, :supported_versions, :salt, :version, :debug
+
     # Initializes an instance
-    # base_url::  URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
+    # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # salt::      Secret salt for this server
     # version::   API version: 0.64 or 0.7
-    def initialize(base_url, salt, version='0.7', debug=false)
+    def initialize(url, salt, version='0.7', debug=false)
       @supported_versions = ['0.7', '0.64']
       unless @supported_versions.include?(version)
         raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
       end
-      @session = {}
-      @base_url = base_url
+      @url = url
       @salt = salt
       @debug = debug
       @version = version
@@ -90,7 +91,7 @@ module BigBlueButton
     # logout_url::          URL to return user to after exiting meeting
     # voice_bridge::        Voice conference number (>=0.7)
     # TODO check if voice_bridge exists in 0.64
-    def create_meeting(meeting_name, meeting_id, moderator_password, attendee_password, 
+    def create_meeting(meeting_name, meeting_id, moderator_password, attendee_password,
                        welcome_message = nil, dial_number = nil, logout_url = nil,
                        max_participants = nil, voice_bridge = nil)
 
@@ -132,7 +133,7 @@ module BigBlueButton
     def join_meeting(meeting_id, user_name, password, user_id = nil, web_voice_conf = nil)
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }
       if @version == '0.64'
-        params[:redirectImmediately] = 0 
+        params[:redirectImmediately] = 0
       elsif @version == '0.7'
         params[:userID] = user_id
         params[:webVoiceConf] = web_voice_conf
@@ -153,27 +154,48 @@ module BigBlueButton
     # Returns a hash object containing the meeting information.
     # See the API documentation for details on the return XML
     # (http://code.google.com/p/bigbluebutton/wiki/API).
-    # >= 0.7
-    #
-    # TODO check if getMeetings exists in 0.64
     def get_meetings
+      send_api_request(:getMeetings, { :random => rand(9999999999) } )
+    end
+
+    # Make a simple request to the server to test the connection
+    # TODO implement test for version 0.64
+    def test_connection
       if @version == '0.7'
-        send_api_request(:getMeetings, { :random => rand(9999999999) } )
+        response = send_api_request(:index)
+        response[:returncode] == "SUCCESS"
       else
-        {}
+        true
       end
+    end
+
+    # API's are equal if all the following attributes are equal
+    def == other
+      r = true
+      [:url, :supported_versions, :salt, :version, :debug].each do |param|
+        r = r and self.send(param) == other.send(param)
+      end
+      r
     end
 
     protected
 
     def get_url(method, data)
-      base_url = "#{@base_url}/#{method}?"
+      if method == :index
+        return @url
+      end
+
+      url = "#{@url}/#{method}?"
+
+      data.delete_if { |k, v| v.nil? } unless data.nil?
       params = ""
       params = data.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
+
       checksum_param = params + @salt
       checksum_param = method.to_s + checksum_param if @version == '0.7'
       checksum = Digest::SHA1.hexdigest(checksum_param)
-      "#{base_url}#{params}&checksum=#{checksum}"
+
+      "#{url}#{params}&checksum=#{checksum}"
     end
 
     def send_api_request(method, data = {})

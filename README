@@ -12,23 +12,7 @@ Needs: rake, rubygems, nokogiri
 
 == Releases
 
-=== Version 0.0.4
-Gem renamed from 'bigbluebutton' to 'bigbluebutton-api-ruby'.
-
-First version with support also to BBB API version 0.7.
-
-Changes:
-
-- API functions now return a hash and instead of the XML returned by BBB. The XML is converted to a hash that uses symbols as keys and groups keys with the same name.
-
-=== Version 0.0.3
-Fixes module issue preventing proper throwing of exceptions.
-
-=== Version 0.0.1
-This is the first version of this gem. It provides an implementation of the 0.64 bbb API, with the following exceptions:
-
-- Does not implement meeting token, and instead relies on meeting id as the unique identifier for a meeting.
-- Documentation suggests there is way to call join_meeting as API call (instead of browser URL). This call currently does not work as documented.
+See CHANGELOG.rdoc
 
 == Contact
 

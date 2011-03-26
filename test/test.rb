@@ -26,6 +26,15 @@ def general_test
 
   puts
   puts "---------------------------------------------------"
+  if @api.test_connection
+    puts "Connection success! continuing..."
+  else
+    puts "Connection failed! The server might be unreachable. Exiting..."
+    Kernel.exit!
+  end
+
+  puts
+  puts "---------------------------------------------------"
   response = @api.get_meetings
   puts "Existent meetings in your server:"
   if response[:meetings].empty?
@@ -45,7 +54,7 @@ def general_test
   puts "---------------------------------------------------"
   @api.create_meeting(@config['meeting_name'], @config['meeting_id'], @config['moderator_password'], @config['attendee_password'],
                      'Welcome to my meeting', '1-800-000-0000x00000#', 'https://github.com/mconf/bigbluebutton-api-ruby', 10)
-  puts "The meeting has been created. Please open a web browser and enter the meeting using either of the below URLs."
+  puts "The meeting has been created. Please open a web browser and enter the meeting using either of the URLs below."
 
   puts
   puts "---------------------------------------------------"
@@ -88,12 +97,12 @@ def join_test
     @api.create_meeting(@config['meeting_name'], @config['meeting_id'], @config['moderator_password'], @config['attendee_password'],
                        'Welcome to my meeting', '1-800-000-0000x00000#', 'https://github.com/mconf/bigbluebutton-api-ruby', 10)
     puts "The meeting has been created. Please open a web browser and enter the meeting as moderator."
-    
+
     puts
     puts "---------------------------------------------------"
     url = @api.moderator_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
     puts "1) Moderator URL = #{url}"
-    
+
     puts
     puts "---------------------------------------------------"
     puts "Waiting 30 seconds for you to enter via browser"
@@ -105,7 +114,7 @@ def join_test
     Kernel.exit!
   end
   puts "You have successfully entered the meeting"
- 
+
   puts
   puts "---------------------------------------------------"
   response = @api.get_meeting_info(@config['meeting_id'], @config['moderator_password'])
@@ -119,7 +128,7 @@ def join_test
   response = @api.join_meeting(@config['meeting_id'], @config['attendee_name'], @config['attendee_password'])
   puts "Join meeting response:"
   puts response.inspect
- 
+
 end
 
 begin

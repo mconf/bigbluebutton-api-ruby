@@ -1,37 +1,14 @@
-#
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
-
 require 'rubygems'
 require 'rake'
 require 'rake/clean'
-require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
 
-spec = Gem::Specification.new do |s|
-  s.name = 'bigbluebutton-api-ruby'
-  s.version = '0.0.4'
-  s.has_rdoc = true
-  s.extra_rdoc_files = ['README', 'LICENSE']
-  s.summary = 'Provides an interface to the BigBlueButton web meeting API (https://github.com/mconf/bigbluebutton-api-ruby)'
-  s.description = s.summary
-  s.authors = ['Leonardo Crauss Daronco', 'Joe Kinsella']
-  s.email = ['leonardodaronco@gmail.com', 'joe.kinsella@gmail.com']
-  s.homepage = "https://github.com/mconf/bigbluebutton-api-ruby/"
-  s.files = %w(LICENSE README Rakefile) + Dir.glob("{bin,lib,doc,test,spec}/**/*")
-  s.require_path = "lib"
-  s.bindir = "bin"
-end
-
-Rake::GemPackageTask.new(spec) do |p|
-  p.gem_spec = spec
-  p.need_tar = true
-  p.need_zip = true
-end
+desc 'Default: run tests.'
+task :default => :test
 
 Rake::RDocTask.new do |rdoc|
-  files =['README', 'LICENSE', 'lib/**/*.rb']
+  files =['README', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb']
   rdoc.rdoc_files.add(files)
   rdoc.main = "README" # page to start on
   rdoc.title = "bigbluebutton-api-ruby Docs"
