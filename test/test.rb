@@ -58,10 +58,10 @@ def general_test
 
   puts
   puts "---------------------------------------------------"
-  url = @api.moderator_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
+  url = @api.join_meeting_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
   puts "1) Moderator URL = #{url}"
   puts ""
-  url = @api.attendee_url(@config['meeting_id'], @config['attendee_name'], @config['attendee_password'])
+  url = @api.join_meeting_url(@config['meeting_id'], @config['attendee_name'], @config['attendee_password'])
   puts "2) Attendee URL = #{url}"
 
   puts
@@ -100,7 +100,7 @@ def join_test
 
     puts
     puts "---------------------------------------------------"
-    url = @api.moderator_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
+    url = @api.join_meeting_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
     puts "1) Moderator URL = #{url}"
 
     puts

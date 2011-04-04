@@ -9,6 +9,15 @@ require 'hash_to_xml'
 module BigBlueButton
 
   class BigBlueButtonException < Exception
+    attr_accessor :key
+
+    def to_s
+      unless key.blank?
+        super.to_s + ", messageKey: #{key}"
+      else
+        super
+      end
+    end
 
   end
 
@@ -19,7 +28,7 @@ module BigBlueButton
   #
   # Sample usage of the API is as follows:
   # 1) Create a meeting with the create_meeting call
-  # 2) Direct a user to either moderator_url or attendee_url
+  # 2) Direct a user to either join_meeting_url
   # 3) To force meeting to end, call end_meeting
   #
   # 0.0.4+:
@@ -55,24 +64,32 @@ module BigBlueButton
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 
-    # Returns url to login as moderator
-    # meeting_id::  Unique identifier for the meeting
-    # user_name::   Name of the user
-    # password::    Moderator password for this meeting
-    def moderator_url(meeting_id, user_name, password)
-      attendee_url(meeting_id, user_name, password)
+    # DEPRECATED
+    # Use join_meeting_url
+    def moderator_url(meeting_id, user_name, password,
+                      user_id = nil, web_voice_conf = nil)
+      warn "#{caller[0]}: moderator_url is deprecated and will soon be removed, please use join_meeting_url instead."
+      join_meeting_url_url(meeting_id, user_name, password, user_id, web_voice_conf)
     end
 
-    # Returns url to login as attendee
+    # DEPRECATED
+    # Use join_meeting_url
+    def attendee_url(meeting_id, user_name, password,
+                     user_id = nil, web_voice_conf = nil)
+      warn "#{caller[0]}: attendee_url is deprecated and will soon be removed, please use join_meeting_url instead."
+      join_meeting_url(meeting_id, user_name, password, user_id, web_voice_conf)
+    end
+
+    # Returns the url used to join the meeting
     # meeting_id::        Unique identifier for the meeting
     # user_name::         Name of the user
-    # password::          Attendee password for this meeting
-    # user_id::           Unique identifier for this user (>=0.7)
-    # web_voice_conf::    Custom voice-extension for users using VoIP (>=0.7)
-    def attendee_url(meeting_id, user_name, attendee_password,
-                     user_id = nil, web_voice_conf = nil)
+    # password::          Password for this meeting - used to set the user as moderator or attendee
+    # user_id::           Unique identifier for this user (>= 0.7)
+    # web_voice_conf::    Custom voice-extension for users using VoIP (>= 0.7)
+    def join_meeting_url(meeting_id, user_name, password,
+                         user_id = nil, web_voice_conf = nil)
 
-      params = { :meetingID => meeting_id, :password => attendee_password, :fullName => user_name }
+      params = { :meetingID => meeting_id, :password => password, :fullName => user_name }
       if @version == '0.7'
         params[:userID] = user_id
         params[:webVoiceConf] = web_voice_conf
@@ -200,22 +217,35 @@ module BigBlueButton
 
     def send_api_request(method, data = {})
       url = get_url(method, data)
-      res = Net::HTTP.get_response(URI.parse(url))
-      puts "BigBlueButtonAPI: URL request = #{url}" if @debug
-      puts "BigBlueButtonAPI: URL response = #{res.body}" if @debug
-
-      if res.body.empty?
-        raise BigBlueButtonException.new("BigBlueButton error: No XML in the response body")
+      begin
+        res = Net::HTTP.get_response(URI.parse(url))
+        puts "BigBlueButtonAPI: URL request = #{url}" if @debug
+        puts "BigBlueButtonAPI: URL response = #{res.body}" if @debug
+      rescue Exception => socketerror
+        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
       end
 
-      # 'Hashfy' the XML and remove the "response" node
+      if res.body.empty?
+        raise BigBlueButtonException.new("No response body")
+      end
+
+      # 'Hashify' the XML
       hash = Hash.from_xml res.body
+
+      # simple validation of the xml body
+      unless hash.has_key?(:response) and hash[:response].has_key?(:returncode)
+        raise BigBlueButtonException.new("Invalid response body. Is the API URL correct? \"#{@url}\", version #{@version}")
+      end
+
+      # and remove the "response" node
       hash = Hash[hash[:response]].inject({}){|h,(k,v)| h[k] = v; h}
       puts "BigBlueButtonAPI: URL response hash = #{hash.inspect}" if @debug
 
       return_code = hash[:returncode]
       unless return_code == "SUCCESS"
-        raise BigBlueButtonException.new("BigBlueButton error: #{hash[:message]}")
+        exception = BigBlueButtonException.new(hash[:message])
+        exception.key = hash.has_key?(:messageKey) ? hash[:messageKey] : ""
+        raise exception
       end
       hash
     end

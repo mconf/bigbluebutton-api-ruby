@@ -9,7 +9,7 @@ class Hash
         result = Nokogiri::XML(xml_io)
         return { result.root.name.to_sym => xml_node_to_hash(result.root)} 
       rescue Exception => e
-        raise BigBlueButton::BigBlueButtonException.new("BigBlueButton error: Impossible to convert XML to hash. Error: #{e.message}")
+        raise BigBlueButton::BigBlueButtonException.new("Impossible to convert XML to hash. Error: #{e.message}")
       end
     end 
 

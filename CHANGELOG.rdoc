@@ -1,7 +1,10 @@
-== 0.0.x
+== 0.0.5
 
 * New method test_connection.
 * Added comparison method for APIs.
+* Methods attendee_url and moderator_url deprecated. Use join_meeting_url.
+* Better exception throwing when the user is unreachable or the response is incorrect.
+  * BigBlueButtonException has now a "key" attribute to store the "messageKey" returned by BBB in failures.
 
 == 0.0.4
 
