@@ -1,4 +1,4 @@
-== 0.0.7
+== 0.0.8
 
 * New method get_api_version that returns the version of the server API (>= 0.7).
 * New simplified hash syntax for get_meetings. See docs for details.
