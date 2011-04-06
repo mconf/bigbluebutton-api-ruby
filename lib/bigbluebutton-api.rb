@@ -69,7 +69,7 @@ module BigBlueButton
     def moderator_url(meeting_id, user_name, password,
                       user_id = nil, web_voice_conf = nil)
       warn "#{caller[0]}: moderator_url is deprecated and will soon be removed, please use join_meeting_url instead."
-      join_meeting_url_url(meeting_id, user_name, password, user_id, web_voice_conf)
+      join_meeting_url(meeting_id, user_name, password, user_id, web_voice_conf)
     end
 
     # DEPRECATED
