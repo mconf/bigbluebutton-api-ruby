@@ -106,7 +106,27 @@ module BigBlueButton
     # welcome_message::     Welcome message to display in chat window
     # dialin_number::       Dial in number for conference using a regular phone
     # logout_url::          URL to return user to after exiting meeting
-    # voice_bridge::        Voice conference number (>=0.7)
+    # voice_bridge::        Voice conference number (>= 0.7)
+    #
+    # === Return examples
+    #
+    # On successful creation:
+    #
+    #   {
+    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test3",
+    #    :attendeePW=>1234, :moderatorPW=>4321, :hasBeenForciblyEnded=>"false",
+    #    :messageKey=>{}, :message=>{}
+    #   }
+    #
+    # Meeting that was just forcibly ended:
+    #
+    #   {
+    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test3",
+    #    :attendeePW=>1234, :moderatorPW=>4321, :hasBeenForciblyEnded=>"true",
+    #    :messageKey=>"duplicateWarning",
+    #    :message=>"This conference was already in existence and may currently be in progress."
+    #   }
+    #
     # TODO check if voice_bridge exists in 0.64
     def create_meeting(meeting_name, meeting_id, moderator_password, attendee_password,
                        welcome_message = nil, dial_number = nil, logout_url = nil,
@@ -120,9 +140,20 @@ module BigBlueButton
       send_api_request(:create, params)
     end
 
-    # Ends an existing meeting.  Throws BigBlueButtonException on failure.
+    # Ends an existing meeting. Throws BigBlueButtonException on failure.
     # meeting_id::          Unique identifier for the meeting
     # moderator_password::  Moderator password
+    #
+    # === Return examples
+    #
+    # On success:
+    #
+    #   {
+    #    :returncode=>"SUCCESS", :messageKey=>"sentEndMeetingRequest",
+    #    :message=>"A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo
+    #               or isMeetingRunning API calls to verify that it was ended."
+    #   }
+    #
     def end_meeting(meeting_id, moderator_password)
       send_api_request(:end, { :meetingID => meeting_id, :password => moderator_password } )
     end
@@ -168,21 +199,66 @@ module BigBlueButton
       send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
     end
 
-    # Returns a hash object containing the meeting information.
-    # See the API documentation for details on the return XML
-    # (http://code.google.com/p/bigbluebutton/wiki/API).
+    # Returns a hash object containing information about the meetings currently existent in the BBB
+    # server, either they are running or not.
+    #
+    # === Return examples
+    #
+    # Server with one or more meetings:
+    #
+    #   { :returncode => "SUCCESS",
+    #     :meetings => [
+    #       {:meetingID=>"Demo Meeting", :attendeePW=>"ap", :moderatorPW=>"mp", :hasBeenForciblyEnded=>"false", :running=>"true"},
+    #       {:meetingID=>"I was ended Meeting", :attendeePW=>"pass", :moderatorPW=>"pass", :hasBeenForciblyEnded=>"true", :running=>"false"}
+    #     ]
+    #   }
+    #
+    # Server with no meetings:
+    #
+    #   {:returncode=>"SUCCESS", :meetings=>[], :messageKey=>"noMeetings", :message=>"no meetings were found on this server"}
+    #
     def get_meetings
-      send_api_request(:getMeetings, { :random => rand(9999999999) } )
+      response = send_api_request(:getMeetings, { :random => rand(9999999999) } )
+
+      # simplify the hash making a node :meetings with an array with all meetings
+      node = response[:meetings][:meeting]
+      if response[:meetings].empty?
+        meetings = []
+      else
+        if node.kind_of?(Array)
+          meetings = node
+        else
+          meetings = []
+          meetings << node
+        end
+      end
+      response[:meetings] = meetings
+
+      response
+    end
+
+    # Returns the API version (as string) of the associated server. This actually returns
+    # the version requested to the BBB server, and not the version set by the user in
+    # the initialization.
+    #
+    # Works for BBB >= 0.7 only. For earlier versions, returns an empty string.
+    def get_api_version
+      response = send_api_request(:index)
+      if response[:returncode] == "SUCCESS"
+        response[:version]
+      else
+        ""
+      end
     end
 
     # Make a simple request to the server to test the connection
-    # TODO implement test for version 0.64
     def test_connection
       if @version == '0.7'
         response = send_api_request(:index)
         response[:returncode] == "SUCCESS"
       else
-        true
+        response = get_meetings
+        response[:returncode] == "SUCCESS"
       end
     end
 

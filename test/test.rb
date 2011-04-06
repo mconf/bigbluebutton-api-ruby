@@ -35,19 +35,15 @@ def general_test
 
   puts
   puts "---------------------------------------------------"
+  version = @api.get_api_version
+  puts "The API version of your server is #{version}"
+
+  puts
+  puts "---------------------------------------------------"
   response = @api.get_meetings
   puts "Existent meetings in your server:"
-  if response[:meetings].empty?
-    puts "No meetings found"
-  else
-    node = response[:meetings][:meeting]
-    if node.kind_of?(Array)
-      node.each do |m|
-        puts "  " + m[:meetingID] + ": " + m.inspect
-      end
-    else
-      puts "  " + node[:meetingID] + ": " + node.inspect
-    end
+  response[:meetings].each do |m|
+    puts "  " + m[:meetingID] + ": " + m.inspect
   end
 
   puts

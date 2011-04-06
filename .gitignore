@@ -2,4 +2,4 @@
 pkg
 *.*~
 test/config.yml
-doc/rdoc
+doc/
