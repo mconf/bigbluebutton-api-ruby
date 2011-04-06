@@ -21,7 +21,7 @@ See CHANGELOG.rdoc
 Author::     Leonardo Crauss Daronco
 Email::      leonardodaronco@gmail.com
 Project::    GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS
-Home Page::  http://www.inf.ufrgs.br/prav/gtmconf/
+Home Page::  http://www.inf.ufrgs.br/prav/gtmconf
 License::    Distributed under same terms as Ruby
 
 === Version 0.0.3 and below
