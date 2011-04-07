@@ -108,12 +108,12 @@ module BigBlueButton
     # logout_url::          URL to return user to after exiting meeting
     # voice_bridge::        Voice conference number (>= 0.7)
     #
-    # === Return examples
+    # === Return examples (for 0.7)
     #
     # On successful creation:
     #
     #   {
-    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test3",
+    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test",
     #    :attendeePW=>1234, :moderatorPW=>4321, :hasBeenForciblyEnded=>"false",
     #    :messageKey=>{}, :message=>{}
     #   }
@@ -121,7 +121,7 @@ module BigBlueButton
     # Meeting that was just forcibly ended:
     #
     #   {
-    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test3",
+    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test",
     #    :attendeePW=>1234, :moderatorPW=>4321, :hasBeenForciblyEnded=>"true",
     #    :messageKey=>"duplicateWarning",
     #    :message=>"This conference was already in existence and may currently be in progress."
@@ -144,7 +144,7 @@ module BigBlueButton
     # meeting_id::          Unique identifier for the meeting
     # moderator_password::  Moderator password
     #
-    # === Return examples
+    # === Return examples (for 0.7)
     #
     # On success:
     #
@@ -195,14 +195,54 @@ module BigBlueButton
     #
     # meeting_id::  Unique identifier for the meeting
     # password::    Moderator password for this meeting
+    #
+    # === Return examples (for 0.7)
+    #
+    # With attendees:
+    #
+    #   {
+    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>1234, :moderatorPW=>4321, :running=>"true",
+    #    :hasBeenForciblyEnded=>"false", :startTime=>"Wed Apr 06 17:09:57 UTC 2011", :endTime=>"null", :participantCount=>4, :moderatorCount=>2,
+    #    :attendees => [
+    #      {:userID=>"ndw1fnaev0rj", :fullName=>"House M.D.", :role=>"MODERATOR"},
+    #      {:userID=>"gn9e22b7ynna", :fullName=>"Dexter Morgan", :role=>"MODERATOR"},
+    #      {:userID=>"llzihbndryc3", :fullName=>"Cameron Palmer", :role=>"VIEWER"},
+    #      {:userID=>"rbepbovolsxt", :fullName=>"Trinity", :role=>"VIEWER"}
+    #    ], :messageKey=>{}, :message=>{}
+    #   }
+    #
+    # Without attendees (not started):
+    #
+    #   {
+    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>1234, :moderatorPW=>4321, :running=>"false",
+    #    :hasBeenForciblyEnded=>"false", :startTime=>"null", :endTime=>"null", :participantCount=>0, :moderatorCount=>0,
+    #    :attendees=>[], :messageKey=>{ }, :message=>{ }
+    #   }
+    #
     def get_meeting_info(meeting_id, password)
-      send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
+      response = send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
+
+      # simplify the hash making a node :attendees with an array with all attendees
+      if response[:attendees].empty?
+        meetings = []
+      else
+        node = response[:attendees][:attendee]
+        if node.kind_of?(Array)
+          meetings = node
+        else
+          meetings = []
+          meetings << node
+        end
+      end
+      response[:attendees] = meetings
+
+      response
     end
 
     # Returns a hash object containing information about the meetings currently existent in the BBB
     # server, either they are running or not.
     #
-    # === Return examples
+    # === Return examples (for 0.7)
     #
     # Server with one or more meetings:
     #
@@ -221,10 +261,10 @@ module BigBlueButton
       response = send_api_request(:getMeetings, { :random => rand(9999999999) } )
 
       # simplify the hash making a node :meetings with an array with all meetings
-      node = response[:meetings][:meeting]
       if response[:meetings].empty?
         meetings = []
       else
+        node = response[:meetings][:meeting]
         if node.kind_of?(Array)
           meetings = node
         else
@@ -263,10 +303,10 @@ module BigBlueButton
     end
 
     # API's are equal if all the following attributes are equal
-    def == other
+    def ==(other)
       r = true
       [:url, :supported_versions, :salt, :version, :debug].each do |param|
-        r = r and self.send(param) == other.send(param)
+        r = r && self.send(param) == other.send(param)
       end
       r
     end

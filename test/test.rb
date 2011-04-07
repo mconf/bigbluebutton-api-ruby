@@ -79,6 +79,14 @@ def general_test
 
   puts
   puts "---------------------------------------------------"
+  puts "Attendees:"
+  response[:attendees].each do |m|
+    puts "  " + m[:fullName] + " (" +  m[:userID] + "): " + m.inspect
+  end
+
+
+  puts
+  puts "---------------------------------------------------"
   @api.end_meeting(@config['meeting_id'], @config['moderator_password'])
   puts "The meeting has been ended"
 
