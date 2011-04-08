@@ -1,3 +1,7 @@
+== 0.0.9
+
+* Simplied "attendees" part of the hash returned in get_meeting_info. Same thing done for get_meetings.
+
 == 0.0.8
 
 * New method get_api_version that returns the version of the server API (>= 0.7).
