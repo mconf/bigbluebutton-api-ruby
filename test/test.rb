@@ -27,7 +27,7 @@ def general_test
   puts
   puts "---------------------------------------------------"
   if @api.test_connection
-    puts "Connection success! continuing..."
+    puts "Connection successful! continuing..."
   else
     puts "Connection failed! The server might be unreachable. Exiting..."
     Kernel.exit!

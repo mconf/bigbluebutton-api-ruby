@@ -44,6 +44,18 @@ module BigBlueButton
   #
   # TODO: Automatically detect API version using request to index - added in 0.7
   #
+  # Considerations about the returning hash:
+  # * The XML returned by BBB is converted to a Hash. See the desired method's documentation for examples.
+  # * Three values will *always* exist in the hash: :returncode (boolean), :messageKey (string) and :message (string)
+  # * Some of the values returned by BBB are converted to better represent the data. Some of these are listed
+  #   bellow. They will *always* have the type informed:
+  #   * :meetingID (string)
+  #   * :attendeePW (string)
+  #   * :moderatorPW (string)
+  #   * :running (boolean)
+  #   * :hasBeenForciblyEnded (boolean)
+  #   * :endTime and :startTime (DateTime or nil)
+  #
   class BigBlueButtonApi
 
     attr_accessor :url, :supported_versions, :salt, :version, :debug
@@ -113,16 +125,16 @@ module BigBlueButton
     # On successful creation:
     #
     #   {
-    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test",
-    #    :attendeePW=>1234, :moderatorPW=>4321, :hasBeenForciblyEnded=>"false",
-    #    :messageKey=>{}, :message=>{}
+    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test",
+    #    :attendeePW=>"1234", :moderatorPW=>"4321", :hasBeenForciblyEnded=>false,
+    #    :messageKey=>"", :message=>""
     #   }
     #
-    # Meeting that was just forcibly ended:
+    # Meeting that was forcibly ended:
     #
     #   {
-    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test",
-    #    :attendeePW=>1234, :moderatorPW=>4321, :hasBeenForciblyEnded=>"true",
+    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test",
+    #    :attendeePW=>"1234", :moderatorPW=>"4321", :hasBeenForciblyEnded=>true,
     #    :messageKey=>"duplicateWarning",
     #    :message=>"This conference was already in existence and may currently be in progress."
     #   }
@@ -137,7 +149,13 @@ module BigBlueButton
                  :welcome => welcome_message, :dialNumber => dial_number,
                  :logoutURL => logout_url, :maxParticpants => max_participants }
       params[:voiceBridge] = voice_bridge if @version == '0.7'
-      send_api_request(:create, params)
+
+      response = send_api_request(:create, params)
+
+      response[:meetingID] = response[:meetingID].to_s
+      response[:moderatorPW] = response[:moderatorPW].to_s
+      response[:attendeePW] = response[:attendeePW].to_s
+      response[:hasBeenForciblyEnded] = response[:hasBeenForciblyEnded].downcase == "true"
     end
 
     # Ends an existing meeting. Throws BigBlueButtonException on failure.
@@ -149,7 +167,7 @@ module BigBlueButton
     # On success:
     #
     #   {
-    #    :returncode=>"SUCCESS", :messageKey=>"sentEndMeetingRequest",
+    #    :returncode=>true, :messageKey=>"sentEndMeetingRequest",
     #    :message=>"A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo
     #               or isMeetingRunning API calls to verify that it was ended."
     #   }
@@ -163,7 +181,7 @@ module BigBlueButton
     # meeting_id::          Unique identifier for the meeting
     def is_meeting_running?(meeting_id)
       hash = send_api_request(:isMeetingRunning, { :meetingID => meeting_id } )
-      hash[:running] == "true"
+      hash[:running]
     end
 
     # Warning: As of this version of the gem, this call does not work
@@ -201,22 +219,22 @@ module BigBlueButton
     # With attendees:
     #
     #   {
-    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>1234, :moderatorPW=>4321, :running=>"true",
-    #    :hasBeenForciblyEnded=>"false", :startTime=>"Wed Apr 06 17:09:57 UTC 2011", :endTime=>"null", :participantCount=>4, :moderatorCount=>2,
+    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>"1234", :moderatorPW=>"4321", :running=>true,
+    #    :hasBeenForciblyEnded=>false, :startTime=>DateTime("Wed Apr 06 17:09:57 UTC 2011"), :endTime=>nil, :participantCount=>4, :moderatorCount=>2,
     #    :attendees => [
-    #      {:userID=>"ndw1fnaev0rj", :fullName=>"House M.D.", :role=>"MODERATOR"},
-    #      {:userID=>"gn9e22b7ynna", :fullName=>"Dexter Morgan", :role=>"MODERATOR"},
-    #      {:userID=>"llzihbndryc3", :fullName=>"Cameron Palmer", :role=>"VIEWER"},
-    #      {:userID=>"rbepbovolsxt", :fullName=>"Trinity", :role=>"VIEWER"}
-    #    ], :messageKey=>{}, :message=>{}
+    #      {:userID=>"ndw1fnaev0rj", :fullName=>"House M.D.", :role=>:moderator},
+    #      {:userID=>"gn9e22b7ynna", :fullName=>"Dexter Morgan", :role=>:moderator},
+    #      {:userID=>"llzihbndryc3", :fullName=>"Cameron Palmer", :role=>:viewer},
+    #      {:userID=>"rbepbovolsxt", :fullName=>"Trinity", :role=>:viewer}
+    #    ], :messageKey=>"", :message=>""
     #   }
     #
     # Without attendees (not started):
     #
     #   {
-    #    :returncode=>"SUCCESS", :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>1234, :moderatorPW=>4321, :running=>"false",
-    #    :hasBeenForciblyEnded=>"false", :startTime=>"null", :endTime=>"null", :participantCount=>0, :moderatorCount=>0,
-    #    :attendees=>[], :messageKey=>{ }, :message=>{ }
+    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>"1234", :moderatorPW=>"4321", :running=>false,
+    #    :hasBeenForciblyEnded=>false, :startTime=>nil, :endTime=>nil, :participantCount=>0, :moderatorCount=>0,
+    #    :attendees=>[], :messageKey=>"", :message=>""
     #   }
     #
     def get_meeting_info(meeting_id, password)
@@ -224,17 +242,28 @@ module BigBlueButton
 
       # simplify the hash making a node :attendees with an array with all attendees
       if response[:attendees].empty?
-        meetings = []
+        attendees = []
       else
         node = response[:attendees][:attendee]
         if node.kind_of?(Array)
-          meetings = node
+          attendees = node
         else
-          meetings = []
-          meetings << node
+          attendees = []
+          attendees << node
         end
       end
-      response[:attendees] = meetings
+      response[:attendees] = attendees
+      response[:attendees].each { |att| att[:role] = att[:role].downcase.to_sym }
+
+      response[:meetingID] = response[:meetingID].to_s
+      response[:moderatorPW] = response[:moderatorPW].to_s
+      response[:attendeePW] = response[:attendeePW].to_s
+      response[:hasBeenForciblyEnded] = response[:hasBeenForciblyEnded].downcase == "true"
+      response[:running] = response[:running].downcase == "true"
+      response[:startTime] = response[:startTime].downcase == "null" ?
+                             nil : DateTime.parse(response[:startTime])
+      response[:endTime] = response[:endTime].downcase == "null" ?
+                           nil : DateTime.parse(response[:endTime])
 
       response
     end
@@ -246,16 +275,17 @@ module BigBlueButton
     #
     # Server with one or more meetings:
     #
-    #   { :returncode => "SUCCESS",
+    #   { :returncode => true,
     #     :meetings => [
-    #       {:meetingID=>"Demo Meeting", :attendeePW=>"ap", :moderatorPW=>"mp", :hasBeenForciblyEnded=>"false", :running=>"true"},
-    #       {:meetingID=>"I was ended Meeting", :attendeePW=>"pass", :moderatorPW=>"pass", :hasBeenForciblyEnded=>"true", :running=>"false"}
-    #     ]
+    #       {:meetingID=>"Demo Meeting", :attendeePW=>"ap", :moderatorPW=>"mp", :hasBeenForciblyEnded=>false, :running=>true},
+    #       {:meetingID=>"I was ended Meeting", :attendeePW=>"pass", :moderatorPW=>"pass", :hasBeenForciblyEnded=>true, :running=>false}
+    #     ],
+    #    :messageKey=>"", :message=>""
     #   }
     #
     # Server with no meetings:
     #
-    #   {:returncode=>"SUCCESS", :meetings=>[], :messageKey=>"noMeetings", :message=>"no meetings were found on this server"}
+    #   {:returncode=>true, :meetings=>[], :messageKey=>"noMeetings", :message=>"no meetings were found on this server"}
     #
     def get_meetings
       response = send_api_request(:getMeetings, { :random => rand(9999999999) } )
@@ -274,6 +304,14 @@ module BigBlueButton
       end
       response[:meetings] = meetings
 
+      response[:meetings].each do |meeting|
+        meeting[:meetingID] = meeting[:meetingID].to_s
+        meeting[:moderatorPW] = meeting[:moderatorPW].to_s
+        meeting[:attendeePW] = meeting[:attendeePW].to_s
+        meeting[:hasBeenForciblyEnded] = meeting[:hasBeenForciblyEnded].downcase == "true"
+        meeting[:running] = meeting[:running].downcase == "true"
+      end
+
       response
     end
 
@@ -284,8 +322,8 @@ module BigBlueButton
     # Works for BBB >= 0.7 only. For earlier versions, returns an empty string.
     def get_api_version
       response = send_api_request(:index)
-      if response[:returncode] == "SUCCESS"
-        response[:version]
+      if response[:returncode]
+        response[:version].to_s
       else
         ""
       end
@@ -295,11 +333,10 @@ module BigBlueButton
     def test_connection
       if @version == '0.7'
         response = send_api_request(:index)
-        response[:returncode] == "SUCCESS"
       else
         response = get_meetings
-        response[:returncode] == "SUCCESS"
       end
+      response[:returncode]
     end
 
     # API's are equal if all the following attributes are equal
@@ -355,14 +392,18 @@ module BigBlueButton
 
       # and remove the "response" node
       hash = Hash[hash[:response]].inject({}){|h,(k,v)| h[k] = v; h}
-      puts "BigBlueButtonAPI: URL response hash = #{hash.inspect}" if @debug
 
-      return_code = hash[:returncode]
-      unless return_code == "SUCCESS"
+      # Adjust some values. There will always be a returncode, message and messageKey in the hash.
+      hash[:returncode] = hash[:returncode].downcase == "success"                                  # true instead of "SUCCESS"
+      hash[:messageKey] = "" if !hash.has_key?(:messageKey) or hash[:messageKey].empty?            # "" instead of {}
+      hash[:message] = "" if !hash.has_key?(:message) or hash[:message].empty?                     # "" instead of {}
+
+      unless hash[:returncode]
         exception = BigBlueButtonException.new(hash[:message])
         exception.key = hash.has_key?(:messageKey) ? hash[:messageKey] : ""
         raise exception
       end
+
       hash
     end
 
