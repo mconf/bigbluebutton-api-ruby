@@ -156,6 +156,8 @@ module BigBlueButton
       response[:moderatorPW] = response[:moderatorPW].to_s
       response[:attendeePW] = response[:attendeePW].to_s
       response[:hasBeenForciblyEnded] = response[:hasBeenForciblyEnded].downcase == "true"
+
+      response
     end
 
     # Ends an existing meeting. Throws BigBlueButtonException on failure.
@@ -181,7 +183,7 @@ module BigBlueButton
     # meeting_id::          Unique identifier for the meeting
     def is_meeting_running?(meeting_id)
       hash = send_api_request(:isMeetingRunning, { :meetingID => meeting_id } )
-      hash[:running]
+      hash[:running].downcase == "true"
     end
 
     # Warning: As of this version of the gem, this call does not work
