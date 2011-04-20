@@ -140,7 +140,7 @@ module BigBlueButton
     #   }
     #
     # TODO check if voice_bridge exists in 0.64
-    def create_meeting(meeting_name, meeting_id, moderator_password, attendee_password,
+    def create_meeting(meeting_name, meeting_id, moderator_password = nil, attendee_password = nil,
                        welcome_message = nil, dial_number = nil, logout_url = nil,
                        max_participants = nil, voice_bridge = nil)
 
