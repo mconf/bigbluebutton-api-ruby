@@ -1,3 +1,4 @@
+== 0.0.10
 
 * Returning hash now will *always* have these 3 values: :returncode (boolean), :messageKey (string) and :message (string).
 * Some values in the hash are now converted to a fixed variable type to avoid inconsistencies:
