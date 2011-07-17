@@ -138,8 +138,17 @@ def join_test
 
 end
 
+def get_version_test
+  @api = BigBlueButton::BigBlueButtonApi.new(@config['bbb_url'], @config['bbb_salt'], nil, true)
+
+  puts
+  puts "---------------------------------------------------"
+  puts "The version of your BBB server is: #{@api.version}"
+end
+
 begin
   prepare
   general_test
   #join_test
+  #get_version_test
 end

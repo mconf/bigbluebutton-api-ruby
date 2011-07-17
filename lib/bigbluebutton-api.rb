@@ -42,8 +42,6 @@ module BigBlueButton
   # Copyright:: Copyright (c) 2010 Joe Kinsella
   # License::   Distributes under same terms as Ruby
   #
-  # TODO: Automatically detect API version using request to index - added in 0.7
-  #
   # Considerations about the returning hash:
   # * The XML returned by BBB is converted to a Hash. See the desired method's documentation for examples.
   # * Three values will *always* exist in the hash: :returncode (boolean), :messageKey (string) and :message (string)
@@ -66,13 +64,19 @@ module BigBlueButton
     # version::   API version: 0.7 (valid for 0.7, 0.71 and 0.71a)
     def initialize(url, salt, version='0.7', debug=false)
       @supported_versions = ['0.7']
-      unless @supported_versions.include?(version)
-        raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
-      end
       @url = url
       @salt = salt
       @debug = debug
-      @version = version
+
+      if version.nil?
+        @version = get_api_version
+      else
+        @version = version
+      end
+      unless @supported_versions.include?(@version)
+        raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+      end
+
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 

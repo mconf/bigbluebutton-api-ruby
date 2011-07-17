@@ -1,4 +1,5 @@
 * New method last_http_response to access the last HTTP response object.
+* Automatically detects the BBB server version if not informed by the user.
 
 == 0.0.10
 
