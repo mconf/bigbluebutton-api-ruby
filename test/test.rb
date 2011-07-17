@@ -1,10 +1,13 @@
+$:.unshift File.expand_path(File.dirname(__FILE__))
+$:.unshift File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib')
+
 require 'bigbluebutton-api'
 require 'thread'
 require 'yaml'
 
 def prepare
 
-  config_file = 'test/config.yml'
+  config_file = File.join(File.dirname(__FILE__), 'config.yml')
   unless File.exist? config_file
     puts config_file + " does not exists. Copy the example and configure your server."
     puts "cp test/config.yml.example test/config.yml"

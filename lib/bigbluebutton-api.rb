@@ -350,6 +350,10 @@ module BigBlueButton
       r
     end
 
+    def last_http_response
+      @http_response
+    end
+
     protected
 
     def get_url(method, data)
@@ -373,19 +377,19 @@ module BigBlueButton
     def send_api_request(method, data = {})
       url = get_url(method, data)
       begin
-        res = Net::HTTP.get_response(URI.parse(url))
         puts "BigBlueButtonAPI: URL request = #{url}" if @debug
-        puts "BigBlueButtonAPI: URL response = #{res.body}" if @debug
+        @http_response = Net::HTTP.get_response(URI.parse(url))
+        puts "BigBlueButtonAPI: URL response = #{@http_response.body}" if @debug
       rescue Exception => socketerror
         raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
       end
 
-      if res.body.empty?
-        raise BigBlueButtonException.new("No response body")
+      if @http_response.body.empty?
+        return { }
       end
 
       # 'Hashify' the XML
-      hash = Hash.from_xml res.body
+      hash = Hash.from_xml @http_response.body
 
       # simple validation of the xml body
       unless hash.has_key?(:response) and hash[:response].has_key?(:returncode)
