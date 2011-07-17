@@ -24,7 +24,7 @@ module BigBlueButton
   # This class provides access to the BigBlueButton API. BigBlueButton
   # is an open source project that provides web conferencing for distance
   # education (http://code.google.com/p/bigbluebutton/wiki/API). This API
-  # was developed to support the following version of BBB: 0.64, 0.7
+  # was developed to support the following version of BBB: 0.7, 0.8 (soon)
   #
   # Sample usage of the API is as follows:
   # 1) Create a meeting with the create_meeting call
@@ -63,9 +63,9 @@ module BigBlueButton
     # Initializes an instance
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # salt::      Secret salt for this server
-    # version::   API version: 0.64 or 0.7
+    # version::   API version: 0.7 (valid for 0.7, 0.71 and 0.71a)
     def initialize(url, salt, version='0.7', debug=false)
-      @supported_versions = ['0.7', '0.64']
+      @supported_versions = ['0.7']
       unless @supported_versions.include?(version)
         raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
       end
@@ -76,36 +76,17 @@ module BigBlueButton
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 
-    # DEPRECATED
-    # Use join_meeting_url
-    def moderator_url(meeting_id, user_name, password,
-                      user_id = nil, web_voice_conf = nil)
-      warn "#{caller[0]}: moderator_url is deprecated and will soon be removed, please use join_meeting_url instead."
-      join_meeting_url(meeting_id, user_name, password, user_id, web_voice_conf)
-    end
-
-    # DEPRECATED
-    # Use join_meeting_url
-    def attendee_url(meeting_id, user_name, password,
-                     user_id = nil, web_voice_conf = nil)
-      warn "#{caller[0]}: attendee_url is deprecated and will soon be removed, please use join_meeting_url instead."
-      join_meeting_url(meeting_id, user_name, password, user_id, web_voice_conf)
-    end
-
     # Returns the url used to join the meeting
     # meeting_id::        Unique identifier for the meeting
     # user_name::         Name of the user
     # password::          Password for this meeting - used to set the user as moderator or attendee
-    # user_id::           Unique identifier for this user (>= 0.7)
-    # web_voice_conf::    Custom voice-extension for users using VoIP (>= 0.7)
+    # user_id::           Unique identifier for this user
+    # web_voice_conf::    Custom voice-extension for users using VoIP
     def join_meeting_url(meeting_id, user_name, password,
                          user_id = nil, web_voice_conf = nil)
 
-      params = { :meetingID => meeting_id, :password => password, :fullName => user_name }
-      if @version == '0.7'
-        params[:userID] = user_id
-        params[:webVoiceConf] = web_voice_conf
-      end
+      params = { :meetingID => meeting_id, :password => password, :fullName => user_name,
+                 :userID => user_id, :webVoiceConf => web_voice_conf }
       get_url(:join, params)
     end
 
@@ -118,7 +99,7 @@ module BigBlueButton
     # welcome_message::     Welcome message to display in chat window
     # dialin_number::       Dial in number for conference using a regular phone
     # logout_url::          URL to return user to after exiting meeting
-    # voice_bridge::        Voice conference number (>= 0.7)
+    # voice_bridge::        Voice conference number
     #
     # === Return examples (for 0.7)
     #
@@ -139,7 +120,6 @@ module BigBlueButton
     #    :message=>"This conference was already in existence and may currently be in progress."
     #   }
     #
-    # TODO check if voice_bridge exists in 0.64
     def create_meeting(meeting_name, meeting_id, moderator_password = nil, attendee_password = nil,
                        welcome_message = nil, dial_number = nil, logout_url = nil,
                        max_participants = nil, voice_bridge = nil)
@@ -147,8 +127,8 @@ module BigBlueButton
       params = { :name => meeting_name, :meetingID => meeting_id,
                  :moderatorPW => moderator_password, :attendeePW => attendee_password,
                  :welcome => welcome_message, :dialNumber => dial_number,
-                 :logoutURL => logout_url, :maxParticpants => max_participants }
-      params[:voiceBridge] = voice_bridge if @version == '0.7'
+                 :logoutURL => logout_url, :maxParticpants => max_participants,
+                 :voiceBridge => voice_bridge }
 
       response = send_api_request(:create, params)
 
@@ -196,16 +176,11 @@ module BigBlueButton
     # meeting_id::        Unique identifier for the meeting
     # user_name::         Name of the user
     # password::          Moderator or attendee password for this meeting
-    # user_id::           Unique identifier for this user (>=0.7)
-    # web_voice_conf::    Custom voice-extension for users using VoIP (>=0.7)
+    # user_id::           Unique identifier for this user
+    # web_voice_conf::    Custom voice-extension for users using VoIP
     def join_meeting(meeting_id, user_name, password, user_id = nil, web_voice_conf = nil)
-      params = { :meetingID => meeting_id, :password => password, :fullName => user_name }
-      if @version == '0.64'
-        params[:redirectImmediately] = 0
-      elsif @version == '0.7'
-        params[:userID] = user_id
-        params[:webVoiceConf] = web_voice_conf
-      end
+      params = { :meetingID => meeting_id, :password => password, :fullName => user_name,
+                 :userID => user_id, :webVoiceConf => web_voice_conf }
       send_api_request(:join, params)
     end
 
@@ -318,10 +293,8 @@ module BigBlueButton
     end
 
     # Returns the API version (as string) of the associated server. This actually returns
-    # the version requested to the BBB server, and not the version set by the user in
-    # the initialization.
-    #
-    # Works for BBB >= 0.7 only. For earlier versions, returns an empty string.
+    # the version returned by the BBB server, and not the version set by the user in
+    # the initialization of this object.
     def get_api_version
       response = send_api_request(:index)
       if response[:returncode]
@@ -333,11 +306,7 @@ module BigBlueButton
 
     # Make a simple request to the server to test the connection
     def test_connection
-      if @version == '0.7'
-        response = send_api_request(:index)
-      else
-        response = get_meetings
-      end
+      response = send_api_request(:index)
       response[:returncode]
     end
 
@@ -368,7 +337,7 @@ module BigBlueButton
       params = data.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
 
       checksum_param = params + @salt
-      checksum_param = method.to_s + checksum_param if @version == '0.7'
+      checksum_param = method.to_s + checksum_param
       checksum = Digest::SHA1.hexdigest(checksum_param)
 
       "#{url}#{params}&checksum=#{checksum}"
