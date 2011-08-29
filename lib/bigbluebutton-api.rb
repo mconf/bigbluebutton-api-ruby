@@ -56,7 +56,7 @@ module BigBlueButton
   #
   class BigBlueButtonApi
 
-    attr_accessor :url, :supported_versions, :salt, :version, :debug
+    attr_accessor :url, :supported_versions, :salt, :version, :debug, :timeout
 
     # Initializes an instance
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
@@ -67,6 +67,7 @@ module BigBlueButton
       @url = url
       @salt = salt
       @debug = debug
+      @timeout = 2 # 2 seconds timeout for get requests
 
       if version.nil?
         @version = get_api_version
@@ -351,9 +352,17 @@ module BigBlueButton
       url = get_url(method, data)
       begin
         puts "BigBlueButtonAPI: URL request = #{url}" if @debug
-        @http_response = Net::HTTP.get_response(URI.parse(url))
+
+        url_parsed = URI.parse(url)
+        http = Net::HTTP.new(url_parsed.host, url_parsed.port)
+        http.open_timeout = @timeout
+        http.read_timeout = @timeout
+        @http_response = http.get(url_parsed.path)
+
         puts "BigBlueButtonAPI: URL response = #{@http_response.body}" if @debug
-      rescue Exception => socketerror
+      rescue TimeoutError => error
+        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\"")
+      rescue Exception => error
         raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
       end
 
