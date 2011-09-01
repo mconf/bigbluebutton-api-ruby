@@ -5,21 +5,10 @@ require 'digest/sha1'
 require 'rubygems'
 require 'nokogiri'
 require 'hash_to_xml'
+require 'bigbluebutton_exception'
+require 'bigbluebutton_formatter'
 
 module BigBlueButton
-
-  class BigBlueButtonException < Exception
-    attr_accessor :key
-
-    def to_s
-      unless key.blank?
-        super.to_s + ", messageKey: #{key}"
-      else
-        super
-      end
-    end
-
-  end
 
   # This class provides access to the BigBlueButton API. BigBlueButton
   # is an open source project that provides web conferencing for distance
@@ -328,64 +317,48 @@ module BigBlueButton
       @http_response
     end
 
-    protected
-
-    def get_url(method, data)
+    def get_url(method, data={})
       if method == :index
         return @url
       end
 
       url = "#{@url}/#{method}?"
 
+      # strignify and escape all params
       data.delete_if { |k, v| v.nil? } unless data.nil?
       params = ""
       params = data.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
 
+      # checksum calc
       checksum_param = params + @salt
       checksum_param = method.to_s + checksum_param
       checksum = Digest::SHA1.hexdigest(checksum_param)
 
-      "#{url}#{params}&checksum=#{checksum}"
+      # final url
+      url += "#{params}&" unless params.empty?
+      url += "checksum=#{checksum}"
     end
 
     def send_api_request(method, data = {})
       url = get_url(method, data)
-      begin
-        puts "BigBlueButtonAPI: URL request = #{url}" if @debug
 
-        url_parsed = URI.parse(url)
-        http = Net::HTTP.new(url_parsed.host, url_parsed.port)
-        http.open_timeout = @timeout
-        http.read_timeout = @timeout
-        @http_response = http.get(url_parsed.path)
-
-        puts "BigBlueButtonAPI: URL response = #{@http_response.body}" if @debug
-      rescue TimeoutError => error
-        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\"")
-      rescue Exception => error
-        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
-      end
-
+      @http_response = perform_request(url)
       if @http_response.body.empty?
         return { }
       end
 
       # 'Hashify' the XML
-      hash = Hash.from_xml @http_response.body
+      hash = Hash.from_xml(@http_response.body)
 
       # simple validation of the xml body
       unless hash.has_key?(:response) and hash[:response].has_key?(:returncode)
         raise BigBlueButtonException.new("Invalid response body. Is the API URL correct? \"#{@url}\", version #{@version}")
       end
 
-      # and remove the "response" node
-      hash = Hash[hash[:response]].inject({}){|h,(k,v)| h[k] = v; h}
+      # default cleanup in the response
+      hash = BigBlueButtonFormatter.default_formatting(hash)
 
-      # Adjust some values. There will always be a returncode, message and messageKey in the hash.
-      hash[:returncode] = hash[:returncode].downcase == "success"                                  # true instead of "SUCCESS"
-      hash[:messageKey] = "" if !hash.has_key?(:messageKey) or hash[:messageKey].empty?            # "" instead of {}
-      hash[:message] = "" if !hash.has_key?(:message) or hash[:message].empty?                     # "" instead of {}
-
+      # all responses should have a returncode
       unless hash[:returncode]
         exception = BigBlueButtonException.new(hash[:message])
         exception.key = hash.has_key?(:messageKey) ? hash[:messageKey] : ""
@@ -393,6 +366,25 @@ module BigBlueButton
       end
 
       hash
+    end
+
+    protected
+
+    def perform_request(url)
+      begin
+        puts "BigBlueButtonAPI: URL request = #{url}" if @debug
+        url_parsed = URI.parse(url)
+        http = Net::HTTP.new(url_parsed.host, url_parsed.port)
+        http.open_timeout = @timeout
+        http.read_timeout = @timeout
+        response = http.get(url_parsed.request_uri)
+        puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
+      rescue TimeoutError => error
+        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\"")
+      rescue Exception => error
+        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
+      end
+      response
     end
 
   end
