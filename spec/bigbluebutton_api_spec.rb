@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe BigBlueButton::BigBlueButtonApi do
+
+  # default variables and API object for all tests
   let(:url) { "http://server.com" }
   let(:salt) { "1234567890abcdefghijkl" }
   let(:version) { "0.7" }
@@ -51,9 +53,7 @@ describe BigBlueButton::BigBlueButtonApi do
     it { api.join_meeting_url(meeting_id, user_name, password, user_id, web_voice_conf).should == "test-url" }
   end
 
-  pending "#create_meeting"
-
-  describe "#end_meeting" do
+  describe "#create_meeting" do
     let(:meeting_name) { "name" }
     let(:meeting_id) { "meeting-id" }
     let(:moderator_password) { "moderator-password" }
@@ -70,16 +70,25 @@ describe BigBlueButton::BigBlueButtonApi do
         :logoutURL => logout_url, :maxParticpants => max_participants,
         :voiceBridge => voice_bridge }
     }
-    let(:response) { { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "false" } }
+    let(:response) { { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" } }
+    let(:expected_response) { { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false } }
 
+    # ps: not mocking the formatter here because it's easier to just check the results (expected_response)
     before { api.should_receive(:send_api_request).with(:create, params).and_return(response) }
     subject { api.create_meeting(meeting_name, meeting_id, moderator_password,
                                  attendee_password, welcome_message, dial_number,
                                  logout_url, max_participants, voice_bridge) }
-    it { subject.fetch(:meetingID).should == "123" }
-    it { subject.fetch(:moderatorPW).should == "111" }
-    it { subject.fetch(:attendeePW).should == "222" }
-    it { subject.fetch(:hasBeenForciblyEnded).should == false }
+    it { subject.should == expected_response }
+  end
+
+  describe "#end_meeting" do
+    let(:meeting_id) { "meeting-id" }
+    let(:moderator_password) { "password" }
+    let(:params) { { :meetingID => meeting_id, :password => moderator_password } }
+    let(:response) { "anything" }
+
+    before { api.should_receive(:send_api_request).with(:end, params).and_return(response) }
+    it { api.end_meeting(meeting_id, moderator_password).should == response }
   end
 
   describe "#is_meeting_running?" do
@@ -87,13 +96,13 @@ describe BigBlueButton::BigBlueButtonApi do
     let(:params) { { :meetingID => meeting_id } }
 
     context "when the meeting is running" do
-      let(:response) { { :running => "true" } }
+      let(:response) { { :running => "TRUE" } }
       before { api.should_receive(:send_api_request).with(:isMeetingRunning, params).and_return(response) }
       it { api.is_meeting_running?(meeting_id).should == true }
     end
 
     context "when the meeting is not running" do
-      let(:response) { { :running => "false" } }
+      let(:response) { { :running => "FALSE" } }
       before { api.should_receive(:send_api_request).with(:isMeetingRunning, params).and_return(response) }
       it { api.is_meeting_running?(meeting_id).should == false }
     end
@@ -114,9 +123,50 @@ describe BigBlueButton::BigBlueButtonApi do
     it { api.join_meeting(meeting_id, user_name, password, user_id, web_voice_conf).should == "join-return" }
   end
 
-  pending "#get_meeting_info"
+  describe "#get_meeting_info" do
+    let(:meeting_id) { "meeting-id" }
+    let(:password) { "password" }
+    let(:params) { { :meetingID => meeting_id, :password => password } }
 
-  pending "#get_meetings"
+    let(:attendee1) { { :userID => 123, :fullName => "Dexter Morgan", :role => "MODERATOR" } }
+    let(:attendee2) { { :userID => "id2", :fullName => "Cameron", :role => "VIEWER" } }
+    let(:response) {
+      { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
+        :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
+        :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] }, :messageKey => "mkey", :message => "m" }
+    } # hash after the send_api_request call, before the specific formatting
+
+    let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
+    let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
+    let(:expected_response) {
+      { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
+        :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
+        :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ], :messageKey => "mkey", :message => "m" }
+    } # expected return hash after all the formatting
+
+    # ps: not mocking the formatter here because it's easier to just check the results (expected_response)
+    before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
+    it { api.get_meeting_info(meeting_id, password).should == expected_response }
+  end
+
+  describe "#get_meetings" do
+    let(:meeting_hash1) { { :meetingID => "Demo Meeting", :attendeePW => "ap", :moderatorPW => "mp", :hasBeenForciblyEnded => false, :running => true } }
+    let(:meeting_hash2) { { :meetingID => "Ended Meeting", :attendeePW => "pass", :moderatorPW => "pass", :hasBeenForciblyEnded => true, :running => false } }
+    let(:flattened_response) {
+      { :returncode => true, :meetings => [ meeting_hash1, meeting_hash2 ], :messageKey => "mkey", :message => "m" }
+    } # hash *after* the flatten_objects call
+
+    before {
+      # FIXME: how to expect a hash with a random value in the should_receive below?
+      api.should_receive(:send_api_request).with(:getMeetings, anything).and_return(flattened_response)
+      formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+      formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
+      formatter_mock.should_receive(:format_meeting).with(meeting_hash1)
+      formatter_mock.should_receive(:format_meeting).with(meeting_hash2)
+      BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+    }
+    it { api.get_meetings }
+  end
 
   describe "#get_api_version" do
     context "returns the version returned by the server" do
@@ -167,7 +217,20 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  pending "#last_http_response"
+  describe "#last_http_response" do
+    # we test this through a #test_connection call
+
+    let(:request_mock) { mock }
+    before {
+      api.should_receive(:get_url)
+      # this return value will be stored in @http_response
+      api.should_receive(:send_request).and_return(request_mock)
+      # to return fast from #send_api_request
+      request_mock.should_receive(:body).and_return("")
+      api.test_connection
+    }
+    it { api.last_http_response.should == request_mock }
+  end
 
   describe "#get_url" do
 

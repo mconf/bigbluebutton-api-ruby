@@ -58,11 +58,7 @@ module BigBlueButton
       @debug = debug
       @timeout = 2 # 2 seconds timeout for get requests
 
-      if version.nil?
-        @version = get_api_version
-      else
-        @version = version
-      end
+      @version = version || get_api_version
       unless @supported_versions.include?(@version)
         raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
       end
@@ -126,10 +122,11 @@ module BigBlueButton
 
       response = send_api_request(:create, params)
 
-      response[:meetingID] = response[:meetingID].to_s
-      response[:moderatorPW] = response[:moderatorPW].to_s
-      response[:attendeePW] = response[:attendeePW].to_s
-      response[:hasBeenForciblyEnded] = response[:hasBeenForciblyEnded].downcase == "true"
+      formatter = BigBlueButtonFormatter.new(response)
+      formatter.to_string(:meetingID)
+      formatter.to_string(:moderatorPW)
+      formatter.to_string(:attendeePW)
+      formatter.to_boolean(:hasBeenForciblyEnded)
 
       response
     end
@@ -157,7 +154,7 @@ module BigBlueButton
     # meeting_id::          Unique identifier for the meeting
     def is_meeting_running?(meeting_id)
       hash = send_api_request(:isMeetingRunning, { :meetingID => meeting_id } )
-      hash[:running].downcase == "true"
+      BigBlueButtonFormatter.new(hash).to_boolean(:running)
     end
 
     # Warning: As of this version of the gem, this call does not work
@@ -211,30 +208,17 @@ module BigBlueButton
     def get_meeting_info(meeting_id, password)
       response = send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
 
-      # simplify the hash making a node :attendees with an array with all attendees
-      if response[:attendees].empty?
-        attendees = []
-      else
-        node = response[:attendees][:attendee]
-        if node.kind_of?(Array)
-          attendees = node
-        else
-          attendees = []
-          attendees << node
-        end
-      end
-      response[:attendees] = attendees
-      response[:attendees].each { |att| att[:role] = att[:role].downcase.to_sym }
+      formatter = BigBlueButtonFormatter.new(response)
+      formatter.flatten_objects(:attendees, :attendee)
+      response[:attendees].each { |a| formatter.format_attendee(a) }
 
-      response[:meetingID] = response[:meetingID].to_s
-      response[:moderatorPW] = response[:moderatorPW].to_s
-      response[:attendeePW] = response[:attendeePW].to_s
-      response[:hasBeenForciblyEnded] = response[:hasBeenForciblyEnded].downcase == "true"
-      response[:running] = response[:running].downcase == "true"
-      response[:startTime] = response[:startTime].downcase == "null" ?
-                             nil : DateTime.parse(response[:startTime])
-      response[:endTime] = response[:endTime].downcase == "null" ?
-                           nil : DateTime.parse(response[:endTime])
+      formatter.to_string(:meetingID)
+      formatter.to_string(:moderatorPW)
+      formatter.to_string(:attendeePW)
+      formatter.to_boolean(:hasBeenForciblyEnded)
+      formatter.to_boolean(:running)
+      formatter.to_datetime(:startTime)
+      formatter.to_datetime(:endTime)
 
       response
     end
@@ -261,28 +245,9 @@ module BigBlueButton
     def get_meetings
       response = send_api_request(:getMeetings, { :random => rand(9999999999) } )
 
-      # simplify the hash making a node :meetings with an array with all meetings
-      if response[:meetings].empty?
-        meetings = []
-      else
-        node = response[:meetings][:meeting]
-        if node.kind_of?(Array)
-          meetings = node
-        else
-          meetings = []
-          meetings << node
-        end
-      end
-      response[:meetings] = meetings
-
-      response[:meetings].each do |meeting|
-        meeting[:meetingID] = meeting[:meetingID].to_s
-        meeting[:moderatorPW] = meeting[:moderatorPW].to_s
-        meeting[:attendeePW] = meeting[:attendeePW].to_s
-        meeting[:hasBeenForciblyEnded] = meeting[:hasBeenForciblyEnded].downcase == "true"
-        meeting[:running] = meeting[:running].downcase == "true"
-      end
-
+      formatter = BigBlueButtonFormatter.new(response)
+      formatter.flatten_objects(:meetings, :meeting)
+      response[:meetings].each { |m| formatter.format_meeting(m) }
       response
     end
 
@@ -291,11 +256,7 @@ module BigBlueButton
     # the initialization of this object.
     def get_api_version
       response = send_api_request(:index)
-      if response[:returncode]
-        response[:version].to_s
-      else
-        ""
-      end
+      response[:returncode] ? response[:version].to_s : ""
     end
 
     # Make a simple request to the server to test the connection
@@ -324,7 +285,7 @@ module BigBlueButton
 
       url = "#{@url}/#{method}?"
 
-      # strignify and escape all params
+      # stringify and escape all params
       data.delete_if { |k, v| v.nil? } unless data.nil?
       params = ""
       params = data.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
@@ -342,10 +303,8 @@ module BigBlueButton
     def send_api_request(method, data = {})
       url = get_url(method, data)
 
-      @http_response = perform_request(url)
-      if @http_response.body.empty?
-        return { }
-      end
+      @http_response = send_request(url)
+      return { } if @http_response.body.empty?
 
       # 'Hashify' the XML
       hash = Hash.from_xml(@http_response.body)
@@ -370,7 +329,7 @@ module BigBlueButton
 
     protected
 
-    def perform_request(url)
+    def send_request(url)
       begin
         puts "BigBlueButtonAPI: URL request = #{url}" if @debug
         url_parsed = URI.parse(url)
