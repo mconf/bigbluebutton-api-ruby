@@ -315,7 +315,7 @@ module BigBlueButton
       end
 
       # default cleanup in the response
-      hash = BigBlueButtonFormatter.default_formatting(hash)
+      hash = BigBlueButtonFormatter.new(hash).default_formatting
 
       # all responses should have a returncode
       unless hash[:returncode]

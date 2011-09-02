@@ -349,12 +349,16 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:formatted_response) { { :returncode => true } }
       before do
         setup_http_mock
+
         response_mock = mock()
         @http_mock.should_receive(:get).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
         Hash.should_receive(:from_xml).with("response-body").and_return(response)
-        BigBlueButton::BigBlueButtonFormatter.should_receive(:default_formatting). # here's the validation
-          with(response).and_return(formatted_response)
+
+        # here starts the validation
+        formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_mock)
+        formatter_mock.should_receive(:default_formatting).and_return(formatted_response)
       end
       it { make_request }
     end
@@ -364,12 +368,15 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:formatted_response) { { } }
       before do
         setup_http_mock
+
         response_mock = mock()
         @http_mock.should_receive(:get).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
         Hash.should_receive(:from_xml).with("response-body").and_return(response)
-        BigBlueButton::BigBlueButtonFormatter.should_receive(:default_formatting).
-          with(response).and_return(formatted_response)
+
+        formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_mock)
+        formatter_mock.should_receive(:default_formatting).and_return(formatted_response)
       end
       it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
     end
