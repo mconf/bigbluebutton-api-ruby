@@ -1,3 +1,5 @@
+== 0.0.11
+
 * The file "bigbluebutton-api" was renamed to "bigbluebutton_api". All "require" calls must be updated.
 * Splitted the library in more files (more modular) and created rspec tests for it.
 * Added a BigBlueButtonApi.timeout attribute to timeout get requests and avoid blocks when the server is down. Defaults to 2 secs.
