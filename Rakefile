@@ -1,31 +1,22 @@
 require 'rubygems'
-require 'rake'
-require 'rake/clean'
-require 'rake/rdoctask'
-require 'rake/testtask'
-require 'rake/gempackagetask'
+require 'rdoc/task'
+require 'rubygems/package_task'
+require 'rspec/core/rake_task'
 
 desc 'Default: run tests.'
-task :default => :test
+task :default => :spec
 
-Rake::RDocTask.new do |rdoc|
-  files = ['README.rdoc', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb']
-  rdoc.rdoc_files.add(files)
-  rdoc.main = "README" # page to start on
+RSpec::Core::RakeTask.new(:spec)
+
+RDoc::Task.new do |rdoc|
+  rdoc.rdoc_files.include('README.rdoc', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb')
+  rdoc.main = "README.rdoc"
   rdoc.title = "bigbluebutton-api-ruby Docs"
-  rdoc.rdoc_dir = 'doc' # rdoc output folder
-  rdoc.options << '--line-numbers'
+  rdoc.rdoc_dir = 'doc'
 end
 
-eval("$specification = begin; #{ IO.read('bigbluebutton-api-ruby.gemspec')}; end")
-Rake::GemPackageTask.new $specification do |pkg|
+eval("$specification = begin; #{IO.read('bigbluebutton-api-ruby.gemspec')}; end")
+Gem::PackageTask.new $specification do |pkg|
   pkg.need_tar = true
   pkg.need_zip = true
-end
-
-desc 'Test the gem.'
-Rake::TestTask.new(:test) do |t|
-  t.pattern = 'test/**/*test.rb'
-  t.verbose = true
-  t.libs << 'test'
 end

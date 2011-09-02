@@ -1,5 +1,7 @@
 = Project: bigbluebutton-api-ruby
 
+http://travis-ci.org/mconf/bigbluebutton-api-ruby.png {(more...)}[http://travis-ci.org/#!/mconf/bigbluebutton-api-ruby]
+
 == Goal
 
 Provide access to the BigBlueButton web conferencing API.
