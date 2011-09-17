@@ -2,5 +2,5 @@
 if [ -e '.rvmrc_custom' ]; then
   source .rvmrc_custom;
 else
-  rvm --create use 1.9.2@bigbluebutton-api-ruby;
+  rvm --create use 1.9.2-p290@bigbluebutton-api-ruby;
 fi

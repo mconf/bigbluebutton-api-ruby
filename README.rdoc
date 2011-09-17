@@ -1,34 +1,42 @@
-= Project: bigbluebutton-api-ruby
+= bigbluebutton-api-ruby {<img src="http://travis-ci.org/mconf/bigbluebutton-api-ruby.png"/>}[http://travis-ci.org/mconf/bigbluebutton-api-ruby]
 
-http://travis-ci.org/mconf/bigbluebutton-api-ruby.png {(more...)}[http://travis-ci.org/#!/mconf/bigbluebutton-api-ruby]
+This is a ruby gem that provides access to the {BigBlueButton}[http://bigbluebutton.org] API.
+For the API documentation see {this page}[http://code.google.com/p/bigbluebutton/wiki/API].
 
-== Goal
+Basically it enables a ruby application to interact with BigBlueButton by calling ruby methods (instead of HTTP GETs)
+and formats the response to a ruby-friendly format.
 
-Provide access to the BigBlueButton web conferencing API.
+Some details:
 
-== Dependencies
+* Provides methods to perform all API calls and get the responses;
+* Converts the XML response to a ruby hash;
+* Converts the string values returned to native ruby types. For instance:
+  * Dates are converted DateTime objects (e.g. "Thu Sep 01 17:51:42 UTC 2011");
+  * Response codes are converted to boolean (e.g. "SUCCESS" becomes <tt>true</tt>);
+  * "NULL" becomes <tt>nil</tt>;
+  * Some data blocks are also converted to object, such as "attendees" and "meetings".
+* Deals with errors throwing BigBlueButtonException exceptions.
 
-Tested in Ruby 1.8.7 and Ruby 1.9.2.
+Tested in Ruby <b>1.8.7</b> and Ruby <b>1.9.2</b>.
 
-Needs: rake, rubygems, nokogiri
+== Supported Versions
+
+Currently supports BigBlueButton version 0.7 (including 0.7, 0.71 and 0.71a).
+
+For version 0.64 see the branch "api-0.64".
+
+Version 0.8 will also soon be supported!
 
 == Releases
 
-See CHANGELOG.rdoc
+For a list of releases and changes list see {CHANGELOG.rdoc}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/CHANGELOG.rdoc].
+
+== License
+
+Distributed under same terms as Ruby
 
 == Contact
 
-=== Version 0.0.4+
+<b>Version 0.0.4+</b>: Leonardo Crauss Daronco (leonardodaronco@gmail.com), GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS. Home page: http://www.inf.ufrgs.br/prav/gtmconf
 
-Author::     Leonardo Crauss Daronco
-Email::      leonardodaronco@gmail.com
-Project::    GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS
-Home Page::  http://www.inf.ufrgs.br/prav/gtmconf
-License::    Distributed under same terms as Ruby
-
-=== Version 0.0.3 and below
-
-Author::     Joe Kinsella
-Email::      joe.kinsella@gmail.com
-Home Page::  http://www.brownbaglunch.com/bigbluebutton
-License::    Distributes under same terms as Ruby
+<b>Version 0.0.3 and below</b>: Joe Kinsella (joe.kinsella@gmail.com), Home page: http://www.brownbaglunch.com/bigbluebutton

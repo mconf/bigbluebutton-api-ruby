@@ -12,11 +12,15 @@ RDoc::Task.new do |rdoc|
   rdoc.rdoc_files.include('README.rdoc', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb')
   rdoc.main = "README.rdoc"
   rdoc.title = "bigbluebutton-api-ruby Docs"
-  rdoc.rdoc_dir = 'doc'
+  rdoc.rdoc_dir = 'rdoc'
 end
 
 eval("$specification = begin; #{IO.read('bigbluebutton-api-ruby.gemspec')}; end")
 Gem::PackageTask.new $specification do |pkg|
   pkg.need_tar = true
   pkg.need_zip = true
+end
+
+task :notes do
+  puts `grep -r 'OPTIMIZE\\|FIXME\\|TODO' lib/ spec/`
 end
