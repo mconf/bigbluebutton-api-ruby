@@ -1,3 +1,5 @@
+* Method signature changes: create_meeting, join_meeting_url and join_meeting. Optional parameters are now passed using a hash.
+
 === 0.0.11
 
 * The file "bigbluebutton-api" was renamed to "bigbluebutton_api". All "require" calls must be updated.

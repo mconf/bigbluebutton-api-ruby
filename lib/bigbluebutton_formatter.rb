@@ -5,12 +5,16 @@ module BigBlueButton
     attr_accessor :hash
 
     def initialize(hash)
-      @hash = hash
+      @hash = hash || {}
     end
 
     # converts a value in the @hash to boolean
     def to_boolean(key)
-      @hash[key] = @hash[key].downcase == "true"
+      if @hash.empty? or !@hash.has_key?(key)
+        false
+      else
+        @hash[key] = @hash[key].downcase == "true"
+      end
     end
 
     # converts a value in the @hash to string
@@ -20,7 +24,11 @@ module BigBlueButton
 
     # converts a value in the @hash to DateTime
     def to_datetime(key)
-      @hash[key] = @hash[key].downcase == "null" ? nil : DateTime.parse(@hash[key])
+      if @hash.empty? or !@hash.has_key?(key)
+        nil
+      else
+        @hash[key] = @hash[key].downcase == "null" ? nil : DateTime.parse(@hash[key])
+      end
     end
 
     # Default formatting for all responses given by a BBB server

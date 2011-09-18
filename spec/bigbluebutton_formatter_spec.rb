@@ -8,21 +8,54 @@ describe BigBlueButton::BigBlueButtonFormatter do
     it { subject.should respond_to(:"hash=") }
   end
 
-  describe "#to_stringtring" do
+  describe "#initialize" do
+    context "with a hash" do
+      let(:hash) { { :param1 => "123", :param2 => 123, :param3 => true } }
+      subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+      it { subject.hash.should == hash }
+    end
+
+    context "without a hash" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+      it { subject.hash.should == { } }
+    end
+  end
+
+  describe "#to_string" do
     let(:hash) { { :param1 => "123", :param2 => 123, :param3 => true } }
     subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
     it { subject.to_string(:param1).should == "123" }
     it { subject.to_string(:param2).should == "123" }
     it { subject.to_string(:param3).should == "true" }
+
+    context "returns empty string if the param doesn't exists" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1 }) }
+      it { subject.to_string(:inexistent).should == "" }
+    end
+
+    context "returns empty string if the hash is nil" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+      it { subject.to_string(:inexistent).should == "" }
+    end
   end
 
-  describe "#to_booleanoolean" do
+  describe "#to_boolean" do
     let(:hash) { { :true1 => "TRUE", :true2 => "true", :false1 => "FALSE", :false2 => "false" } }
     subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
     it { subject.to_boolean(:true1).should be_true }
     it { subject.to_boolean(:true2).should be_true }
     it { subject.to_boolean(:false1).should be_false }
     it { subject.to_boolean(:false2).should be_false }
+
+    context "returns false if the param doesn't exists" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
+      it { subject.to_boolean(:inexistent).should == false }
+    end
+
+    context "returns false if the hash is nil" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+      it { subject.to_boolean(:inexistent).should == false }
+    end
   end
 
   describe "#to_datetime" do
@@ -31,6 +64,16 @@ describe BigBlueButton::BigBlueButtonFormatter do
     it { subject.to_datetime(:param1).should == DateTime.parse("Thu Sep 01 17:51:42 UTC 2011") }
     it { subject.to_datetime(:param2).should == DateTime.parse("Thu Sep 08") }
     it { subject.to_datetime(:param3).should == nil }
+
+    context "returns nil if the param doesn't exists" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
+      it { subject.to_datetime(:inexistent).should == nil }
+    end
+
+    context "returns nil if the hash is nil" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+      it { subject.to_datetime(:inexistent).should == nil }
+    end
   end
 
   describe "#default_formatting" do

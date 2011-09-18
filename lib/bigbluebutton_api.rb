@@ -10,30 +10,20 @@ require 'bigbluebutton_formatter'
 
 module BigBlueButton
 
-  # This class provides access to the BigBlueButton API. BigBlueButton
-  # is an open source project that provides web conferencing for distance
-  # education (http://code.google.com/p/bigbluebutton/wiki/API). This API
-  # was developed to support the following version of BBB: 0.7, 0.8 (soon)
+  # This class provides access to the BigBlueButton API. For more details see README.rdoc.
   #
   # Sample usage of the API is as follows:
-  # 1) Create a meeting with the create_meeting call
-  # 2) Direct a user to either join_meeting_url
-  # 3) To force meeting to end, call end_meeting
+  # 1. Create a meeting with create_meeting;
+  # 2. Redirect a user to the URL returned by join_meeting_url;
+  # 3. Get information about the meetings with get_meetings and get_meeting_info;
+  # 4. To force meeting to end, call end_meeting .
   #
-  # 0.0.4+:
-  # Author::    Leonardo Crauss Daronco  (mailto:leonardodaronco@gmail.com)
-  # Copyright:: Copyright (c) 2011 Leonardo Crauss Daronco
-  # Project::   GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS
-  # License::   Distributes under same terms as Ruby
-  #
-  # 0.0.3 and below:
-  # Author::    Joe Kinsella  (mailto:joe.kinsella@gmail.com)
-  # Copyright:: Copyright (c) 2010 Joe Kinsella
-  # License::   Distributes under same terms as Ruby
-  #
-  # Considerations about the returning hash:
-  # * The XML returned by BBB is converted to a Hash. See the desired method's documentation for examples.
-  # * Three values will *always* exist in the hash: :returncode (boolean), :messageKey (string) and :message (string)
+  # Important info about the data returned by the methods:
+  # * The XML returned by BBB is converted to a Hash. See individual method's documentation for examples.
+  # * Three values will *always* exist in the hash:
+  #   * :returncode (boolean)
+  #   * :messageKey (string)
+  #   * :message (string)
   # * Some of the values returned by BBB are converted to better represent the data. Some of these are listed
   #   bellow. They will *always* have the type informed:
   #   * :meetingID (string)
@@ -66,59 +56,47 @@ module BigBlueButton
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 
-    # Returns the url used to join the meeting
-    # meeting_id::        Unique identifier for the meeting
-    # user_name::         Name of the user
-    # password::          Password for this meeting - used to set the user as moderator or attendee
-    # user_id::           Unique identifier for this user
-    # web_voice_conf::    Custom voice-extension for users using VoIP
-    def join_meeting_url(meeting_id, user_name, password,
-                         user_id = nil, web_voice_conf = nil)
-
-      params = { :meetingID => meeting_id, :password => password, :fullName => user_name,
-                 :userID => user_id, :webVoiceConf => web_voice_conf }
-      get_url(:join, params)
-    end
-
     # Creates a new meeting. Returns the hash with the response or
     # throws BigBlueButtonException on failure.
-    # meeting_name::        Name for the meeting
-    # meeting_id::          Unique identifier for the meeting
-    # moderator_password::  Moderator password
-    # attendee_password::   Attendee password
-    # welcome_message::     Welcome message to display in chat window
-    # dialin_number::       Dial in number for conference using a regular phone
-    # logout_url::          URL to return user to after exiting meeting
-    # voice_bridge::        Voice conference number
+    # meeting_name (string)::         Name for the meeting
+    # meeting_id (string, integer)::  Unique identifier for the meeting
+    # options (Hash)::                Hash with optional parameters. The accepted parameters are:
+    #                                 moderatorPW, attendeePW, welcome, dialNumber, logoutURL,
+    #                                 maxParticipants, and voiceBridge. For details about each see
+    #                                 BBB API docs.
     #
-    # === Return examples (for 0.7)
+    # === Example
+    #
+    #   create_meeting("My Meeting", "my-meeting",
+    #                  { :moderatorPW => "123", :attendeePW => "321", :welcome => "Welcome here!",
+    #                    :dialNumber => 5190909090, logoutURL => "http://mconf.org", :maxParticipants => 25,
+    #                    :voiceBridge => 76543, :record => "true", :duration => 0, :meta_category => "Remote Class" }
+    #                 )
+    #
+    # === Example response for 0.7
     #
     # On successful creation:
     #
     #   {
-    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test",
-    #    :attendeePW=>"1234", :moderatorPW=>"4321", :hasBeenForciblyEnded=>false,
-    #    :messageKey=>"", :message=>""
+    #    :returncode => true, :meetingID => "test",
+    #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => false,
+    #    :messageKey => "", :message => ""
     #   }
     #
     # Meeting that was forcibly ended:
     #
     #   {
-    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test",
-    #    :attendeePW=>"1234", :moderatorPW=>"4321", :hasBeenForciblyEnded=>true,
-    #    :messageKey=>"duplicateWarning",
-    #    :message=>"This conference was already in existence and may currently be in progress."
+    #    :returncode => true, :meetingID => "test",
+    #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => true,
+    #    :messageKey => "duplicateWarning",
+    #    :message => "This conference was already in existence and may currently be in progress."
     #   }
     #
-    def create_meeting(meeting_name, meeting_id, moderator_password = nil, attendee_password = nil,
-                       welcome_message = nil, dial_number = nil, logout_url = nil,
-                       max_participants = nil, voice_bridge = nil)
-
-      params = { :name => meeting_name, :meetingID => meeting_id,
-                 :moderatorPW => moderator_password, :attendeePW => attendee_password,
-                 :welcome => welcome_message, :dialNumber => dial_number,
-                 :logoutURL => logout_url, :maxParticpants => max_participants,
-                 :voiceBridge => voice_bridge }
+    def create_meeting(meeting_name, meeting_id, options={})
+      valid_options = [:moderatorPW, :attendeePW, :welcome, :dialNumber, :logoutURL,
+                       :maxParticipants, :voiceBridge]
+      options.select!{ |o| valid_options.include?(o) }
+      params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
 
       response = send_api_request(:create, params)
 
@@ -132,8 +110,8 @@ module BigBlueButton
     end
 
     # Ends an existing meeting. Throws BigBlueButtonException on failure.
-    # meeting_id::          Unique identifier for the meeting
-    # moderator_password::  Moderator password
+    # meeting_id (string, int)::          Unique identifier for the meeting
+    # moderator_password (string, int)::  Moderator password
     #
     # === Return examples (for 0.7)
     #
@@ -151,10 +129,24 @@ module BigBlueButton
 
     # Returns true or false as to whether meeting is open.  A meeting is
     # only open after at least one participant has joined.
-    # meeting_id::          Unique identifier for the meeting
+    # meeting_id (string, int)::          Unique identifier for the meeting
     def is_meeting_running?(meeting_id)
       hash = send_api_request(:isMeetingRunning, { :meetingID => meeting_id } )
       BigBlueButtonFormatter.new(hash).to_boolean(:running)
+    end
+
+    # Returns the url used to join the meeting
+    # meeting_id (string, int)::   Unique identifier for the meeting
+    # user_name (string)::         Name of the user
+    # password (string)::          Password for this meeting - used to set the user as moderator or attendee
+    # options (Hash)::             Hash with optional parameters. The accepted parameters are:
+    #                              userID and webVoiceConf. For details about each see BBB API docs.
+    def join_meeting_url(meeting_id, user_name, password, options={})
+      valid_options = [:userID, :webVoiceConf]
+      options.select!{ |o| valid_options.include?(o) }
+      params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
+
+      get_url(:join, params)
     end
 
     # Warning: As of this version of the gem, this call does not work
@@ -164,14 +156,16 @@ module BigBlueButton
     # directing the user's browser to moderator_url or attendee_url
     # (note: this will still be required however to actually use bbb).
     # Returns the URL a user can use to enter this meeting.
-    # meeting_id::        Unique identifier for the meeting
-    # user_name::         Name of the user
-    # password::          Moderator or attendee password for this meeting
-    # user_id::           Unique identifier for this user
-    # web_voice_conf::    Custom voice-extension for users using VoIP
-    def join_meeting(meeting_id, user_name, password, user_id = nil, web_voice_conf = nil)
-      params = { :meetingID => meeting_id, :password => password, :fullName => user_name,
-                 :userID => user_id, :webVoiceConf => web_voice_conf }
+    # meeting_id (string, int)::  Unique identifier for the meeting
+    # user_name (string)::        Name of the user
+    # password (string, int)::    Moderator or attendee password for this meeting
+    # options (Hash)::            Hash with optional parameters. The accepted parameters are:
+    #                             userID and webVoiceConf. For details about each see BBB API docs.
+    def join_meeting(meeting_id, user_name, password, options={})
+      valid_options = [:userID, :webVoiceConf]
+      options.select!{ |o| valid_options.include?(o) }
+      params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
+
       send_api_request(:join, params)
     end
 
@@ -179,8 +173,8 @@ module BigBlueButton
     # See the API documentation for details on the return XML
     # (http://code.google.com/p/bigbluebutton/wiki/API).
     #
-    # meeting_id::  Unique identifier for the meeting
-    # password::    Moderator password for this meeting
+    # meeting_id (string, int)::  Unique identifier for the meeting
+    # password (string, int)::    Moderator password for this meeting
     #
     # === Return examples (for 0.7)
     #
@@ -259,13 +253,13 @@ module BigBlueButton
       response[:returncode] ? response[:version].to_s : ""
     end
 
-    # Make a simple request to the server to test the connection
+    # Make a simple request to the server to test the connection.
     def test_connection
       response = send_api_request(:index)
       response[:returncode]
     end
 
-    # API's are equal if all the following attributes are equal
+    # API's are equal if all the following attributes are equal.
     def ==(other)
       r = true
       [:url, :supported_versions, :salt, :version, :debug].each do |param|
@@ -274,10 +268,12 @@ module BigBlueButton
       r
     end
 
+    # Returns the HTTP response object returned in the last API call.
     def last_http_response
       @http_response
     end
 
+    # Formats an API call URL for the method 'method' using the parameters in 'data'.
     def get_url(method, data={})
       if method == :index
         return @url
@@ -300,7 +296,13 @@ module BigBlueButton
       url += "checksum=#{checksum}"
     end
 
-    def send_api_request(method, data = {})
+    # Performs an API call.
+    #
+    # Throws a BigBlueButtonException if something goes wrong (e.g. server offline).
+    # Also throws an exception of the request was not successful (i.e. returncode == FAILED).
+    #
+    # Only formats the standard values in the response (the ones that exist in all responses).
+    def send_api_request(method, data={})
       url = get_url(method, data)
 
       @http_response = send_request(url)

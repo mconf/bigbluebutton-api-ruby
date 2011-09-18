@@ -38,47 +38,40 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  describe "#join_meeting_url" do
-    let(:meeting_id) { "meeting-id" }
-    let(:password) { "password" }
-    let(:user_name) { "user-name" }
-    let(:user_id) { "user-id" }
-    let(:web_voice_conf) { "web-voice-conf" }
-    let(:params) {
-      { :meetingID => meeting_id, :password => password, :fullName => user_name,
-        :userID => user_id, :webVoiceConf => web_voice_conf }
-    }
-
-    before { api.should_receive(:get_url).with(:join, params).and_return("test-url") }
-    it { api.join_meeting_url(meeting_id, user_name, password, user_id, web_voice_conf).should == "test-url" }
-  end
-
   describe "#create_meeting" do
-    let(:meeting_name) { "name" }
-    let(:meeting_id) { "meeting-id" }
-    let(:moderator_password) { "moderator-password" }
-    let(:attendee_password) { "attendee-password" }
-    let(:welcome_message) { "welcome" }
-    let(:dial_number) { "dial-number" }
-    let(:logout_url) { "logout-url" }
-    let(:max_participants) { "max-participants" }
-    let(:voice_bridge) { "voice-bridge" }
-    let(:params) {
-      { :name => meeting_name, :meetingID => meeting_id,
-        :moderatorPW => moderator_password, :attendeePW => attendee_password,
-        :welcome => welcome_message, :dialNumber => dial_number,
-        :logoutURL => logout_url, :maxParticpants => max_participants,
-        :voiceBridge => voice_bridge }
-    }
-    let(:response) { { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" } }
-    let(:expected_response) { { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false } }
+    context "standard case" do
+      let(:send_api_request_params) {
+        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
+          :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
+          :maxParticipants => 25, :voiceBridge => 12345 }
+      }
+      let(:send_api_request_response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
+      }
+      let(:expected_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
+      }
 
-    # ps: not mocking the formatter here because it's easier to just check the results (expected_response)
-    before { api.should_receive(:send_api_request).with(:create, params).and_return(response) }
-    subject { api.create_meeting(meeting_name, meeting_id, moderator_password,
-                                 attendee_password, welcome_message, dial_number,
-                                 logout_url, max_participants, voice_bridge) }
-    it { subject.should == expected_response }
+      # ps: not mocking the formatter here because it's easier to just check the results (expected_response)
+      before { api.should_receive(:send_api_request).with(:create, send_api_request_params).and_return(send_api_request_response) }
+      subject {
+        options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
+          :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345 }
+        api.create_meeting("name", "meeting-id", options)
+      }
+      it { subject.should == expected_response }
+    end
+
+    context "discards invalid options" do
+      let(:send_api_request_params) {
+        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap" }
+      }
+      before { api.should_receive(:send_api_request).with(:create, send_api_request_params) }
+      it {
+        options = { :invalidParam => "1", :moderatorPW => "mp", :attendeePW => "ap", :invalidParam2 => "1" }
+        api.create_meeting("name", "meeting-id", options)
+      }
+    end
   end
 
   describe "#end_meeting" do
@@ -108,19 +101,56 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  describe "#join_meeting" do
-    let(:meeting_id) { "meeting-id" }
-    let(:password) { "password" }
-    let(:user_name) { "user-name" }
-    let(:user_id) { "user-id" }
-    let(:web_voice_conf) { "web-voice-conf" }
-    let(:params) {
-      { :meetingID => meeting_id, :password => password, :fullName => user_name,
-        :userID => user_id, :webVoiceConf => web_voice_conf }
-    }
+  describe "#join_meeting_url" do
+    context "standard case" do
+      let(:params) {
+        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name",
+          :userID => "id123", :webVoiceConf => 12345678 }
+      }
 
-    before { api.should_receive(:send_api_request).with(:join, params).and_return("join-return") }
-    it { api.join_meeting(meeting_id, user_name, password, user_id, web_voice_conf).should == "join-return" }
+      before { api.should_receive(:get_url).with(:join, params).and_return("test-url") }
+      it {
+        options = { :userID => "id123", :webVoiceConf => 12345678 }
+        api.join_meeting_url("meeting-id", "Name", "pw", options).should == "test-url"
+      }
+    end
+
+    context "discards invalid options" do
+      let(:params) {
+        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name", :userID => "id123" }
+      }
+      before { api.should_receive(:get_url).with(:join, params) }
+      it {
+        options = { :invalidParam => "1", :userID => "id123", :invalidParam2 => "1" }
+        api.join_meeting_url("meeting-id", "Name", "pw", options)
+      }
+    end
+  end
+
+  describe "#join_meeting" do
+    context "standard case" do
+      let(:params) {
+        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name",
+          :userID => "id123", :webVoiceConf => 12345678 }
+      }
+
+      before { api.should_receive(:send_api_request).with(:join, params).and_return("join-return") }
+      it {
+        options = { :userID => "id123", :webVoiceConf => 12345678 }
+        api.join_meeting("meeting-id", "Name", "pw", options).should == "join-return"
+      }
+    end
+
+    context "discards invalid options" do
+      let(:params) {
+        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name", :userID => "id123" }
+      }
+      before { api.should_receive(:send_api_request).with(:join, params) }
+      it {
+        options = { :invalidParam => "1", :userID => "id123", :invalidParam2 => "1" }
+        api.join_meeting("meeting-id", "Name", "pw", options)
+      }
+    end
   end
 
   describe "#get_meeting_info" do
