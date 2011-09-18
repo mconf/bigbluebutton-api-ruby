@@ -1,7 +1,7 @@
 $:.unshift File.expand_path(File.dirname(__FILE__))
 $:.unshift File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib')
 
-require 'bigbluebutton-api'
+require 'bigbluebutton_api'
 require 'thread'
 require 'yaml'
 

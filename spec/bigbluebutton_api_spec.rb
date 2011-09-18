@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# Note: this file tests the functioning of the API object using BBB API version 0.7 as a basis
 describe BigBlueButton::BigBlueButtonApi do
 
   # default variables and API object for all tests
@@ -18,6 +19,7 @@ describe BigBlueButton::BigBlueButtonApi do
       it { subject.debug.should be(debug) }
       it { subject.timeout.should be(2) }
       it { subject.supported_versions.should include("0.7") }
+      it { subject.supported_versions.should include("0.8") }
     end
 
     context "when the version is not informed, get it from the BBB server" do
@@ -34,7 +36,7 @@ describe BigBlueButton::BigBlueButtonApi do
 
     context "current supported versions" do
       subject { BigBlueButton::BigBlueButtonApi.new(url, salt) }
-      it { subject.supported_versions.should == ["0.7"] }
+      it { subject.supported_versions.should == ["0.7", "0.8"] }
     end
   end
 
@@ -69,6 +71,17 @@ describe BigBlueButton::BigBlueButtonApi do
       before { api.should_receive(:send_api_request).with(:create, send_api_request_params) }
       it {
         options = { :invalidParam => "1", :moderatorPW => "mp", :attendeePW => "ap", :invalidParam2 => "1" }
+        api.create_meeting("name", "meeting-id", options)
+      }
+    end
+
+    context "discards options for >0.7" do
+      let(:send_api_request_params) {
+        { :name => "name", :meetingID => "meeting-id" }
+      }
+      before { api.should_receive(:send_api_request).with(:create, send_api_request_params) }
+      it {
+        options = { :record => true, :duration => 25, :meta_any => "meta" }
         api.create_meeting("name", "meeting-id", options)
       }
     end
@@ -125,6 +138,17 @@ describe BigBlueButton::BigBlueButtonApi do
         api.join_meeting_url("meeting-id", "Name", "pw", options)
       }
     end
+
+    context "discards options for >0.7" do
+      let(:params) {
+        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name" }
+      }
+      before { api.should_receive(:get_url).with(:join, params) }
+      it {
+        options = { :createTime => 123456789 }
+        api.join_meeting_url("meeting-id", "Name", "pw", options)
+      }
+    end
   end
 
   describe "#join_meeting" do
@@ -148,6 +172,17 @@ describe BigBlueButton::BigBlueButtonApi do
       before { api.should_receive(:send_api_request).with(:join, params) }
       it {
         options = { :invalidParam => "1", :userID => "id123", :invalidParam2 => "1" }
+        api.join_meeting("meeting-id", "Name", "pw", options)
+      }
+    end
+
+    context "discards options for >0.7" do
+      let(:params) {
+        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name" }
+      }
+      before { api.should_receive(:send_api_request).with(:join, params) }
+      it {
+        options = { :createTime => 123456789 }
         api.join_meeting("meeting-id", "Name", "pw", options)
       }
     end

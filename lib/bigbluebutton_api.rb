@@ -42,7 +42,7 @@ module BigBlueButton
     # salt::      Secret salt for this server
     # version::   API version: 0.7 (valid for 0.7, 0.71 and 0.71a)
     def initialize(url, salt, version='0.7', debug=false)
-      @supported_versions = ['0.7']
+      @supported_versions = ['0.7', '0.8']
       @url = url
       @salt = salt
       @debug = debug
@@ -61,9 +61,11 @@ module BigBlueButton
     # meeting_name (string)::         Name for the meeting
     # meeting_id (string, integer)::  Unique identifier for the meeting
     # options (Hash)::                Hash with optional parameters. The accepted parameters are:
-    #                                 moderatorPW, attendeePW, welcome, dialNumber, logoutURL,
-    #                                 maxParticipants, and voiceBridge. For details about each see
-    #                                 BBB API docs.
+    #                                 moderatorPW (string, int), attendeePW (string, int), welcome (string),
+    #                                 dialNumber (int), logoutURL (string), maxParticipants (int),
+    #                                 voiceBridge (int), record (boolean), duration (int) and "meta" parameters
+    #                                 (usually strings). If a parameter passed in the hash is not supported it will
+    #                                 simply be discarded. For details about each see BBB API docs.
     #
     # === Example
     #
@@ -92,10 +94,25 @@ module BigBlueButton
     #    :message => "This conference was already in existence and may currently be in progress."
     #   }
     #
+    # === Example response for 0.8
+    #   {
+    #    :returncode => true, :meetingID => "Test", :createTime => 1308591802,
+    #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => false,
+    #    :messageKey => "", :message => ""
+    #   }
+    #
     def create_meeting(meeting_name, meeting_id, options={})
       valid_options = [:moderatorPW, :attendeePW, :welcome, :dialNumber, :logoutURL,
                        :maxParticipants, :voiceBridge]
-      options.select!{ |o| valid_options.include?(o) }
+
+      if @version >= "0.8"
+        valid_options += [:record, :duration]
+        options.select!{ |k| valid_options.include?(k) or k.to_s =~ /^meta_.*$/ }
+        options[:record] = options[:record].to_s if options.has_key?(:record)
+      else
+        options.select!{ |k| valid_options.include?(k) }
+      end
+
       params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
 
       response = send_api_request(:create, params)
@@ -140,10 +157,13 @@ module BigBlueButton
     # user_name (string)::         Name of the user
     # password (string)::          Password for this meeting - used to set the user as moderator or attendee
     # options (Hash)::             Hash with optional parameters. The accepted parameters are:
-    #                              userID and webVoiceConf. For details about each see BBB API docs.
+    #                              userID (string, int), webVoiceConf (string, int) and createTime (int).
+    #                              For details about each see BBB API docs.
     def join_meeting_url(meeting_id, user_name, password, options={})
       valid_options = [:userID, :webVoiceConf]
+      valid_options += [:createTime] if @version >= "0.8"
       options.select!{ |o| valid_options.include?(o) }
+
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
 
       get_url(:join, params)
@@ -159,11 +179,14 @@ module BigBlueButton
     # meeting_id (string, int)::  Unique identifier for the meeting
     # user_name (string)::        Name of the user
     # password (string, int)::    Moderator or attendee password for this meeting
-    # options (Hash)::            Hash with optional parameters. The accepted parameters are:
-    #                             userID and webVoiceConf. For details about each see BBB API docs.
+    # options (Hash)::             Hash with optional parameters. The accepted parameters are:
+    #                              userID (string, int), webVoiceConf (string, int) and createTime (int).
+    #                              For details about each see BBB API docs.
     def join_meeting(meeting_id, user_name, password, options={})
       valid_options = [:userID, :webVoiceConf]
+      valid_options += [:createTime] if @version >= "0.8"
       options.select!{ |o| valid_options.include?(o) }
+
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
 
       send_api_request(:join, params)
@@ -176,7 +199,7 @@ module BigBlueButton
     # meeting_id (string, int)::  Unique identifier for the meeting
     # password (string, int)::    Moderator password for this meeting
     #
-    # === Return examples (for 0.7)
+    # === Example responses for 0.7
     #
     # With attendees:
     #
@@ -199,6 +222,15 @@ module BigBlueButton
     #    :attendees=>[], :messageKey=>"", :message=>""
     #   }
     #
+    # === Example responses for 0.8
+    # TODO: Example with metadata
+    #
+    #   {
+    #    :returncode => true, :meetingID => "test", :createTime => 1315254777880, :attendeePW => "1234",
+    #    :moderatorPW => "4321", :running => false, :hasBeenForciblyEnded => false, :startTime => nil,
+    #    :endTime => nil, :participantCount => 0, :moderatorCount => 0,
+    #    :attendees => [], :messageKey => "", :message => ""
+    #   }
     def get_meeting_info(meeting_id, password)
       response = send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
 
