@@ -298,6 +298,13 @@ module BigBlueButton
     #
 
     # Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs).
+    # options (Hash)::                Hash with optional parameters. The accepted parameters are:
+    #                                 :meetingID (string, Array). For details about each see BBB API docs.
+    #                                 Any of the following values are accepted for :meetingID :
+    #                                   :meetingID => "id1"
+    #                                   :meetingID => "id1,id2,id3"
+    #                                   :meetingID => ["id1"]
+    #                                   :meetingID => ["id1", "id2", "id3"]
     #
     # === Example responses
     # TODO: this example is not accurate yet
@@ -326,9 +333,7 @@ module BigBlueButton
     #       }
     #     ]
     #   }
-    # }
     #
-    # TODO: Format :recording nodes
     def get_recordings(options={})
       raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
 
@@ -342,10 +347,50 @@ module BigBlueButton
 
       response = send_api_request(:getRecordings, options)
 
+      # TODO: Format :recording nodes
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:recordings, :recording)
       #response[:recordings].each { |r| formatter.format_recording(r) }
       response
+    end
+
+    # Publish and unpublish recordings for a given recordID (or set of record IDs).
+    # recordIDs (string, Array)::  ID or IDs of the target recordings.
+    #                              Any of the following values are accepted:
+    #                                "id1"
+    #                                "id1,id2,id3"
+    #                                ["id1"]
+    #                                ["id1", "id2", "id3"]
+    # publish (boolean)::          Publish or unpublish the recordings?
+    #
+    # === Example responses
+    #
+    #   { :returncode => true, :published => true }
+    #
+    def publish_recordings(recordIDs, publish)
+      raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
+
+      recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
+      response = send_api_request(:publishRecordings, { :recordID => recordIDs, :publish => publish.to_s })
+    end
+
+    # Delete one or more recordings for a given recordID (or set of record IDs).
+    # recordIDs (string, Array)::  ID or IDs of the target recordings.
+    #                              Any of the following values are accepted:
+    #                                "id1"
+    #                                "id1,id2,id3"
+    #                                ["id1"]
+    #                                ["id1", "id2", "id3"]
+    #
+    # === Example responses
+    #
+    #   { :returncode => true, :deleted => true }
+    #
+    def delete_recordings(recordIDs)
+      raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
+
+      recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
+      response = send_api_request(:deleteRecordings, { :recordID => recordIDs })
     end
 
 

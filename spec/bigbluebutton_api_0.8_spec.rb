@@ -131,4 +131,89 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
+  describe "#publish_recordings" do
+    context "only supported for >= 0.8" do
+      let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, "0.7", debug) }
+      it { expect { api.publish_recordings("id", true) }.to raise_error(BigBlueButton::BigBlueButtonException) }
+    end
+
+    context "publish is converted to string" do
+      let(:recordIDs) { "any" }
+      let(:send_api_request_params) { { :publish => "false", :recordID => "any" } }
+      before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+      it { api.publish_recordings(recordIDs, false) }
+    end
+
+    context "with one recording ID" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1"] }
+        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1" }
+        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+    end
+
+    context "with several recording IDs" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1", "id-2"] }
+        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1,id-2" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1,id-2,id-3" }
+        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1,id-2,id-3" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+    end
+  end
+
+  describe "#delete_recordings" do
+    context "only supported for >= 0.8" do
+      let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, "0.7", debug) }
+      it { expect { api.delete_recordings("id") }.to raise_error(BigBlueButton::BigBlueButtonException) }
+    end
+
+    context "with one recording ID" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1"] }
+        let(:send_api_request_params) { { :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1" }
+        let(:send_api_request_params) { { :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+    end
+
+    context "with several recording IDs" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1", "id-2"] }
+        let(:send_api_request_params) { { :recordID => "id-1,id-2" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1,id-2,id-3" }
+        let(:send_api_request_params) { { :recordID => "id-1,id-2,id-3" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+    end
+  end
+
 end
