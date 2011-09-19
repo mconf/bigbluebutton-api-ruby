@@ -308,7 +308,14 @@ describe BigBlueButton::BigBlueButtonApi do
         context "with params" do
           let(:params) { { :param1 => "value1", :param2 => "value2" } }
           subject { api.get_url(:join, params) }
-          it { subject.should match(/#{url}\/join\?param1=value1&param2=value2/) }
+          it {
+            # the hash can be sorted differently depending on the ruby version
+            if params.map{ |k,v| "#{k}" }.join =~ /^param1/
+              subject.should match(/#{url}\/join\?param1=value1&param2=value2/)
+            else
+              subject.should match(/#{url}\/join\?param2=value2&param1=value1/)
+            end
+          }
         end
 
         context "without params" do
@@ -332,7 +339,14 @@ describe BigBlueButton::BigBlueButtonApi do
 
       context "includes the checksum" do
         let(:params) { { :param1 => "value1", :param2 => "value2" } }
-        let(:checksum) { Digest::SHA1.hexdigest("joinparam1=value1&param2=value2#{salt}") }
+        let(:checksum) {
+          # the hash can be sorted differently depending on the ruby version
+          if params.map{ |k,v| "#{k}" }.join =~ /^param1/
+            "67882ae54f49600f56f358c10d24697ef7d8c6b2"
+          else
+            "85a54e28e4ec18bfdcb214a73f74d35b09a84176"
+          end
+        }
         subject { api.get_url(:join, params) }
         it { subject.should match(/checksum=#{checksum}$/) }
       end
