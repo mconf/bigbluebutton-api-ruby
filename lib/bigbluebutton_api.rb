@@ -56,6 +56,12 @@ module BigBlueButton
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 
+
+    #
+    # API calls since 0.7
+    #
+
+
     # Creates a new meeting. Returns the hash with the response or
     # throws BigBlueButtonException on failure.
     # meeting_name (string)::         Name for the meeting
@@ -252,7 +258,7 @@ module BigBlueButton
     # Returns a hash object containing information about the meetings currently existent in the BBB
     # server, either they are running or not.
     #
-    # === Return examples (for 0.7)
+    # === Example responses for 0.7
     #
     # Server with one or more meetings:
     #
@@ -284,6 +290,68 @@ module BigBlueButton
       response = send_api_request(:index)
       response[:returncode] ? response[:version].to_s : ""
     end
+
+
+
+    #
+    # API calls since 0.8
+    #
+
+    # Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs).
+    #
+    # === Example responses
+    # TODO: this example is not accurate yet
+    #
+    #   { :returncode => true,
+    #     :recording => [
+    #       { :recordID => "183f0bf3a0982a127bdb8161-1308597520", :meetingID => "CS101",
+    #         :name => "On-line session for CS 101", :published => false,
+    #         :startTime => DateTime("Thu Mar 04 14:05:56 UTC 2010")
+    #         :endTime => DateTime("Thu Mar 04 15:01:01 UTC 2010")
+    #         :metadata => {
+    #           :title => "Test Recording", :subject => "English 232 session",
+    #           :description => "First Class", :creator => "Fred Dixon",
+    #           :contributor => "Richard Alam", :language => "en_US"
+    #         }
+    #         :playback => {
+    #           :format => {
+    #             :type => "simple",
+    #             :url => "http://server.com/simple/playback?recordID=183f0bf3a0982a127bdb8161-1",
+    #             :length => 62 }
+    #         }
+    #       }
+    #       { :recordID => "183f0bf3a0982a127bdb8161-13085974450", :meetingID => "CS102",
+    #         ...
+    #         ...
+    #       }
+    #     ]
+    #   }
+    # }
+    #
+    # TODO: Format :recording nodes
+    def get_recordings(options={})
+      raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
+
+      valid_options = [:meetingID]
+      options.select!{ |o| valid_options.include?(o) }
+
+      # ["id1", "id2", "id3"] becomes "id1,id2,id3"
+      if options.has_key?(:meetingID)
+        options[:meetingID] = options[:meetingID].join(",") if options[:meetingID].instance_of?(Array)
+      end
+
+      response = send_api_request(:getRecordings, options)
+
+      formatter = BigBlueButtonFormatter.new(response)
+      formatter.flatten_objects(:recordings, :recording)
+      #response[:recordings].each { |r| formatter.format_recording(r) }
+      response
+    end
+
+
+    #
+    # Helper functions
+    #
 
     # Make a simple request to the server to test the connection.
     def test_connection
@@ -363,6 +431,7 @@ module BigBlueButton
 
     protected
 
+    # :nodoc:
     def send_request(url)
       begin
         puts "BigBlueButtonAPI: URL request = #{url}" if @debug

@@ -60,4 +60,75 @@ describe BigBlueButton::BigBlueButtonApi do
     }
   end
 
+  describe "#get_recordings" do
+    let(:recording1) { { :recordID => "id1", :meetindID => "meeting-id" } } # simplified "recording" node in the response
+    let(:recording2) { { :recordID => "id2", :meetindID => "meeting-id" } }
+    let(:response) {
+      { :returncode => true, :recordings => { :recording => [ recording1, recording2 ] }, :messageKey => "mkey", :message => "m" }
+    }
+    let(:flattened_response) {
+      { :returncode => true, :recordings => [ recording1, recording2 ], :messageKey => "mkey", :message => "m" }
+    } # hash *after* the flatten_objects call
+
+    context "only supported for >= 0.8" do
+      let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, "0.7", debug) }
+      it { expect { api.get_recordings }.to raise_error(BigBlueButton::BigBlueButtonException) }
+    end
+
+    context "discards invalid options" do
+      let(:send_api_request_params) { { :meetingID => "meeting-id" } }
+      before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+      it { api.get_recordings({ :meetingID => "meeting-id", :invalidParam1 => "1" }) }
+    end
+
+    context "without meeting ID" do
+      before { api.should_receive(:send_api_request).with(:getRecordings, {}).and_return(response) }
+      it { api.get_recordings.should == response }
+    end
+
+    context "with one meeting ID" do
+      context "in an array" do
+        let(:options) { { :meetingID => ["meeting-id"] } }
+        let(:send_api_request_params) { { :meetingID => "meeting-id" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+
+      context "in a string" do
+        let(:options) { { :meetingID => "meeting-id" } }
+        let(:send_api_request_params) { { :meetingID => "meeting-id" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+    end
+
+    context "with several meeting IDs" do
+      context "in an array" do
+        let(:options) { { :meetingID => ["meeting-id-1", "meeting-id-2"] } }
+        let(:send_api_request_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+
+      context "in a string" do
+        let(:options) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        let(:send_api_request_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+    end
+
+    context "formats the response" do
+      before {
+        api.should_receive(:send_api_request).with(:getRecordings, anything).and_return(flattened_response)
+        formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+        formatter_mock.should_receive(:flatten_objects).with(:recordings, :recording)
+        #formatter_mock.should_receive(:format_recording).with(recording1)
+        #formatter_mock.should_receive(:format_recording).with(recording2)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+      }
+      it { api.get_recordings }
+    end
+  end
+
 end

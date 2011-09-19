@@ -45,7 +45,7 @@ module BigBlueButton
       @hash = response
     end
 
-    # default formatting for a meeting hash
+    # Default formatting for a meeting hash
     def format_meeting(meeting)
       meeting[:meetingID] = meeting[:meetingID].to_s
       meeting[:moderatorPW] = meeting[:moderatorPW].to_s
@@ -55,15 +55,36 @@ module BigBlueButton
       meeting
     end
 
-    # default formatting for an attendee hash
+    # Default formatting for an attendee hash
     def format_attendee(attendee)
       attendee[:userID] = attendee[:userID].to_s
       attendee[:role] = attendee[:role].downcase.to_sym
       attendee
     end
 
-    # simplifies the hash making a node e.g. :attendee with an array with all attendees
-    # TODO: comments with the expected @hash at this point
+    # Simplifies the XML-styled hash node 'first'. Its value will then always be an Array.
+    #
+    # For example, if the current hash is:
+    #   { :name => "Test", :attendees => { :attendee => [ { :name => "attendee1" }, { :name => "attendee2" } ] } }
+    #
+    # Calling:
+    #  flatten_objects(:attendees, :attendee)
+    #
+    # The hash will become:
+    #   { :name => "Test", :attendees => [ { :name => "attendee1" }, { :name => "attendee2" } ] }
+    #
+    # Other examples:
+    #
+    # Hash:
+    #   { :name => "Test", :attendees => {} }
+    # Result:
+    #   { :name => "Test", :attendees => [] }
+    #
+    # Hash:
+    #   { :name => "Test", :attendees => { :attendee => { :name => "attendee1" } } }
+    # Result:
+    #   { :name => "Test", :attendees => [ { :name => "attendee1" } ] }
+    #
     def flatten_objects(first, second)
       if @hash[first].empty?
         collection = []
