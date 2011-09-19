@@ -113,10 +113,10 @@ module BigBlueButton
 
       if @version >= "0.8"
         valid_options += [:record, :duration]
-        options.select!{ |k| valid_options.include?(k) or k.to_s =~ /^meta_.*$/ }
+        options.reject!{ |k,v| !valid_options.include?(k) and !(k.to_s =~ /^meta_.*$/) }
         options[:record] = options[:record].to_s if options.has_key?(:record)
       else
-        options.select!{ |k| valid_options.include?(k) }
+        options.reject!{ |k,v| !valid_options.include?(k) }
       end
 
       params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
@@ -168,7 +168,7 @@ module BigBlueButton
     def join_meeting_url(meeting_id, user_name, password, options={})
       valid_options = [:userID, :webVoiceConf]
       valid_options += [:createTime] if @version >= "0.8"
-      options.select!{ |o| valid_options.include?(o) }
+      options.reject!{ |k,v| !valid_options.include?(k) }
 
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
 
@@ -191,7 +191,7 @@ module BigBlueButton
     def join_meeting(meeting_id, user_name, password, options={})
       valid_options = [:userID, :webVoiceConf]
       valid_options += [:createTime] if @version >= "0.8"
-      options.select!{ |o| valid_options.include?(o) }
+      options.reject!{ |k,v| !valid_options.include?(k) }
 
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
 
@@ -333,7 +333,7 @@ module BigBlueButton
       raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
 
       valid_options = [:meetingID]
-      options.select!{ |o| valid_options.include?(o) }
+      options.reject!{ |k,v| !valid_options.include?(k) }
 
       # ["id1", "id2", "id3"] becomes "id1,id2,id3"
       if options.has_key?(:meetingID)
