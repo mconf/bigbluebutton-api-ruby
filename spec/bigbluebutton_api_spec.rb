@@ -226,9 +226,9 @@ describe BigBlueButton::BigBlueButtonApi do
       api.should_receive(:send_api_request).with(:getMeetings, anything).and_return(flattened_response)
       formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
       formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
-      formatter_mock.should_receive(:format_meeting).with(meeting_hash1)
-      formatter_mock.should_receive(:format_meeting).with(meeting_hash2)
       BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+      BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
+      BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
     }
     it { api.get_meetings }
   end

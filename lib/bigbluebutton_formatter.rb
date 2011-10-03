@@ -10,7 +10,7 @@ module BigBlueButton
 
     # converts a value in the @hash to boolean
     def to_boolean(key)
-      if @hash.empty? or !@hash.has_key?(key)
+      unless @hash.has_key?(key)
         false
       else
         @hash[key] = @hash[key].downcase == "true"
@@ -24,10 +24,19 @@ module BigBlueButton
 
     # converts a value in the @hash to DateTime
     def to_datetime(key)
-      if @hash.empty? or !@hash.has_key?(key)
+      unless @hash.has_key?(key)
         nil
       else
         @hash[key] = @hash[key].downcase == "null" ? nil : DateTime.parse(@hash[key])
+      end
+    end
+
+    # converts a value in the @hash to a symbol
+    def to_sym(key)
+      if !@hash.has_key?(key) or @hash[key].empty?
+        ""
+      else
+        @hash[key] = @hash[key].downcase.to_sym
       end
     end
 
@@ -46,20 +55,34 @@ module BigBlueButton
     end
 
     # Default formatting for a meeting hash
-    def format_meeting(meeting)
-      meeting[:meetingID] = meeting[:meetingID].to_s
-      meeting[:moderatorPW] = meeting[:moderatorPW].to_s
-      meeting[:attendeePW] = meeting[:attendeePW].to_s
-      meeting[:hasBeenForciblyEnded] = meeting[:hasBeenForciblyEnded].downcase == "true"
-      meeting[:running] = meeting[:running].downcase == "true"
+    def self.format_meeting(meeting)
+      f = BigBlueButtonFormatter.new(meeting)
+      f.to_string(:meetingID)
+      f.to_string(:moderatorPW)
+      f.to_string(:attendeePW)
+      f.to_boolean(:hasBeenForciblyEnded)
+      f.to_boolean(:running)
       meeting
     end
 
     # Default formatting for an attendee hash
-    def format_attendee(attendee)
-      attendee[:userID] = attendee[:userID].to_s
-      attendee[:role] = attendee[:role].downcase.to_sym
+    def self.format_attendee(attendee)
+      f = BigBlueButtonFormatter.new(attendee)
+      f.to_string(:userID)
+      f.to_sym(:role)
       attendee
+    end
+
+    # Default formatting for a recording hash
+    def self.format_recording(rec)
+      f = BigBlueButtonFormatter.new(rec)
+      f.to_string(:recordID)
+      f.to_string(:meetingID)
+      f.to_string(:name)
+      f.to_boolean(:published)
+      f.to_datetime(:startTime)
+      f.to_datetime(:endTime)
+      rec
     end
 
     # Simplifies the XML-styled hash node 'first'. Its value will then always be an Array.

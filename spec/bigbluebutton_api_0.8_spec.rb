@@ -123,8 +123,8 @@ describe BigBlueButton::BigBlueButtonApi do
         api.should_receive(:send_api_request).with(:getRecordings, anything).and_return(flattened_response)
         formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
         formatter_mock.should_receive(:flatten_objects).with(:recordings, :recording)
-        #formatter_mock.should_receive(:format_recording).with(recording1)
-        #formatter_mock.should_receive(:format_recording).with(recording2)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording1)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording2)
         BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
       }
       it { api.get_recordings }

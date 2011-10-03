@@ -76,6 +76,29 @@ describe BigBlueButton::BigBlueButtonFormatter do
     end
   end
 
+  describe "#to_sym" do
+    let(:hash) { { :param1 => :sym1, :param2 => "sym2", :param3 => "SyM3" } }
+    subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+    it { subject.to_sym(:param1).should == :sym1 }
+    it { subject.to_sym(:param2).should == :sym2 }
+    it { subject.to_sym(:param3).should == :sym3 }
+
+    context "returns empty string if the param doesn't exists" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1 }) }
+      it { subject.to_string(:inexistent).should == "" }
+    end
+
+    context "returns empty string if the hash is nil" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+      it { subject.to_string(:inexistent).should == "" }
+    end
+
+    context "returns empty string if the value to be converted is an empty string" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => "" }) }
+      it { subject.to_string(:param).should == "" }
+    end
+  end
+
   describe "#default_formatting" do
     let(:input) { { :response => { :returncode => "SUCCESS", :messageKey => "mkey", :message => "m" } } }
     let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(input) }
@@ -117,14 +140,13 @@ describe BigBlueButton::BigBlueButtonFormatter do
     end
   end
 
-  describe "#format_meeting" do
-    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new({}) }
+  describe ".format_meeting" do
     let(:hash) {
       { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222,
         :hasBeenForciblyEnded => "FALSE", :running => "TRUE" }
     }
 
-    subject { formatter.format_meeting(hash) }
+    subject { BigBlueButton::BigBlueButtonFormatter.format_meeting(hash) }
     it { subject[:meetingID].should == "123" }
     it { subject[:moderatorPW].should == "111" }
     it { subject[:attendeePW].should == "222" }
@@ -132,14 +154,38 @@ describe BigBlueButton::BigBlueButtonFormatter do
     it { subject[:running].should == true }
   end
 
-  describe "#format_attendee" do
-    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new({}) }
+  describe ".format_attendee" do
     let(:hash) { { :userID => 123, :fullName => "Cameron", :role => "VIEWER" } }
 
-    subject { formatter.format_attendee(hash) }
+    subject { BigBlueButton::BigBlueButtonFormatter.format_attendee(hash) }
     it { subject[:userID].should == "123" }
     it { subject[:fullName].should == "Cameron" }
     it { subject[:role].should == :viewer }
+  end
+
+  describe ".format_recording" do
+    let(:hash) { { :recordID => 123, :meetingID => 123, :name => 123, :published => "true",
+                   :startTime => "Thu Mar 04 14:05:56 UTC 2010",
+                   :endTime => "Thu Mar 04 15:01:01 UTC 2010",
+                   :metadata => {
+                     :title => "Test Recording", :subject => "English 232 session",
+                     :description => "First Class", :creator => "Fred Dixon",
+                     :contributor => "Richard Alam", :language => "en_US"
+                    },
+                   :playback => {
+                     :format => {
+                       :type => "simple",
+                       :url => "http://server.com/simple/playback?recordID=183f0bf3a0982a127bdb8161-1",
+                       :length => 62 }
+                   }
+    } }
+
+    subject { BigBlueButton::BigBlueButtonFormatter.format_recording(hash) }
+    it { subject[:recordID].should == "123" }
+    it { subject[:meetingID].should == "123" }
+    it { subject[:name].should == "123" }
+    it { subject[:startTime].should == DateTime.parse("Thu Mar 04 14:05:56 UTC 2010") }
+    it { subject[:endTime].should == DateTime.parse("Thu Mar 04 15:01:01 UTC 2010") }
   end
 
   describe "#flatten_objects" do

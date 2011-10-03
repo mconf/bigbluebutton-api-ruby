@@ -242,7 +242,7 @@ module BigBlueButton
 
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:attendees, :attendee)
-      response[:attendees].each { |a| formatter.format_attendee(a) }
+      response[:attendees].each { |a| BigBlueButtonFormatter.format_attendee(a) }
 
       formatter.to_string(:meetingID)
       formatter.to_string(:moderatorPW)
@@ -279,7 +279,7 @@ module BigBlueButton
 
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:meetings, :meeting)
-      response[:meetings].each { |m| formatter.format_meeting(m) }
+      response[:meetings].each { |m| BigBlueButtonFormatter.format_meeting(m) }
       response
     end
 
@@ -313,13 +313,13 @@ module BigBlueButton
     #     :recording => [
     #       { :recordID => "183f0bf3a0982a127bdb8161-1308597520", :meetingID => "CS101",
     #         :name => "On-line session for CS 101", :published => false,
-    #         :startTime => DateTime("Thu Mar 04 14:05:56 UTC 2010")
-    #         :endTime => DateTime("Thu Mar 04 15:01:01 UTC 2010")
+    #         :startTime => DateTime("Thu Mar 04 14:05:56 UTC 2010"),
+    #         :endTime => DateTime("Thu Mar 04 15:01:01 UTC 2010"),
     #         :metadata => {
     #           :title => "Test Recording", :subject => "English 232 session",
     #           :description => "First Class", :creator => "Fred Dixon",
     #           :contributor => "Richard Alam", :language => "en_US"
-    #         }
+    #         },
     #         :playback => {
     #           :format => {
     #             :type => "simple",
@@ -347,10 +347,9 @@ module BigBlueButton
 
       response = send_api_request(:getRecordings, options)
 
-      # TODO: Format :recording nodes
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:recordings, :recording)
-      #response[:recordings].each { |r| formatter.format_recording(r) }
+      response[:recordings].each { |r| BigBlueButtonFormatter.format_recording(r) }
       response
     end
 
