@@ -33,10 +33,16 @@ module BigBlueButton
 
     # converts a value in the @hash to a symbol
     def to_sym(key)
-      if !@hash.has_key?(key) or @hash[key].empty?
+      unless @hash.has_key?(key)
         ""
       else
-        @hash[key] = @hash[key].downcase.to_sym
+        if @hash[key].instance_of?(Symbol)
+          @hash[key]
+        elsif @hash[key].empty?
+          ""
+        else
+          @hash[key] = @hash[key].downcase.to_sym
+        end
       end
     end
 
