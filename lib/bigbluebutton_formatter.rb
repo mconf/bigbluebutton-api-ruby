@@ -38,7 +38,7 @@ module BigBlueButton
       else
         # BBB >= 0.8 uses the unix epoch for all time related values
         # older versions use strings
-        if @hash[key].instance_of?(Fixnum)
+        if @hash[key].is_a?(Numeric)
           @hash[key] = DateTime.parse(Time.at(@hash[key]/1000.0).to_s)
         else
           @hash[key] = @hash[key].downcase == "null" ? nil : DateTime.parse(@hash[key])
