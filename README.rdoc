@@ -3,8 +3,8 @@
 This is a ruby gem that provides access to the {BigBlueButton}[http://bigbluebutton.org] API.
 For the API documentation see {this page}[http://code.google.com/p/bigbluebutton/wiki/API].
 
-Basically it enables a ruby application to interact with BigBlueButton by calling ruby methods (instead of HTTP GETs)
-and formats the response to a ruby-friendly format.
+Basically it enables a ruby application to interact with BigBlueButton by calling ruby methods instead of HTTP requests making it a lot easier to
+interact with BigBlueButton. And also formats the responses to a ruby-friendly format.
 
 Some details:
 
@@ -13,18 +13,18 @@ Some details:
 * Converts the string values returned to native ruby types. For instance:
   * Dates are converted DateTime objects (e.g. "Thu Sep 01 17:51:42 UTC 2011");
   * Response codes are converted to boolean (e.g. "SUCCESS" becomes <tt>true</tt>);
-  * "NULL" becomes <tt>nil</tt>;
 * Deals with errors throwing BigBlueButtonException exceptions.
 
 Tested in Ruby <b>1.8.7</b> and Ruby <b>1.9.2</b>.
 
 == Supported Versions
 
-Currently supports BigBlueButton version 0.7 (including 0.7, 0.71 and 0.71a).
+Currently supports the following versions of BigBlueButton:
 
-For version 0.64 see the branch "api-0.64".
+* 0.8
+* 0.7 (including 0.7, 0.71 and 0.71a).
 
-Version 0.8 will also soon be supported!
+For version 0.64 see the branch "api-0.64". The last version with support to 0.64 is version 0.0.10.
 
 == Releases
 

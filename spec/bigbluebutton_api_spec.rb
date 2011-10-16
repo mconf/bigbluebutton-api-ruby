@@ -42,33 +42,33 @@ describe BigBlueButton::BigBlueButtonApi do
 
   describe "#create_meeting" do
     context "standard case" do
-      let(:send_api_request_params) {
+      let(:req_params) {
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
           :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
           :maxParticipants => 25, :voiceBridge => 12345 }
       }
-      let(:send_api_request_response) {
+      let(:req_response) {
         { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
       }
-      let(:expected_response) {
+      let(:final_response) {
         { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
       }
 
-      # ps: not mocking the formatter here because it's easier to just check the results (expected_response)
-      before { api.should_receive(:send_api_request).with(:create, send_api_request_params).and_return(send_api_request_response) }
+      # ps: not mocking the formatter here because it's easier to just check the results (final_response)
+      before { api.should_receive(:send_api_request).with(:create, req_params).and_return(req_response) }
       subject {
         options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
           :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345 }
         api.create_meeting("name", "meeting-id", options)
       }
-      it { subject.should == expected_response }
+      it { subject.should == final_response }
     end
 
     context "discards invalid options" do
-      let(:send_api_request_params) {
+      let(:req_params) {
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap" }
       }
-      before { api.should_receive(:send_api_request).with(:create, send_api_request_params) }
+      before { api.should_receive(:send_api_request).with(:create, req_params) }
       it {
         options = { :invalidParam => "1", :moderatorPW => "mp", :attendeePW => "ap", :invalidParam2 => "1" }
         api.create_meeting("name", "meeting-id", options)
@@ -76,10 +76,10 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     context "discards options for >0.7" do
-      let(:send_api_request_params) {
+      let(:req_params) {
         { :name => "name", :meetingID => "meeting-id" }
       }
-      before { api.should_receive(:send_api_request).with(:create, send_api_request_params) }
+      before { api.should_receive(:send_api_request).with(:create, req_params) }
       it {
         options = { :record => true, :duration => 25, :meta_any => "meta" }
         api.create_meeting("name", "meeting-id", options)
@@ -139,7 +139,7 @@ describe BigBlueButton::BigBlueButtonApi do
       }
     end
 
-    context "discards options for >0.7" do
+    context "discards options for <= 0.7" do
       let(:params) {
         { :meetingID => "meeting-id", :password => "pw", :fullName => "Name" }
       }
@@ -176,7 +176,7 @@ describe BigBlueButton::BigBlueButtonApi do
       }
     end
 
-    context "discards options for >0.7" do
+    context "discards options for <= 0.7" do
       let(:params) {
         { :meetingID => "meeting-id", :password => "pw", :fullName => "Name" }
       }
@@ -203,15 +203,15 @@ describe BigBlueButton::BigBlueButtonApi do
 
     let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
     let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
-    let(:expected_response) {
+    let(:final_response) {
       { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
         :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
         :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ], :messageKey => "mkey", :message => "m" }
     } # expected return hash after all the formatting
 
-    # ps: not mocking the formatter here because it's easier to just check the results (expected_response)
+    # ps: not mocking the formatter here because it's easier to just check the results (final_response)
     before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
-    it { api.get_meeting_info(meeting_id, password).should == expected_response }
+    it { api.get_meeting_info(meeting_id, password).should == final_response }
   end
 
   describe "#get_meetings" do
@@ -353,52 +353,19 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  # FIXME: this complex test means that the method is too complex - try to refactor it
   describe "#send_api_request" do
     let(:method) { :join }
     let(:params) { { :param1 => "value1" } }
-    let(:target_url) { "http://test-server:8080?param1=value1&checksum=12345" }
-    let(:make_request) { api.send_api_request(method, params) }
-    before { api.should_receive(:get_url).with(method, params).and_return(target_url) }
+    let(:data) { "any data" }
+    let(:url) { "http://test-server:8080?param1=value1&checksum=12345" }
+    let(:make_request) { api.send_api_request(method, params, data) }
+    let(:response_mock) { mock() } # mock of what send_request() would return
 
-    def setup_http_mock
-      @http_mock = mock(Net::HTTP)
-      Net::HTTP.should_receive(:new).with("test-server", 8080).and_return(@http_mock)
-      @http_mock.should_receive(:"open_timeout=").with(api.timeout)
-      @http_mock.should_receive(:"read_timeout=").with(api.timeout)
-    end
-
-    context "sets up the Net::HTTP object correctly" do
-      before do
-        setup_http_mock
-        response_mock = mock()
-        @http_mock.should_receive(:get).and_return(response_mock)
-        response_mock.should_receive(:body).and_return("") # so the method exits right after the setup
-      end
-      it { make_request }
-    end
-
-    context "handles a TimeoutError" do
-      before do
-        setup_http_mock
-        @http_mock.should_receive(:get) { raise TimeoutError }
-      end
-      it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
-    end
-
-    context "handles general Exceptions" do
-      before do
-        setup_http_mock
-        @http_mock.should_receive(:get) { raise Exception }
-      end
-      it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
-    end
+    before { api.should_receive(:get_url).with(method, params).and_return(url) }
 
     context "returns an empty hash if the response body is empty" do
       before do
-        setup_http_mock
-        response_mock = mock()
-        @http_mock.should_receive(:get).and_return(response_mock)
+        api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).and_return("")
       end
       it { make_request.should == { } }
@@ -406,9 +373,7 @@ describe BigBlueButton::BigBlueButtonApi do
 
     context "hashfies and validates the response body" do
       before do
-        setup_http_mock
-        response_mock = mock()
-        @http_mock.should_receive(:get).and_return(response_mock)
+        api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
       end
 
@@ -427,10 +392,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:response) { { :response => { :returncode => true } } }
       let(:formatted_response) { { :returncode => true } }
       before do
-        setup_http_mock
-
-        response_mock = mock()
-        @http_mock.should_receive(:get).and_return(response_mock)
+        api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
         Hash.should_receive(:from_xml).with("response-body").and_return(response)
 
@@ -446,10 +408,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:response) { { :response => { :returncode => true } } }
       let(:formatted_response) { { } }
       before do
-        setup_http_mock
-
-        response_mock = mock()
-        @http_mock.should_receive(:get).and_return(response_mock)
+        api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
         Hash.should_receive(:from_xml).with("response-body").and_return(response)
 
@@ -458,6 +417,43 @@ describe BigBlueButton::BigBlueButtonApi do
         formatter_mock.should_receive(:default_formatting).and_return(formatted_response)
       end
       it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
+    end
+  end
+
+  describe "#send_request" do
+    let(:url) { "http://test-server:8080/res?param1=value1&checksum=12345" }
+    let(:url_parsed) { URI.parse(url) }
+
+    before do
+      @http_mock = mock(Net::HTTP)
+      @http_mock.should_receive(:"open_timeout=").with(api.timeout)
+      @http_mock.should_receive(:"read_timeout=").with(api.timeout)
+      Net::HTTP.should_receive(:new).with("test-server", 8080).and_return(@http_mock)
+    end
+
+    context "standard case" do
+      before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345").and_return("ok") }
+      it { api.send(:send_request, url).should == "ok" }
+    end
+
+    context "handles a TimeoutError" do
+      before { @http_mock.should_receive(:get) { raise TimeoutError } }
+      it { expect { api.send(:send_request, url) }.to raise_error(BigBlueButton::BigBlueButtonException) }
+    end
+
+    context "handles general Exceptions" do
+      before { @http_mock.should_receive(:get) { raise Exception } }
+      it { expect { api.send(:send_request, url) }.to raise_error(BigBlueButton::BigBlueButtonException) }
+    end
+
+    context "with data" do
+      let(:data) { "any data" }
+      before {
+        @http_mock.should_receive(:post).with("/res?param1=value1&checksum=12345", data).and_return("ok")
+      }
+      it {
+        api.send(:send_request, url, data).should == "ok"
+      }
     end
 
   end

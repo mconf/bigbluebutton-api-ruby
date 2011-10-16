@@ -7,6 +7,7 @@ require 'nokogiri'
 require 'hash_to_xml'
 require 'bigbluebutton_exception'
 require 'bigbluebutton_formatter'
+require 'bigbluebutton_modules'
 
 module BigBlueButton
 
@@ -64,22 +65,34 @@ module BigBlueButton
 
     # Creates a new meeting. Returns the hash with the response or
     # throws BigBlueButtonException on failure.
-    # meeting_name (string)::         Name for the meeting
-    # meeting_id (string, integer)::  Unique identifier for the meeting
-    # options (Hash)::                Hash with optional parameters. The accepted parameters are:
-    #                                 moderatorPW (string, int), attendeePW (string, int), welcome (string),
-    #                                 dialNumber (int), logoutURL (string), maxParticipants (int),
-    #                                 voiceBridge (int), record (boolean), duration (int) and "meta" parameters
-    #                                 (usually strings). If a parameter passed in the hash is not supported it will
-    #                                 simply be discarded. For details about each see BBB API docs.
+    # meeting_name (string)::           Name for the meeting
+    # meeting_id (string, integer)::    Unique identifier for the meeting
+    # options (Hash)::                  Hash with optional parameters. The accepted parameters are:
+    #                                   moderatorPW (string, int), attendeePW (string, int), welcome (string),
+    #                                   dialNumber (int), logoutURL (string), maxParticipants (int),
+    #                                   voiceBridge (int), record (boolean), duration (int) and "meta" parameters
+    #                                   (usually strings). If a parameter passed in the hash is not supported it will
+    #                                   simply be discarded. For details about each see BBB API docs.
+    # modules (BigBlueButtonModules)::  Configuration for the modules. The modules are sent as an xml and the
+    #                                   request will use an HTTP POST instead of GET. Currently only the
+    #                                   "presentation" module is available. Only used for version > 0.8.
+    #                                   See usage examples below.
     #
     # === Example
     #
-    #   create_meeting("My Meeting", "my-meeting",
-    #                  { :moderatorPW => "123", :attendeePW => "321", :welcome => "Welcome here!",
-    #                    :dialNumber => 5190909090, logoutURL => "http://mconf.org", :maxParticipants => 25,
-    #                    :voiceBridge => 76543, :record => "true", :duration => 0, :meta_category => "Remote Class" }
-    #                 )
+    #   options = { :moderatorPW => "123", :attendeePW => "321", :welcome => "Welcome here!",
+    #               :dialNumber => 5190909090, logoutURL => "http://mconf.org", :maxParticipants => 25,
+    #               :voiceBridge => 76543, :record => "true", :duration => 0, :meta_category => "Remote Class" }
+    #   create_meeting("My Meeting", "my-meeting", options)
+    #
+    # === Example with modules (see BigBlueButtonModules docs for more)
+    #
+    #   modules = BigBlueButton::BigBlueButtonModules.new
+    #   modules.add_presentation(:url, "http://www.samplepdf.com/sample.pdf")
+    #   modules.add_presentation(:url, "http://www.samplepdf.com/sample2.pdf")
+    #   modules.add_presentation(:file, "presentations/class01.ppt")
+    #   modules.add_presentation(:base64, "JVBERi0xLjQKJ....[clipped here]....0CiUlRU9GCg==", "first-class.pdf")
+    #   create_meeting("My Meeting", "my-meeting", nil, modules)
     #
     # === Example response for 0.7
     #
@@ -101,17 +114,19 @@ module BigBlueButton
     #   }
     #
     # === Example response for 0.8
+    #
     #   {
     #    :returncode => true, :meetingID => "Test", :createTime => 1308591802,
     #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => false,
     #    :messageKey => "", :message => ""
     #   }
     #
-    def create_meeting(meeting_name, meeting_id, options={})
+    def create_meeting(meeting_name, meeting_id, options={}, modules=nil)
       valid_options = [:moderatorPW, :attendeePW, :welcome, :dialNumber, :logoutURL,
                        :maxParticipants, :voiceBridge]
 
       if @version >= "0.8"
+        # v0.8 added "record", "duration" and "meta_" parameters
         valid_options += [:record, :duration]
         options.reject!{ |k,v| !valid_options.include?(k) and !(k.to_s =~ /^meta_.*$/) }
         options[:record] = options[:record].to_s if options.has_key?(:record)
@@ -121,7 +136,11 @@ module BigBlueButton
 
       params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
 
-      response = send_api_request(:create, params)
+      if modules and @version >= "0.8"
+        response = send_api_request(:create, params, modules.to_xml)
+      else
+        response = send_api_request(:create, params)
+      end
 
       formatter = BigBlueButtonFormatter.new(response)
       formatter.to_string(:meetingID)
@@ -251,6 +270,12 @@ module BigBlueButton
       formatter.to_boolean(:running)
       formatter.to_datetime(:startTime)
       formatter.to_datetime(:endTime)
+      if @version >= "0.8"
+        formatter.to_string(:meetingName)
+        formatter.to_int(:participantCount)
+        formatter.to_int(:maxUsers)
+        formatter.to_int(:voiceBridge)
+      end
 
       response
     end
@@ -417,8 +442,10 @@ module BigBlueButton
       @http_response
     end
 
-    # Formats an API call URL for the method 'method' using the parameters in 'data'.
-    def get_url(method, data={})
+    # Formats an API call URL for the method 'method' using the parameters in 'params'.
+    # method (symbol)::  The API method to be called (:create, :index, :join, and others)
+    # params (Hash)::    The parameters to be passed in the URL
+    def get_url(method, params={})
       if method == :index
         return @url
       end
@@ -426,17 +453,17 @@ module BigBlueButton
       url = "#{@url}/#{method}?"
 
       # stringify and escape all params
-      data.delete_if { |k, v| v.nil? } unless data.nil?
-      params = ""
-      params = data.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
+      params.delete_if { |k, v| v.nil? } unless params.nil?
+      params_string = ""
+      params_string = params.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
 
       # checksum calc
-      checksum_param = params + @salt
+      checksum_param = params_string + @salt
       checksum_param = method.to_s + checksum_param
       checksum = Digest::SHA1.hexdigest(checksum_param)
 
       # final url
-      url += "#{params}&" unless params.empty?
+      url += "#{params_string}&" unless params_string.empty?
       url += "checksum=#{checksum}"
     end
 
@@ -446,10 +473,15 @@ module BigBlueButton
     # Also throws an exception of the request was not successful (i.e. returncode == FAILED).
     #
     # Only formats the standard values in the response (the ones that exist in all responses).
-    def send_api_request(method, data={})
-      url = get_url(method, data)
+    #
+    # method (symbol)::  The API method to be called (:create, :index, :join, and others)
+    # params (Hash)::    The parameters to be passed in the URL
+    # data (string)::    Data to be sent with the request. If set, the request will use an HTTP
+    #                    POST instead of a GET and the data will be sent in the request body.
+    def send_api_request(method, params={}, data=nil)
+      url = get_url(method, params)
 
-      @http_response = send_request(url)
+      @http_response = send_request(url, data)
       return { } if @http_response.body.empty?
 
       # 'Hashify' the XML
@@ -476,20 +508,29 @@ module BigBlueButton
     protected
 
     # :nodoc:
-    def send_request(url)
+    # If data is set, uses a POST with data in the request body
+    # Otherwise uses GET
+    def send_request(url, data=nil)
       begin
         puts "BigBlueButtonAPI: URL request = #{url}" if @debug
         url_parsed = URI.parse(url)
         http = Net::HTTP.new(url_parsed.host, url_parsed.port)
         http.open_timeout = @timeout
         http.read_timeout = @timeout
-        response = http.get(url_parsed.request_uri)
+        if data.nil?
+          response = http.get(url_parsed.request_uri)
+        else
+          response = http.post(url_parsed.request_uri, data)
+        end
         puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
+
       rescue TimeoutError => error
         raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\"")
+
       rescue Exception => error
         raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
       end
+
       response
     end
 

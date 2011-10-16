@@ -11,27 +11,59 @@ describe BigBlueButton::BigBlueButtonApi do
   let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
 
   describe "#create_meeting" do
-    let(:send_api_request_params) {
-      { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
-        :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
-        :maxParticipants => 25, :voiceBridge => 12345, :record => "true", :duration => 20,
-        :meta_1 => "meta1", :meta_2 => "meta2" }
-    }
-    let(:send_api_request_response) {
-      { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
-    }
-    let(:expected_response) {
-      { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
-    }
 
-    before { api.should_receive(:send_api_request).with(:create, send_api_request_params).and_return(send_api_request_response) }
-    subject {
-      options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
-        :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345, :record => true,
-        :duration => 20, :meta_1 => "meta1", :meta_2 => "meta2" }
-      api.create_meeting("name", "meeting-id", options)
-    }
-    it { subject.should == expected_response }
+    context "without modules" do
+      let(:req_params) {
+        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
+          :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
+          :maxParticipants => 25, :voiceBridge => 12345, :record => "true", :duration => 20,
+          :meta_1 => "meta1", :meta_2 => "meta2" }
+      }
+      let(:req_response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
+      }
+      let(:final_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
+      }
+
+      before { api.should_receive(:send_api_request).with(:create, req_params).and_return(req_response) }
+      subject {
+        options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
+          :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345, :record => true,
+          :duration => 20, :meta_1 => "meta1", :meta_2 => "meta2" }
+        api.create_meeting("name", "meeting-id", options)
+      }
+      it { subject.should == final_response }
+    end
+
+    context "with modules" do
+      let(:req_params) {
+        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap" }
+      }
+      let(:req_response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
+      }
+      let(:final_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
+      }
+      let(:modules) {
+        m = BigBlueButton::BigBlueButtonModules.new
+        m.add_presentation(:url, "http://www.samplepdf.com/sample.pdf")
+        m.add_presentation(:url, "http://www.samplepdf.com/sample2.pdf")
+        m.add_presentation(:base64, "JVBERi0xLjQKJ....[clipped here]....0CiUlRU9GCg==", "first-class.pdf")
+        m
+      }
+
+      before {
+        api.should_receive(:send_api_request).with(:create, req_params, modules.to_xml).
+          and_return(req_response)
+      }
+      subject {
+        options = { :moderatorPW => "mp", :attendeePW => "ap" }
+        api.create_meeting("name", "meeting-id", options, modules)
+      }
+      it { subject.should == final_response }
+    end
   end
 
   describe "#join_meeting_url" do
@@ -76,8 +108,8 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     context "discards invalid options" do
-      let(:send_api_request_params) { { :meetingID => "meeting-id" } }
-      before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+      let(:req_params) { { :meetingID => "meeting-id" } }
+      before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
       it { api.get_recordings({ :meetingID => "meeting-id", :invalidParam1 => "1" }) }
     end
 
@@ -89,15 +121,15 @@ describe BigBlueButton::BigBlueButtonApi do
     context "with one meeting ID" do
       context "in an array" do
         let(:options) { { :meetingID => ["meeting-id"] } }
-        let(:send_api_request_params) { { :meetingID => "meeting-id" } }
-        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        let(:req_params) { { :meetingID => "meeting-id" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
         it { api.get_recordings(options).should == response }
       end
 
       context "in a string" do
         let(:options) { { :meetingID => "meeting-id" } }
-        let(:send_api_request_params) { { :meetingID => "meeting-id" } }
-        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        let(:req_params) { { :meetingID => "meeting-id" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
         it { api.get_recordings(options).should == response }
       end
     end
@@ -105,15 +137,15 @@ describe BigBlueButton::BigBlueButtonApi do
     context "with several meeting IDs" do
       context "in an array" do
         let(:options) { { :meetingID => ["meeting-id-1", "meeting-id-2"] } }
-        let(:send_api_request_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
-        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        let(:req_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
         it { api.get_recordings(options).should == response }
       end
 
       context "in a string" do
         let(:options) { { :meetingID => "meeting-id-1,meeting-id-2" } }
-        let(:send_api_request_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
-        before { api.should_receive(:send_api_request).with(:getRecordings, send_api_request_params).and_return(response) }
+        let(:req_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
         it { api.get_recordings(options).should == response }
       end
     end
@@ -139,23 +171,23 @@ describe BigBlueButton::BigBlueButtonApi do
 
     context "publish is converted to string" do
       let(:recordIDs) { "any" }
-      let(:send_api_request_params) { { :publish => "false", :recordID => "any" } }
-      before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+      let(:req_params) { { :publish => "false", :recordID => "any" } }
+      before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
       it { api.publish_recordings(recordIDs, false) }
     end
 
     context "with one recording ID" do
       context "in an array" do
         let(:recordIDs) { ["id-1"] }
-        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1" } }
-        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        let(:req_params) { { :publish => "true", :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
         it { api.publish_recordings(recordIDs, true) }
       end
 
       context "in a string" do
         let(:recordIDs) { "id-1" }
-        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1" } }
-        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        let(:req_params) { { :publish => "true", :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
         it { api.publish_recordings(recordIDs, true) }
       end
     end
@@ -163,15 +195,15 @@ describe BigBlueButton::BigBlueButtonApi do
     context "with several recording IDs" do
       context "in an array" do
         let(:recordIDs) { ["id-1", "id-2"] }
-        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1,id-2" } }
-        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        let(:req_params) { { :publish => "true", :recordID => "id-1,id-2" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
         it { api.publish_recordings(recordIDs, true) }
       end
 
       context "in a string" do
         let(:recordIDs) { "id-1,id-2,id-3" }
-        let(:send_api_request_params) { { :publish => "true", :recordID => "id-1,id-2,id-3" } }
-        before { api.should_receive(:send_api_request).with(:publishRecordings, send_api_request_params) }
+        let(:req_params) { { :publish => "true", :recordID => "id-1,id-2,id-3" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
         it { api.publish_recordings(recordIDs, true) }
       end
     end
@@ -186,15 +218,15 @@ describe BigBlueButton::BigBlueButtonApi do
     context "with one recording ID" do
       context "in an array" do
         let(:recordIDs) { ["id-1"] }
-        let(:send_api_request_params) { { :recordID => "id-1" } }
-        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        let(:req_params) { { :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
         it { api.delete_recordings(recordIDs) }
       end
 
       context "in a string" do
         let(:recordIDs) { "id-1" }
-        let(:send_api_request_params) { { :recordID => "id-1" } }
-        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        let(:req_params) { { :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
         it { api.delete_recordings(recordIDs) }
       end
     end
@@ -202,18 +234,37 @@ describe BigBlueButton::BigBlueButtonApi do
     context "with several recording IDs" do
       context "in an array" do
         let(:recordIDs) { ["id-1", "id-2"] }
-        let(:send_api_request_params) { { :recordID => "id-1,id-2" } }
-        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        let(:req_params) { { :recordID => "id-1,id-2" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
         it { api.delete_recordings(recordIDs) }
       end
 
       context "in a string" do
         let(:recordIDs) { "id-1,id-2,id-3" }
-        let(:send_api_request_params) { { :recordID => "id-1,id-2,id-3" } }
-        before { api.should_receive(:send_api_request).with(:deleteRecordings, send_api_request_params) }
+        let(:req_params) { { :recordID => "id-1,id-2,id-3" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
         it { api.delete_recordings(recordIDs) }
       end
     end
+  end
+
+  # TODO: metadata in the response
+  describe "#get_meeting_info" do
+    let(:params) { { :meetingID => "meeting-id", :password => "password" } }
+
+    # new values were added in the response in 0.8 (we'll only test these values):
+    #   meetingName, participantCount, maxUsers, voiceBridge, recording, metadata
+    let(:response) {
+      { :meetingName => 123, :participantCount => "50", :maxUsers => "100", :voiceBridge => "12341234",
+        :attendees => { :attendee => [ ] }, :messageKey => "mkey", :message => "m" }
+    }
+
+    before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
+    subject { api.get_meeting_info("meeting-id", "password") }
+    it { subject[:meetingName].should == "123" }
+    it { subject[:participantCount].should == 50 } # FIXME: wasn't this in 0.7 already?
+    it { subject[:maxUsers].should == 100 }
+    it { subject[:voiceBridge].should == 12341234 }
   end
 
 end

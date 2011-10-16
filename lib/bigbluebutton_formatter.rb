@@ -17,6 +17,15 @@ module BigBlueButton
       end
     end
 
+    # converts a value in the @hash to int
+    def to_int(key)
+      unless @hash.has_key?(key)
+        0
+      else
+        @hash[key] = @hash[key].to_i
+      end
+    end
+
     # converts a value in the @hash to string
     def to_string(key)
       @hash[key] = @hash[key].to_s

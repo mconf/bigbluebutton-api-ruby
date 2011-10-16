@@ -23,10 +23,15 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe "#to_string" do
     let(:hash) { { :param1 => "123", :param2 => 123, :param3 => true } }
-    subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
-    it { subject.to_string(:param1).should == "123" }
-    it { subject.to_string(:param2).should == "123" }
-    it { subject.to_string(:param3).should == "true" }
+    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+    before {
+      formatter.to_string(:param1)
+      formatter.to_string(:param2)
+      formatter.to_string(:param3)
+    }
+    it { hash[:param1].should == "123" }
+    it { hash[:param2].should == "123" }
+    it { hash[:param3].should == "true" }
 
     context "returns empty string if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1 }) }
@@ -41,11 +46,17 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe "#to_boolean" do
     let(:hash) { { :true1 => "TRUE", :true2 => "true", :false1 => "FALSE", :false2 => "false" } }
-    subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
-    it { subject.to_boolean(:true1).should be_true }
-    it { subject.to_boolean(:true2).should be_true }
-    it { subject.to_boolean(:false1).should be_false }
-    it { subject.to_boolean(:false2).should be_false }
+    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+    before {
+      formatter.to_boolean(:true1)
+      formatter.to_boolean(:true2)
+      formatter.to_boolean(:false1)
+      formatter.to_boolean(:false2)
+    }
+    it { hash[:true1].should be_true }
+    it { hash[:true2].should be_true }
+    it { hash[:false1].should be_false }
+    it { hash[:false2].should be_false }
 
     context "returns false if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
@@ -60,10 +71,15 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe "#to_datetime" do
     let(:hash) { { :param1 => "Thu Sep 01 17:51:42 UTC 2011", :param2 => "Thu Sep 08", :param3 => "NULL" } }
-    subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
-    it { subject.to_datetime(:param1).should == DateTime.parse("Thu Sep 01 17:51:42 UTC 2011") }
-    it { subject.to_datetime(:param2).should == DateTime.parse("Thu Sep 08") }
-    it { subject.to_datetime(:param3).should == nil }
+    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+    before {
+      formatter.to_datetime(:param1)
+      formatter.to_datetime(:param2)
+      formatter.to_datetime(:param3)
+    }
+    it { hash[:param1].should == DateTime.parse("Thu Sep 01 17:51:42 UTC 2011") }
+    it { hash[:param2].should == DateTime.parse("Thu Sep 08") }
+    it { hash[:param3].should == nil }
 
     context "returns nil if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
@@ -78,10 +94,15 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe "#to_sym" do
     let(:hash) { { :param1 => :sym1, :param2 => "sym2", :param3 => "SyM3" } }
-    subject { BigBlueButton::BigBlueButtonFormatter.new(hash) }
-    it { subject.to_sym(:param1).should == :sym1 }
-    it { subject.to_sym(:param2).should == :sym2 }
-    it { subject.to_sym(:param3).should == :sym3 }
+    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+    before {
+      formatter.to_sym(:param1)
+      formatter.to_sym(:param2)
+      formatter.to_sym(:param3)
+    }
+    it { hash[:param1].should == :sym1 }
+    it { hash[:param2].should == :sym2 }
+    it { hash[:param3].should == :sym3 }
 
     context "returns empty string if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1 }) }
@@ -96,6 +117,32 @@ describe BigBlueButton::BigBlueButtonFormatter do
     context "returns empty string if the value to be converted is an empty string" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => "" }) }
       it { subject.to_string(:param).should == "" }
+    end
+  end
+
+  describe "#to_int" do
+    let(:hash) { { :param1 => 5, :param2 => "5" } }
+    let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
+    before {
+      formatter.to_int(:param1)
+      formatter.to_int(:param2)
+    }
+    it { hash[:param1].should == 5 }
+    it { hash[:param2].should == 5 }
+
+    context "returns 0 if the param doesn't exists" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1 }) }
+      it { subject.to_int(:inexistent).should == 0 }
+    end
+
+    context "returns 0 if the hash is nil" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+      it { subject.to_int(:inexistent).should == 0 }
+    end
+
+    context "returns 0 if the value to be converted is invalid" do
+      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => "invalid" }) }
+      it { subject.to_int(:param).should == 0 }
     end
   end
 
