@@ -20,10 +20,10 @@ describe BigBlueButton::BigBlueButtonApi do
           :meta_1 => "meta1", :meta_2 => "meta2" }
       }
       let(:req_response) {
-        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE", :createTime => "123123123" }
       }
       let(:final_response) {
-        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false, :createTime => 123123123 }
       }
 
       before { api.should_receive(:send_api_request).with(:create, req_params).and_return(req_response) }
@@ -41,10 +41,10 @@ describe BigBlueButton::BigBlueButtonApi do
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap" }
       }
       let(:req_response) {
-        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE", :createTime => "123123123" }
       }
       let(:final_response) {
-        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false }
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false, :createTime => 123123123 }
       }
       let(:modules) {
         m = BigBlueButton::BigBlueButtonModules.new
@@ -256,7 +256,8 @@ describe BigBlueButton::BigBlueButtonApi do
     #   meetingName, participantCount, maxUsers, voiceBridge, recording, metadata
     let(:response) {
       { :meetingName => 123, :participantCount => "50", :maxUsers => "100", :voiceBridge => "12341234",
-        :attendees => { :attendee => [ ] }, :messageKey => "mkey", :message => "m" }
+        :createTime => "123123123", :attendees => { :attendee => [ ] },
+        :messageKey => "mkey", :message => "m" }
     }
 
     before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
@@ -265,6 +266,7 @@ describe BigBlueButton::BigBlueButtonApi do
     it { subject[:participantCount].should == 50 } # FIXME: wasn't this in 0.7 already?
     it { subject[:maxUsers].should == 100 }
     it { subject[:voiceBridge].should == 12341234 }
+    it { subject[:createTime].should == 123123123 }
   end
 
 end

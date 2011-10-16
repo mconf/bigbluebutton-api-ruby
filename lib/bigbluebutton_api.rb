@@ -81,7 +81,7 @@ module BigBlueButton
     # === Example
     #
     #   options = { :moderatorPW => "123", :attendeePW => "321", :welcome => "Welcome here!",
-    #               :dialNumber => 5190909090, logoutURL => "http://mconf.org", :maxParticipants => 25,
+    #               :dialNumber => 5190909090, :logoutURL => "http://mconf.org", :maxParticipants => 25,
     #               :voiceBridge => 76543, :record => "true", :duration => 0, :meta_category => "Remote Class" }
     #   create_meeting("My Meeting", "my-meeting", options)
     #
@@ -147,6 +147,9 @@ module BigBlueButton
       formatter.to_string(:moderatorPW)
       formatter.to_string(:attendeePW)
       formatter.to_boolean(:hasBeenForciblyEnded)
+      if @version >= "0.8"
+        formatter.to_int(:createTime)
+      end
 
       response
     end
@@ -275,6 +278,7 @@ module BigBlueButton
         formatter.to_int(:participantCount)
         formatter.to_int(:maxUsers)
         formatter.to_int(:voiceBridge)
+        formatter.to_int(:createTime)
       end
 
       response
