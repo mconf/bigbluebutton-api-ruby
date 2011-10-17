@@ -7,15 +7,24 @@ require 'prepare'
 begin
   prepare
 
-  unless @api.is_meeting_running?(@config['meeting_id'])
-    options = { :moderatorPW => @config['moderator_password'], :attendeePW => @config['attendee_password'], :welcome => 'Welcome to my meeting',
-                :dialNumber => '1-800-000-0000x00000#', :logoutURL => 'https://github.com/mconf/bigbluebutton-api-ruby', :maxParticipants => 25 }
-    @api.create_meeting(@config['meeting_name'], @config['meeting_id'], options)
-    puts "The meeting has been created. Please open a web browser and enter the meeting as moderator."
+  meeting_name = "Test Meeting"
+  meeting_id = "test-meeting"
+  moderator_name = "House"
+  attendee_name = "Cameron"
+  unless @api.is_meeting_running?(meeting_id)
+    puts "---------------------------------------------------"
+    options = { :moderatorPW => "54321",
+      :attendeePW => "12345",
+      :welcome => 'Welcome to my meeting',
+      :dialNumber => '1-800-000-0000x00000#',
+      :logoutURL => 'https://github.com/mconf/bigbluebutton-api-ruby',
+      :maxParticipants => 25 }
+    @api.create_meeting(meeting_name, meeting_id, options)
+    puts "The meeting has been created. Please open a web browser and enter the meeting using either of the URLs below."
 
     puts
     puts "---------------------------------------------------"
-    url = @api.join_meeting_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
+    url = @api.join_meeting_url(meeting_id, moderator_name, options[:moderatorPW])
     puts "1) Moderator URL = #{url}"
 
     puts
@@ -24,7 +33,7 @@ begin
     sleep(30)
   end
 
-  unless @api.is_meeting_running?(@config['meeting_id'])
+  unless @api.is_meeting_running?(meeting_id)
     puts "You have NOT entered the meeting"
     Kernel.exit!
   end
@@ -32,7 +41,7 @@ begin
 
   puts
   puts "---------------------------------------------------"
-  response = @api.get_meeting_info(@config['meeting_id'], @config['moderator_password'])
+  response = @api.get_meeting_info(meeting_id, options[:moderatorPW])
   puts "Meeting info:"
   puts response.inspect
 
@@ -40,7 +49,7 @@ begin
   puts
   puts
   puts "---------------------------------------------------"
-  response = @api.join_meeting(@config['meeting_id'], @config['attendee_name'], @config['attendee_password'])
+  response = @api.join_meeting(meeting_id, attendee_name, options[:attendeePW])
   puts "Join meeting response:"
   puts response.inspect
 

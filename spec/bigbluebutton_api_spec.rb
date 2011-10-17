@@ -17,7 +17,7 @@ describe BigBlueButton::BigBlueButtonApi do
       it { subject.salt.should be(salt) }
       it { subject.version.should be(version) }
       it { subject.debug.should be(debug) }
-      it { subject.timeout.should be(2) }
+      it { subject.timeout.should be(4) }
       it { subject.supported_versions.should include("0.7") }
       it { subject.supported_versions.should include("0.8") }
     end
@@ -198,7 +198,8 @@ describe BigBlueButton::BigBlueButtonApi do
     let(:response) {
       { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
         :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
-        :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] }, :messageKey => "mkey", :message => "m" }
+        :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] },
+        :messageKey => "mkey", :message => "m" }
     } # hash after the send_api_request call, before the specific formatting
 
     let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
@@ -206,7 +207,8 @@ describe BigBlueButton::BigBlueButtonApi do
     let(:final_response) {
       { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
         :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
-        :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ], :messageKey => "mkey", :message => "m" }
+        :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ],
+        :messageKey => "mkey", :message => "m" }
     } # expected return hash after all the formatting
 
     # ps: not mocking the formatter here because it's easier to just check the results (final_response)

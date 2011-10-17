@@ -1,0 +1,3 @@
+bbb_salt: 'insert-a-valid-salt-here'
+bbb_url: 'http://devbuild.bigbluebutton.org/bigbluebutton/api'
+bbb_version: '0.7'

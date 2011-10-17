@@ -47,7 +47,7 @@ module BigBlueButton
       @url = url
       @salt = salt
       @debug = debug
-      @timeout = 2 # 2 seconds timeout for get requests
+      @timeout = 4 # 4 seconds timeout for get requests
 
       @version = version || get_api_version
       unless @supported_versions.include?(@version)
@@ -279,6 +279,7 @@ module BigBlueButton
         formatter.to_int(:maxUsers)
         formatter.to_int(:voiceBridge)
         formatter.to_int(:createTime)
+        formatter.to_boolean(:recording)
       end
 
       response

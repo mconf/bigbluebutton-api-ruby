@@ -2,7 +2,6 @@ $:.unshift File.expand_path(File.dirname(__FILE__))
 $:.unshift File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib')
 
 require 'bigbluebutton_api'
-#require 'thread'
 require 'prepare'
 
 begin
@@ -32,17 +31,25 @@ begin
 
   puts
   puts "---------------------------------------------------"
-  options = { :moderatorPW => @config['moderator_password'], :attendeePW => @config['attendee_password'], :welcome => 'Welcome to my meeting',
-              :dialNumber => '1-800-000-0000x00000#', :logoutURL => 'https://github.com/mconf/bigbluebutton-api-ruby', :maxParticipants => 25 }
-  @api.create_meeting(@config['meeting_name'], @config['meeting_id'], options)
+  meeting_name = "Test Meeting"
+  meeting_id = "test-meeting"
+  moderator_name = "House"
+  attendee_name = "Cameron"
+  options = { :moderatorPW => "54321",
+              :attendeePW => "12345",
+              :welcome => 'Welcome to my meeting',
+              :dialNumber => '1-800-000-0000x00000#',
+              :logoutURL => 'https://github.com/mconf/bigbluebutton-api-ruby',
+              :maxParticipants => 25 }
+  @api.create_meeting(meeting_name, meeting_id, options)
   puts "The meeting has been created. Please open a web browser and enter the meeting using either of the URLs below."
 
   puts
   puts "---------------------------------------------------"
-  url = @api.join_meeting_url(@config['meeting_id'], @config['moderator_name'], @config['moderator_password'])
+  url = @api.join_meeting_url(meeting_id, moderator_name, options[:moderatorPW])
   puts "1) Moderator URL = #{url}"
   puts ""
-  url = @api.join_meeting_url(@config['meeting_id'], @config['attendee_name'], @config['attendee_password'])
+  url = @api.join_meeting_url(meeting_id, attendee_name, options[:attendeePW])
   puts "2) Attendee URL = #{url}"
 
   puts
@@ -50,7 +57,7 @@ begin
   puts "Waiting 30 seconds for you to enter via browser"
   sleep(30)
 
-  unless @api.is_meeting_running?(@config['meeting_id'])
+  unless @api.is_meeting_running?(meeting_id)
     puts "You have NOT entered the meeting"
     Kernel.exit!
   end
@@ -58,7 +65,7 @@ begin
 
   puts
   puts "---------------------------------------------------"
-  response = @api.get_meeting_info(@config['meeting_id'], @config['moderator_password'])
+  response = @api.get_meeting_info(meeting_id, options[:moderatorPW])
   puts "Meeting info:"
   puts response.inspect
 
@@ -72,7 +79,7 @@ begin
 
   puts
   puts "---------------------------------------------------"
-  @api.end_meeting(@config['meeting_id'], @config['moderator_password'])
+  @api.end_meeting(meeting_id, options[:moderatorPW])
   puts "The meeting has been ended"
 
 rescue Exception => ex

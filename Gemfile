@@ -7,3 +7,9 @@ group :developement do
   gem 'rake', '>= 0.9'
   gem 'rdoc'
 end
+
+group :development, :test do
+  gem 'cucumber-rails'
+  gem 'forgery'
+  #gem 'rails_best_practices'
+end

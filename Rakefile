@@ -2,11 +2,16 @@ require 'rubygems'
 require 'rdoc/task'
 require 'rubygems/package_task'
 require 'rspec/core/rake_task'
+require 'cucumber/rake/task'
 
 desc 'Default: run tests.'
-task :default => :spec
+task :default => [:spec, :cucumber]
 
 RSpec::Core::RakeTask.new(:spec)
+
+Cucumber::Rake::Task.new do |t|
+  t.cucumber_opts = %w{--format pretty}
+end
 
 RDoc::Task.new do |rdoc|
   rdoc.rdoc_files.include('README.rdoc', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb')
