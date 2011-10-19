@@ -71,18 +71,25 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe "#to_datetime" do
     let(:hash) { { :param1 => "Thu Sep 01 17:51:42 UTC 2011", :param2 => "Thu Sep 08",
-                   :param3 => 1315254777880, :param4 => "NULL" } }
+                   :param3 => 1315254777880, :param4 => "0", :param5 => 0,
+                   :param6 => "NULL", :param7 => nil } }
     let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
     before {
       formatter.to_datetime(:param1)
       formatter.to_datetime(:param2)
       formatter.to_datetime(:param3)
       formatter.to_datetime(:param4)
+      formatter.to_datetime(:param5)
+      formatter.to_datetime(:param6)
+      formatter.to_datetime(:param7)
     }
     it { hash[:param1].should == DateTime.parse("Thu Sep 01 17:51:42 UTC 2011") }
     it { hash[:param2].should == DateTime.parse("Thu Sep 08") }
     it { hash[:param3].should == DateTime.parse("2011-09-05 17:32:57 -0300") }
     it { hash[:param4].should == nil }
+    it { hash[:param5].should == nil }
+    it { hash[:param6].should == nil }
+    it { hash[:param7].should == nil }
 
     context "returns nil if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }

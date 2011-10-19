@@ -33,16 +33,21 @@ module BigBlueButton
 
     # converts a value in the @hash to DateTime
     def to_datetime(key)
-      unless @hash.has_key?(key)
+      unless @hash.has_key?(key) and @hash[key]
         nil
       else
         # BBB >= 0.8 uses the unix epoch for all time related values
         # older versions use strings
         if @hash[key].is_a?(Numeric)
-          @hash[key] = DateTime.parse(Time.at(@hash[key]/1000.0).to_s)
+          v = @hash[key] == 0 ? nil : DateTime.parse(Time.at(@hash[key]/1000.0).to_s)
         else
-          @hash[key] = @hash[key].downcase == "null" ? nil : DateTime.parse(@hash[key])
+          if @hash[key].downcase == "null" or @hash[key] == "0"
+            v = nil
+          else
+            v = DateTime.parse(@hash[key])
+          end
         end
+        @hash[key] = v
       end
     end
 
