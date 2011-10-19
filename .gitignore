@@ -1,5 +1,5 @@
 *.gem
 pkg
 *~
-examples/config.yml
+features/config.yml
 rdoc/

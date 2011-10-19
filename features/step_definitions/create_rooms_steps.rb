@@ -1,9 +1,20 @@
-When /^the default API object$/ do
+def load_configs
   config_file = File.join(File.dirname(__FILE__), '..', 'config.yml')
   unless File.exist? config_file
     throw Exception.new(config_file + " does not exists. Copy the example and configure your server.")
   end
   @config = YAML.load_file(config_file)
+  if ENV['SERVER']
+    throw Exception.new("Server #{ENV['SERVER']} does not exists in your configuration file.") unless @config.has_key?(ENV['SERVER'])
+    @config = @config[ENV['SERVER']]
+  else
+    @config = @config[@config.keys.first]
+  end
+  @config['bbb_version'] = '0.7' unless @config.has_key?('bbb_version')
+end
+
+When /^the default API object$/ do
+  load_configs
   @api = BigBlueButton::BigBlueButtonApi.new(@config['bbb_url'], @config['bbb_salt'], @config['bbb_version'].to_s, false)
 end
 
@@ -26,9 +37,9 @@ Then /^the response is successful and well formatted$/ do
   @response[:hasBeenForciblyEnded].should be_false
   @response[:messageKey].should == ""
   @response[:message].should == ""
-
-  # 0.8
+  if @api.version >= "0.8"
   # @response[:createTime].should
+  end
 end
 
 Then /^the meeting exists in the server$/ do
@@ -53,10 +64,11 @@ Then /^it is configured with the parameters used in the creation$/ do
   @response[:messageKey].should == ""
   @response[:message].should == ""
 
-  # 0.8
-  # @response[:meetingName].should == @meeting_id
-  # @response[:recording].should be_false
-  # @response[:maxUsers].should == @options[:maxParticipants]
+  if @api.version >= "0.8"
+    @response[:meetingName].should == @meeting_id
+    @response[:recording].should be_false
+    @response[:maxUsers].should == @options[:maxParticipants]
   # @response[:createTime].should == @options[:attendeePW] # TODO:
-  # @response[:metadata].should == {}
+    @response[:metadata].should == {}
+  end
 end
