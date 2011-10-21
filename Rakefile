@@ -9,7 +9,7 @@ task :default => :spec
 RSpec::Core::RakeTask.new(:spec)
 
 RDoc::Task.new do |rdoc|
-  rdoc.rdoc_files.include('README.rdoc', 'LICENSE', 'CHANGELOG.rdoc', 'lib/**/*.rb')
+  rdoc.rdoc_files.include('README.rdoc', 'LICENSE', 'LICENSE_003', 'CHANGELOG.rdoc', 'lib/**/*.rb')
   rdoc.main = "README.rdoc"
   rdoc.title = "bigbluebutton-api-ruby Docs"
   rdoc.rdoc_dir = 'rdoc'
