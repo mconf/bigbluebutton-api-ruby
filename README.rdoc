@@ -32,7 +32,8 @@ For a list of releases and changes list see {CHANGELOG.rdoc}[https://github.com/
 
 == License
 
-Distributed under same terms as Ruby
+Distributed under The MIT License (MIT).
+See {LICENSE}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE] for the latest license, valid for all versions after 0.0.4 (including it), and {LICENSE_2010}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE_003] for version 0.0.3 and all the previous versions.
 
 == Contact
 
