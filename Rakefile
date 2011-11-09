@@ -10,7 +10,7 @@ task :default => [:spec, :cucumber]
 RSpec::Core::RakeTask.new(:spec)
 
 Cucumber::Rake::Task.new do |t|
-  t.cucumber_opts = "--format pretty --tags ~@in-progress"
+  t.cucumber_opts = "--format pretty --tags ~@wip"
 end
 
 RDoc::Task.new do |rdoc|

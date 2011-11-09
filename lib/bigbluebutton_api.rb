@@ -125,16 +125,17 @@ module BigBlueButton
       valid_options = [:moderatorPW, :attendeePW, :welcome, :dialNumber, :logoutURL,
                        :maxParticipants, :voiceBridge]
 
+      selected_opt = options.clone
       if @version >= "0.8"
         # v0.8 added "record", "duration" and "meta_" parameters
         valid_options += [:record, :duration]
-        options.reject!{ |k,v| !valid_options.include?(k) and !(k.to_s =~ /^meta_.*$/) }
-        options[:record] = options[:record].to_s if options.has_key?(:record)
+        selected_opt.reject!{ |k,v| !valid_options.include?(k) and !(k.to_s =~ /^meta_.*$/) }
+        selected_opt[:record] = selected_opt[:record].to_s if selected_opt.has_key?(:record)
       else
-        options.reject!{ |k,v| !valid_options.include?(k) }
+        selected_opt.reject!{ |k,v| !valid_options.include?(k) }
       end
 
-      params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
+      params = { :name => meeting_name, :meetingID => meeting_id }.merge(selected_opt)
 
       if modules and @version >= "0.8"
         response = send_api_request(:create, params, modules.to_xml)

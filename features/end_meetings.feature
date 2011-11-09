@@ -1,4 +1,4 @@
-@in-progress
+@wip @version-all @need-bot
 Feature: End rooms
   To stop a meeting using the API
   One needs to be able to call 'end' to this meeting
