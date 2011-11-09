@@ -23,7 +23,34 @@ When /^the create method is called with no optional argument$/i do
   @response = @api.create_meeting(@meeting_id, @meeting_id, @options)
 end
 
-When /^the response is successful and well formatted$/ do
+When /^the create method is called with a duplicated meeting id$/ do
+  @meeting_id = Forgery(:basic).random_name("test-create")
+  # first meeting
+  @api.create_meeting(@meeting_id, @meeting_id)
+  # duplicated meeting to be tested
+  begin
+    @response = @api.create_meeting(@meeting_id, @meeting_id)
+  rescue Exception => @exception
+  end
+end
+
+When /^the create method is called$/ do
+  @meeting_id = Forgery(:basic).random_name("test-create")
+  @response = @api.create_meeting(@meeting_id, @meeting_id)
+end
+
+When /^the meeting is forcibly ended$/ do
+  @response = @api.end_meeting(@meeting_id, @response[:moderatorPW])
+end
+
+When /^the create method is called again with the same meeting id$/ do
+  begin
+    @response = @api.create_meeting(@meeting_id, @meeting_id)
+  rescue Exception => @exception
+  end
+end
+
+When /^the response to the call "create" is successful and well formatted$/ do
   @response[:returncode].should be_true
   @response[:meetingID].should == @meeting_id
   @response[:hasBeenForciblyEnded].should be_false
@@ -96,4 +123,9 @@ When /^it is configured with the parameters used in the creation$/ do
 
     # note: the duration passed in the api call is not returned (so it won't be checked)
   end
+end
+
+When /^the response is an error with the key "(.*)"$/ do |arg1|
+  @exception.should_not be_nil
+  @exception.key.should == arg1
 end

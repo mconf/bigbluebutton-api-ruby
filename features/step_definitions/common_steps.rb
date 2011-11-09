@@ -17,3 +17,10 @@ When /^the default API object$/ do
   load_configs
   @api = BigBlueButton::BigBlueButtonApi.new(@config['bbb_url'], @config['bbb_salt'], @config['bbb_version'].to_s, false)
 end
+
+When /^the meeting is running$/ do
+  uri = URI.parse(@api.url)
+  uri_s = uri.scheme + "://" + uri.host
+  uri_s = uri_s + ":" + uri.port.to_s if uri.port != uri.default_port
+  BigBlueButtonBot.new(uri_s, @meeting_id)
+end

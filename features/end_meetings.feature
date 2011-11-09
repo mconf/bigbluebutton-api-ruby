@@ -8,5 +8,7 @@ Feature: End rooms
       And that the method to create a meeting was called with meeting ID "test-end"
       And the meeting is running
     When the method to end the meeting is called
-    Then the response is successful and well formatted
-      And the flag hasBeenForciblyEnded should be set
+    Then the response to the call "end" is successful and well formatted
+      And the meeting should be ended
+
+      # And the flag hasBeenForciblyEnded should be set
