@@ -1,5 +1,5 @@
 class BigBlueButtonBot
-  BOT_FILENAME = "bbbBot.jar"
+  BOT_FILENAME = "bbb-bot.jar"
   @@pids = []
 
   def initialize(server, meeting, count=1)
@@ -7,7 +7,7 @@ class BigBlueButtonBot
     # and be able to wait for it (kill it) later on (see BigBlueButtonBot.finalize)
     pid = Process.fork do
       bot_file = File.join(File.dirname(__FILE__), BOT_FILENAME)
-      exec("java", "-jar", "#{bot_file}", "-s", "#{server}", "-m", "#{meeting}", "-n", "#{count}", "-q")
+      exec("java", "-jar", "#{bot_file}", "-s", "#{server}", "-m", "#{meeting}", "-n", "#{count}")
       # IO::popen("java -jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null")
       # exec(["java", "-jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null"])
       # exec("java -jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null")
@@ -25,6 +25,6 @@ class BigBlueButtonBot
   end
 
   def wait_bot_startup
-    sleep 3 # TODO: find a better way to wait for the bot
+    sleep 5 # TODO: find a better way to wait for the bot
   end
 end
