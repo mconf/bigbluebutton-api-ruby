@@ -17,7 +17,7 @@ describe BigBlueButton::BigBlueButtonApi do
       it { subject.salt.should be(salt) }
       it { subject.version.should be(version) }
       it { subject.debug.should be(debug) }
-      it { subject.timeout.should be(4) }
+      it { subject.timeout.should be(10) }
       it { subject.supported_versions.should include("0.7") }
       it { subject.supported_versions.should include("0.8") }
     end
