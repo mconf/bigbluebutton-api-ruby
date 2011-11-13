@@ -19,8 +19,5 @@ When /^the default API object$/ do
 end
 
 When /^the meeting is running$/ do
-  uri = URI.parse(@api.url)
-  uri_s = uri.scheme + "://" + uri.host
-  uri_s = uri_s + ":" + uri.port.to_s if uri.port != uri.default_port
-  BigBlueButtonBot.new(uri_s, @meeting_id)
+  BigBlueButtonBot.new(@api, @meeting_id)
 end

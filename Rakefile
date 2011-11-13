@@ -10,7 +10,12 @@ task :default => [:spec, :cucumber]
 RSpec::Core::RakeTask.new(:spec)
 
 Cucumber::Rake::Task.new do |t|
-  t.cucumber_opts = "--format pretty --tags ~@wip"
+  # defaults to BBB 0.7
+  if ENV["V"]  == "0.8"
+    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-08"
+  else
+    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-07"
+  end
 end
 
 RDoc::Task.new do |rdoc|
