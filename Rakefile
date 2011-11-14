@@ -32,5 +32,5 @@ Gem::PackageTask.new $specification do |pkg|
 end
 
 task :notes do
-  puts `grep -r 'OPTIMIZE\\|FIXME\\|TODO' lib/ spec/`
+  puts `grep -r 'OPTIMIZE\\|FIXME\\|TODO' lib/ spec/ features/`
 end

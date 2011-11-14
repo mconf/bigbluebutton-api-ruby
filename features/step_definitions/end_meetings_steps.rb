@@ -1,14 +1,12 @@
-When /^that the method to create a meeting was called$/ do
-  @meeting_id = Forgery(:basic).random_name("test-end")
-  @moderator_password = Forgery(:basic).password
-  @response = @api.create_meeting(@meeting_id, @meeting_id, { :moderatorPW => @moderator_password })
-end
-
 When /^the method to end the meeting is called$/ do
-  @response = @api.end_meeting(@meeting_id, @moderator_password)
+  begin
+    @last_api_call = :end
+    @response = @api.end_meeting(@meeting_id, @moderator_password)
+  rescue Exception => @exception
+  end
 end
 
-When /^the response to the call "end" is successful and well formatted$/ do
+When /^the response to the end method is successful and well formatted$/ do
   @response[:returncode].should be_true
   @response[:messageKey].should == "sentEndMeetingRequest"
   @response[:message].should_not be_empty
@@ -29,5 +27,9 @@ When /^the meeting should be ended$/ do
 
   @response =  @api.get_meeting_info(@meeting_id, @moderator_password)
   @response[:running].should be_false
+  @response[:hasBeenForciblyEnded].should be_true
+end
+
+When /^the flag hasBeenForciblyEnded should be set$/ do
   @response[:hasBeenForciblyEnded].should be_true
 end

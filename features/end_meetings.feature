@@ -4,12 +4,24 @@ Feature: End rooms
 
   # TODO not working in version 0.8 yet
   @version-07 @need-bot
-  Scenario: End a new meeting
-    Given the default API object
-      And that the method to create a meeting was called
+  Scenario: End a meeting
+    Given that a meeting was created
       And the meeting is running
     When the method to end the meeting is called
-    Then the response to the call "end" is successful and well formatted
+    Then the response is successful and well formatted
       And the meeting should be ended
 
-      # And the flag hasBeenForciblyEnded should be set
+  # in 0.7 ending a meeting that is not running generates an error
+  @version-07
+  Scenario: Try to end a meeting that is not running in 0.7
+    Given that a meeting was created
+    When the method to end the meeting is called
+    Then the response is an error with the key "notFound"
+
+  # in 0.8 ending a meeting that is not running is ok
+  @version-08
+  Scenario: Try to end a meeting that is not running in 0.8
+    Given that a meeting was created
+    When the method to end the meeting is called
+    Then the response is successful
+      And the response has the messageKey "sentEndMeetingRequest"

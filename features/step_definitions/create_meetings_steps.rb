@@ -1,6 +1,8 @@
 # default call of create_meeting, should include all optional parameters
 # to check if they are correctly stored
 When /^the create method is called with all the optional arguments$/i do
+  steps %Q{ When the default API object }
+
   @meeting_id = Forgery(:basic).random_name("test-create")
   @options = { :moderatorPW => Forgery(:basic).password,
                :attendeePW => Forgery(:basic).password,
@@ -14,28 +16,41 @@ When /^the create method is called with all the optional arguments$/i do
                        :duration => Forgery(:basic).number(:at_least => 10, :at_most => 60),
                        :meta_one => "one", :meta_TWO => "TWO" } )
   end
+  @last_api_call = :create
   @response = @api.create_meeting(@meeting_id, @meeting_id, @options)
 end
 
 When /^the create method is called with no optional argument$/i do
+  steps %Q{ When the default API object }
+
   @meeting_id = Forgery(:basic).random_name("test-create")
   @options = { }
+  @last_api_call = :create
   @response = @api.create_meeting(@meeting_id, @meeting_id, @options)
 end
 
 When /^the create method is called with a duplicated meeting id$/ do
+  steps %Q{ When the default API object }
+
   @meeting_id = Forgery(:basic).random_name("test-create")
+
   # first meeting
+  @last_api_call = :create
   @api.create_meeting(@meeting_id, @meeting_id)
-  # duplicated meeting to be tested
+
   begin
+    # duplicated meeting to be tested
+    @last_api_call = :create
     @response = @api.create_meeting(@meeting_id, @meeting_id)
   rescue Exception => @exception
   end
 end
 
 When /^the create method is called$/ do
+  steps %Q{ When the default API object }
+
   @meeting_id = Forgery(:basic).random_name("test-create")
+  @last_api_call = :create
   @response = @api.create_meeting(@meeting_id, @meeting_id)
 end
 
@@ -45,12 +60,13 @@ end
 
 When /^the create method is called again with the same meeting id$/ do
   begin
+    @last_api_call = :create
     @response = @api.create_meeting(@meeting_id, @meeting_id)
   rescue Exception => @exception
   end
 end
 
-When /^the response to the call "create" is successful and well formatted$/ do
+When /^the response to the create method is successful and well formatted$/ do
   @response[:returncode].should be_true
   @response[:meetingID].should == @meeting_id
   @response[:hasBeenForciblyEnded].should be_false
@@ -123,9 +139,4 @@ When /^it is configured with the parameters used in the creation$/ do
 
     # note: the duration passed in the api call is not returned (so it won't be checked)
   end
-end
-
-When /^the response is an error with the key "(.*)"$/ do |arg1|
-  @exception.should_not be_nil
-  @exception.key.should == arg1
 end
