@@ -7,14 +7,12 @@ Feature: Create rooms
     When the create method is called with ALL the optional arguments
     Then the response is successful and well formatted
       And the meeting exists in the server
-      And it is configured with the parameters used in the creation
 
   @version-all
   Scenario: Create a new room with default parameters
     When the create method is called with NO optional argument
     Then the response is successful and well formatted
       And the meeting exists in the server
-      And it is configured with the parameters used in the creation
 
   @version-all
   Scenario: Try to create a room with a duplicated meeting id

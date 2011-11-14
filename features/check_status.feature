@@ -15,14 +15,21 @@ Feature: Check meeting configurations and status
     Given that a meeting was created
     Then the method isMeetingRunning informs that the meeting is NOT running
 
-  @wip @version-all
+  @version-all
   Scenario: Check the information of a meeting
     Given that a meeting was created
     When calling the method get_meeting_info
     Then it shows all the information of the meeting that was created
 
+  # to make sure that getMeetingInfo is returning the proper info used in create
+  @version-all
+  Scenario: Check the information of a meeting created with optional parameters
+    Given that a meeting was created with ALL the optional arguments
+    When calling the method get_meeting_info
+    Then it shows all the information of the meeting that was created
+
   @version-all
   Scenario: List the meetings in a server
-    Given that 2 meetings were created
+    Given that a meeting was created
     When calling the method get_meetings
-    Then these meetings should be listed in the response with proper information
+    Then the created meeting should be listed in the response with proper information

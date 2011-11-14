@@ -22,33 +22,59 @@ When /^the default API object$/ do
   @api = BigBlueButton::BigBlueButtonApi.new(@config['bbb_url'], @config['bbb_salt'], @config['bbb_version'].to_s, false)
 end
 
+# default create call, with no optional parameters (only the mod pass)
 When /^that a meeting was created$/ do
   steps %Q{ When the default API object }
 
-  @meeting_id = Forgery(:basic).random_name("test")
-  @moderator_password = Forgery(:basic).password
-  @response = @api.create_meeting(@meeting_id, @meeting_id, { :moderatorPW => @moderator_password })
+  @req = TestApiRequest.new
+  @req.id = Forgery(:basic).random_name("test")
+  @req.name = @req.id
+  @req.opts = { :moderatorPW => Forgery(:basic).password }
+  @req.method = :create
+  @req.response = @api.create_meeting(@req.id, @req.name, @req.opts)
+end
+
+When /^that a meeting was created with all the optional arguments$/i do
+  steps %Q{ When the default API object }
+
+  @req = TestApiRequest.new
+  @req.id = Forgery(:basic).random_name("test-create")
+  @req.name = @req.id
+  @req.opts = { :moderatorPW => Forgery(:basic).password,
+                :attendeePW => Forgery(:basic).password,
+                :welcome => Forgery(:lorem_ipsum).words(10),
+                :dialNumber => Forgery(:basic).number(:at_most => 999999999).to_s,
+                :logoutURL => Forgery(:internet).url,
+                :voiceBridge => Forgery(:basic).number(:at_least => 70000, :at_most => 79999),
+                :maxParticipants => Forgery(:basic).number }
+  if @api.version >= "0.8"
+    @req.opts.merge!( { :record => true,
+                        :duration => Forgery(:basic).number(:at_least => 10, :at_most => 60),
+                        :meta_one => "one", :meta_TWO => "TWO" } )
+  end
+  @req.method = :create
+  @req.response = @api.create_meeting(@req.id, @req.name, @req.opts)
 end
 
 When /^the meeting is running$/ do
-  BigBlueButtonBot.new(@api, @meeting_id)
+  BigBlueButtonBot.new(@api, @req.id)
 end
 
 When /^the response is an error with the key "(.*)"$/ do |key|
-  @exception.should_not be_nil
-  @exception.key.should == key
+  @req.exception.should_not be_nil
+  @req.exception.key.should == key
 end
 
 When /^the response is successful$/ do
-  @response[:returncode].should be_true
+  @req.response[:returncode].should be_true
 end
 
 When /^the response has the messageKey "(.*)"$/ do |key|
-  @response[:messageKey].should == key
+  @req.response[:messageKey].should == key
 end
 
 When /^the response is successful and well formatted$/ do
-  case @last_api_call
+  case @req.method
   when :create
     steps %Q{ When the response to the create method is successful and well formatted }
   when :end

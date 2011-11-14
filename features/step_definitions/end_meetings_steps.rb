@@ -1,15 +1,15 @@
 When /^the method to end the meeting is called$/ do
   begin
-    @last_api_call = :end
-    @response = @api.end_meeting(@meeting_id, @moderator_password)
-  rescue Exception => @exception
+    @req.method = :end
+    @req.response = @api.end_meeting(@req.id, @req.opts[:moderatorPW])
+  rescue Exception => @req.exception
   end
 end
 
 When /^the response to the end method is successful and well formatted$/ do
-  @response[:returncode].should be_true
-  @response[:messageKey].should == "sentEndMeetingRequest"
-  @response[:message].should_not be_empty
+  @req.response[:returncode].should be_true
+  @req.response[:messageKey].should == "sentEndMeetingRequest"
+  @req.response[:message].should_not be_empty
 end
 
 When /^the meeting should be ended$/ do
@@ -20,16 +20,16 @@ When /^the meeting should be ended$/ do
     while running
       sleep 1
       meetings = @api.get_meetings
-      hash = meetings[:meetings].select!{ |m| m[:meetingID] == @meeting_id }[0]
+      hash = meetings[:meetings].select!{ |m| m[:meetingID] == @req.id }[0]
       running = hash[:running]
     end
   end
 
-  @response =  @api.get_meeting_info(@meeting_id, @moderator_password)
-  @response[:running].should be_false
-  @response[:hasBeenForciblyEnded].should be_true
+  @req.response =  @api.get_meeting_info(@req.id, @req.opts[:moderatorPW])
+  @req.response[:running].should be_false
+  @req.response[:hasBeenForciblyEnded].should be_true
 end
 
 When /^the flag hasBeenForciblyEnded should be set$/ do
-  @response[:hasBeenForciblyEnded].should be_true
+  @req.response[:hasBeenForciblyEnded].should be_true
 end
