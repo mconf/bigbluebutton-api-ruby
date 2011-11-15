@@ -29,7 +29,8 @@ When /^that a meeting was created$/ do
   @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test")
   @req.name = @req.id
-  @req.opts = { :moderatorPW => Forgery(:basic).password }
+  @req.mod_pass = Forgery(:basic).password
+  @req.opts = { :moderatorPW => @req.mod_pass }
   @req.method = :create
   @req.response = @api.create_meeting(@req.id, @req.name, @req.opts)
 end
@@ -40,7 +41,8 @@ When /^that a meeting was created with all the optional arguments$/i do
   @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-create")
   @req.name = @req.id
-  @req.opts = { :moderatorPW => Forgery(:basic).password,
+  @req.mod_pass = Forgery(:basic).password
+  @req.opts = { :moderatorPW => @req.mod_pass,
                 :attendeePW => Forgery(:basic).password,
                 :welcome => Forgery(:lorem_ipsum).words(10),
                 :dialNumber => Forgery(:basic).number(:at_most => 999999999).to_s,

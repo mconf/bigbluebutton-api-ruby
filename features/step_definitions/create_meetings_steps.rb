@@ -34,10 +34,11 @@ When /^the create method is called$/ do
   @req.name = @req.id
   @req.method = :create
   @req.response = @api.create_meeting(@req.id, @req.name)
+  @req.mod_pass = @req.response[:moderatorPW]
 end
 
 When /^the meeting is forcibly ended$/ do
-  @req.response = @api.end_meeting(@req.id, @req.response[:moderatorPW])
+  @req.response = @api.end_meeting(@req.id, @req.mod_pass)
 end
 
 When /^the create method is called again with the same meeting id$/ do

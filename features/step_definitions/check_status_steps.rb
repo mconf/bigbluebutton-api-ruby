@@ -13,7 +13,7 @@ When /^calling the method get_meetings$/ do
 end
 
 When /^calling the method get_meeting_info$/ do
-  @req.response = @api.get_meeting_info(@req.id, @req.opts[:moderatorPW])
+  @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
 end
 
 When /^the created meeting should be listed in the response with proper information$/ do
@@ -28,7 +28,7 @@ When /^the created meeting should be listed in the response with proper informat
   found = found[0]
   found[:attendeePW].should be_a(String)
   found[:attendeePW].should_not be_empty
-  found[:moderatorPW].should == @req.opts[:moderatorPW]
+  found[:moderatorPW].should == @req.mod_pass
   found[:hasBeenForciblyEnded].should be_false
   found[:running].should be_false
   if @api.version >= "0.8"
@@ -38,7 +38,7 @@ When /^the created meeting should be listed in the response with proper informat
 end
 
 When /^it shows all the information of the meeting that was created$/ do
-  @req.response = @api.get_meeting_info(@req.id, @req.opts[:moderatorPW])
+  @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
   @req.response[:meetingID].should == @req.id
   @req.response[:running].should be_false
   @req.response[:hasBeenForciblyEnded].should be_false

@@ -1,7 +1,7 @@
 When /^the method to end the meeting is called$/ do
   begin
     @req.method = :end
-    @req.response = @api.end_meeting(@req.id, @req.opts[:moderatorPW])
+    @req.response = @api.end_meeting(@req.id, @req.mod_pass)
   rescue Exception => @req.exception
   end
 end
@@ -25,7 +25,7 @@ When /^the meeting should be ended$/ do
     end
   end
 
-  @req.response =  @api.get_meeting_info(@req.id, @req.opts[:moderatorPW])
+  @req.response =  @api.get_meeting_info(@req.id, @req.mod_pass)
   @req.response[:running].should be_false
   @req.response[:hasBeenForciblyEnded].should be_true
 end
