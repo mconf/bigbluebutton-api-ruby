@@ -1,9 +1,12 @@
+=== In development: 0.1.0
+
 * Support to BigBlueButton 0.8:
-  * New methods get_recordings, publish_recordings, delete_recordings
+  * New methods for recordings: get_recordings, publish_recordings, delete_recordings
   * Pre-upload of slides in create_meeting
   * New parameters in the already existent methods
   * For more information see BigBlueButton docs at http://code.google.com/p/bigbluebutton/wiki/API#Version_0.8
 * Method signature changes: create_meeting, join_meeting_url and join_meeting. Optional parameters are now passed using a hash.
+* Integration tests for the entire library using cucumber.
 
 === 0.0.11
 

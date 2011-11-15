@@ -9,11 +9,12 @@ interact with BigBlueButton. And also formats the responses to a ruby-friendly f
 Some details:
 
 * Provides methods to perform all API calls and get the responses;
-* Converts the XML response to a ruby hash;
+* Converts the XML responses to ruby hashes, that are easier to work with;
 * Converts the string values returned to native ruby types. For instance:
   * Dates are converted DateTime objects (e.g. "Thu Sep 01 17:51:42 UTC 2011");
   * Response codes are converted to boolean (e.g. "SUCCESS" becomes <tt>true</tt>);
-* Deals with errors throwing BigBlueButtonException exceptions.
+* Deals with errors (e.g. timeouts) throwing BigBlueButtonException exceptions;
+* Support to multiple BigBlueButton API versions (see below).
 
 Tested in Ruby <b>1.8.7</b> and Ruby <b>1.9.2</b>.
 
@@ -21,19 +22,25 @@ Tested in Ruby <b>1.8.7</b> and Ruby <b>1.9.2</b>.
 
 Currently supports the following versions of BigBlueButton:
 
-* 0.8
+* 0.8 (currently in the beta2 stage)
 * 0.7 (including 0.7, 0.71 and 0.71a).
 
-For version 0.64 see the branch "api-0.64". The last version with support to 0.64 is version 0.0.10.
+For version 0.64 see the branch "api-0.64". The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10].
 
 == Releases
 
-For a list of releases and changes list see {CHANGELOG.rdoc}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/CHANGELOG.rdoc].
+For a list of releases and release notes see {CHANGELOG.rdoc}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/CHANGELOG.rdoc].
+
+== Development
+
+Information about the development of <tt>bigbluebutton-api-ruby</tt> can be found in {our wiki}[https://github.com/mconf/bigbluebutton-api-ruby/wiki].
+
+The development of this gem is guided by the requirements of the project Mconf. To know more about it visit the {project's wiki}[http://code.google.com/p/mconf/].
 
 == License
 
 Distributed under The MIT License (MIT).
-See {LICENSE}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE] for the latest license, valid for all versions after 0.0.4 (including it), and {LICENSE_2010}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE_003] for version 0.0.3 and all the previous versions.
+See {LICENSE}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE] for the latest license, valid for all versions after 0.0.4 (including it), and {LICENSE_003}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE_003] for version 0.0.3 and all the previous versions.
 
 == Contact
 

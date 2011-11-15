@@ -1,26 +1,6 @@
 # Common steps, used in several features
 
-# Opens a yml file that defines the BBB test servers
-# There can be several servers, the one used can be set using SERVER=name in the command line
-def load_configs
-  config_file = File.join(File.dirname(__FILE__), '..', 'config.yml')
-  unless File.exist? config_file
-    throw Exception.new(config_file + " does not exists. Copy the example and configure your server.")
-  end
-  @config = YAML.load_file(config_file)
-  if ENV['SERVER']
-    unless @config['servers'].has_key?(ENV['SERVER'])
-      throw Exception.new("Server #{ENV['SERVER']} does not exists in your configuration file.")
-    end
-    @config_server = @config['servers'][ENV['SERVER']]
-  else
-    @config_server = @config['servers'][@config['servers'].keys.first]
-  end
-  @config_server['bbb_version'] = '0.7' unless @config_server.has_key?('bbb_version')
-end
-
 When /^the default BigBlueButton server$/ do
-  load_configs
   @api = BigBlueButton::BigBlueButtonApi.new(@config_server['bbb_url'],
                                              @config_server['bbb_salt'],
                                              @config_server['bbb_version'].to_s,
@@ -31,7 +11,6 @@ end
 When /^that a meeting was created$/ do
   steps %Q{ When the default BigBlueButton server }
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test")
   @req.name = @req.id
   @req.mod_pass = Forgery(:basic).password
@@ -43,7 +22,6 @@ end
 When /^that a meeting was created with all the optional arguments$/i do
   steps %Q{ When the default BigBlueButton server }
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-create")
   @req.name = @req.id
   @req.mod_pass = Forgery(:basic).password
@@ -64,7 +42,7 @@ When /^that a meeting was created with all the optional arguments$/i do
 end
 
 When /^the meeting is running$/ do
-  BigBlueButtonBot.new(@api, @req.id)
+  BigBlueButtonBot.new(@api, @req.id, 1, @config['timeout_bot_start'])
 end
 
 When /^the response is an error with the key "(.*)"$/ do |key|

@@ -4,7 +4,6 @@ When /^the user creates a meeting pre\-uploading the following presentations:$/ 
     modules.add_presentation(pres["type"].to_sym, pres["presentation"])
   end
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-pre-upload")
   @req.name = @req.id
   @req.method = :create

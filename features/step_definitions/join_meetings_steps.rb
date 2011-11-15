@@ -20,7 +20,6 @@ When /^he is redirected to the BigBlueButton client$/ do
 end
 
 When /^the user tries to access the link to join a meeting that was not created$/ do
-  @req = TestApiRequest.new
   @req.response = @api.join_meeting_url("should-not-exist-in-server", "any", "any")
 end
 

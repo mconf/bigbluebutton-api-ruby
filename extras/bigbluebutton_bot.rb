@@ -2,7 +2,7 @@ class BigBlueButtonBot
   BOT_FILENAME = "bbb-bot.jar"
   @@pids = []
 
-  def initialize(api, meeting, count=1)
+  def initialize(api, meeting, count=1, timeout=20)
     server = parse_server_url(api.url)
 
     # note: fork + exec with these parameters was the only solution found to run the command in background
@@ -17,7 +17,7 @@ class BigBlueButtonBot
     end
     @@pids << pid
 
-    wait_bot_startup(api, meeting, 15)
+    wait_bot_startup(api, meeting, timeout)
   end
 
   def self.finalize
@@ -44,7 +44,7 @@ class BigBlueButtonBot
         sleep 1
         response = api.get_meetings
         selected = response[:meetings].select!{ |m| m[:meetingID] == meeting }
-        running = selected[0][:running] unless hash.nil?
+        running = selected[0][:running] unless selected.nil?
       end
     end
   end

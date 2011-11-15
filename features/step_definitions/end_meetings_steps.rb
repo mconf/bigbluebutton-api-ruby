@@ -7,15 +7,17 @@ When /^the method to end the meeting is called$/ do
 end
 
 When /^the meeting should be ended$/ do
-  BigBlueButtonBot.finalize # the meeting only ends when everybody closes the session
+  # the meeting only ends when everybody closes the session
+  BigBlueButtonBot.finalize
+
   # wait for the meeting to end
-  Timeout::timeout(15) do
+  Timeout::timeout(@config['timeout_ending']) do
     running = true
     while running
       sleep 1
-      meetings = @api.get_meetings
-      hash = meetings[:meetings].select!{ |m| m[:meetingID] == @req.id }[0]
-      running = hash[:running]
+      response = @api.get_meetings
+      selected = response[:meetings].select!{ |m| m[:meetingID] == @req.id }
+      running = selected[0][:running] unless selected.nil?
     end
   end
 

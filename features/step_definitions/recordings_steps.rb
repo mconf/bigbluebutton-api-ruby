@@ -1,7 +1,6 @@
 When /^the user creates a meeting with the record flag$/ do
   steps %Q{ When the default BigBlueButton server }
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-recordings")
   @req.name = @req.id
   @req.method = :create
@@ -19,7 +18,6 @@ end
 When /^the user creates a meeting without the record flag$/ do
   steps %Q{ When the default BigBlueButton server }
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-recordings")
   @req.name = @req.id
   @req.method = :create
@@ -39,7 +37,6 @@ When /^(\d+) recorded meetings$/ do |count|
 end
 
 When /^the user calls the get_recordings method$/ do
-  @req = TestApiRequest.new
   @req.method = :get_recordings
   @req.response = @api.get_recordings
 end

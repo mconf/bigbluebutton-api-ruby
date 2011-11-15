@@ -1,4 +1,11 @@
 debug: false
+
+# maximum wait for a meeting to be ended after end_meeting is called (secs)
+timeout_ending: 30
+
+# maximum wait until the bot starts (secs)
+timeout_bot_start: 60
+
 servers:
   bbb-dev-07:
     bbb_salt: 'your-salt'

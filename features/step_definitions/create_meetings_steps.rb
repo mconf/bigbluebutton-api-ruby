@@ -10,7 +10,6 @@ end
 When /^the create method is called with a duplicated meeting id$/ do
   steps %Q{ When the default BigBlueButton server }
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-create")
   @req.name = @req.id
 
@@ -29,7 +28,6 @@ end
 When /^the create method is called$/ do
   steps %Q{ When the default BigBlueButton server }
 
-  @req = TestApiRequest.new
   @req.id = Forgery(:basic).random_name("test-create")
   @req.name = @req.id
   @req.method = :create
