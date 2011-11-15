@@ -19,7 +19,7 @@ Feature: Create rooms
     When the create method is called with a duplicated meeting id
     Then the response is an error with the key "idNotUnique"
 
-  # TODO not working in version 0.8 yet
+  # TODO boot is not working in version 0.8 yet
   @version-07 @need-bot
   Scenario: Try to recreate a previously ended meeting
     Given the create method is called

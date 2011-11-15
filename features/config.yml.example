@@ -1,9 +1,10 @@
-bbb-dev-07:
-  bbb_salt: 'your-salt'
-  bbb_url: 'http://your-server/bigbluebutton/api'
-  bbb_version: '0.7'
-
-test-install-08:
-  bbb_salt: '8cd8ef52e8e101574e400365b55e11a6'
-  bbb_url: 'http://test-install.blindsidenetworks.com/bigbluebutton/api'
-  bbb_version: '0.8'
+debug: false
+servers:
+  bbb-dev-07:
+    bbb_salt: 'your-salt'
+    bbb_url: 'http://your-server/bigbluebutton/api'
+    bbb_version: '0.7'
+  test-install-08:
+    bbb_salt: '8cd8ef52e8e101574e400365b55e11a6'
+    bbb_url: 'http://test-install.blindsidenetworks.com/bigbluebutton/api'
+    bbb_version: '0.8'

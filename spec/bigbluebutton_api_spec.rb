@@ -451,7 +451,9 @@ describe BigBlueButton::BigBlueButtonApi do
     context "with data" do
       let(:data) { "any data" }
       before {
-        @http_mock.should_receive(:post).with("/res?param1=value1&checksum=12345", data).and_return("ok")
+        path = "/res?param1=value1&checksum=12345"
+        opts = { 'Content-Type' => 'text/xml' }
+        @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
       }
       it {
         api.send(:send_request, url, data).should == "ok"

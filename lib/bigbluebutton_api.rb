@@ -134,9 +134,9 @@ module BigBlueButton
       else
         selected_opt.reject!{ |k,v| !valid_options.include?(k) }
       end
-
       params = { :name => meeting_name, :meetingID => meeting_id }.merge(selected_opt)
 
+      # with modules we send a post request (only for >= 0.8)
       if modules and @version >= "0.8"
         response = send_api_request(:create, params, modules.to_xml)
       else
@@ -526,7 +526,9 @@ module BigBlueButton
         if data.nil?
           response = http.get(url_parsed.request_uri)
         else
-          response = http.post(url_parsed.request_uri, data)
+          puts "BigBlueButtonAPI: Sending as a POST request with data.size = #{data.size}" if @debug
+          opts = { 'Content-Type' => 'text/xml' }
+          response = http.post(url_parsed.request_uri, data, opts)
         end
         puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
 

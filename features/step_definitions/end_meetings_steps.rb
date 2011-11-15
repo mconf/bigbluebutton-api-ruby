@@ -6,12 +6,6 @@ When /^the method to end the meeting is called$/ do
   end
 end
 
-When /^the response to the end method is successful and well formatted$/ do
-  @req.response[:returncode].should be_true
-  @req.response[:messageKey].should == "sentEndMeetingRequest"
-  @req.response[:message].should_not be_empty
-end
-
 When /^the meeting should be ended$/ do
   BigBlueButtonBot.finalize # the meeting only ends when everybody closes the session
   # wait for the meeting to end

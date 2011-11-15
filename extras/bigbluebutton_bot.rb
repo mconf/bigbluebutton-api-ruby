@@ -43,8 +43,8 @@ class BigBlueButtonBot
       while !running
         sleep 1
         response = api.get_meetings
-        hash = response[:meetings].select!{ |m| m[:meetingID] == meeting }[0]
-        running = hash[:running]
+        selected = response[:meetings].select!{ |m| m[:meetingID] == meeting }
+        running = selected[0][:running] unless hash.nil?
       end
     end
   end

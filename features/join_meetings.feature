@@ -18,7 +18,7 @@ Feature: Join meeting
 
   @version-all
   Scenario: Join a non created meeting
-    Given the default API object
+    Given the default BigBlueButton server
     When the user tries to access the link to join a meeting that was not created
     Then the response is an xml with the error "invalidMeetingIdentifier"
 
