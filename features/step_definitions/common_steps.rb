@@ -5,6 +5,7 @@ When /^the default BigBlueButton server$/ do
                                              @config_server['bbb_salt'],
                                              @config_server['bbb_version'].to_s,
                                              @config['debug'])
+  @api.timeout = @config['timeout_req']
 end
 
 # default create call, with no optional parameters (only the mod pass)

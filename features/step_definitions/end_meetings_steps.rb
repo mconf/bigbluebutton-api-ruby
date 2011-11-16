@@ -16,7 +16,7 @@ When /^the meeting should be ended$/ do
     while running
       sleep 1
       response = @api.get_meetings
-      selected = response[:meetings].select!{ |m| m[:meetingID] == @req.id }
+      selected = response[:meetings].reject!{ |m| m[:meetingID] != @req.id }
       running = selected[0][:running] unless selected.nil?
     end
   end

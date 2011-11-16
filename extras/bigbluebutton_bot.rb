@@ -43,7 +43,7 @@ class BigBlueButtonBot
       while !running
         sleep 1
         response = api.get_meetings
-        selected = response[:meetings].select!{ |m| m[:meetingID] == meeting }
+        selected = response[:meetings].reject!{ |m| m[:meetingID] != meeting }
         running = selected[0][:running] unless selected.nil?
       end
     end
