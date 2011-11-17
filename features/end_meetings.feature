@@ -2,8 +2,7 @@ Feature: End rooms
   To stop a meeting using the API
   One needs to be able to call 'end' to this meeting
 
-  # TODO not working in version 0.8 yet
-  @version-07 @need-bot
+  @version-all @need-bot
   Scenario: End a meeting
     Given that a meeting was created
       And the meeting is running

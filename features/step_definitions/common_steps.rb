@@ -1,9 +1,9 @@
 # Common steps, used in several features
 
 When /^the default BigBlueButton server$/ do
-  @api = BigBlueButton::BigBlueButtonApi.new(@config_server['bbb_url'],
-                                             @config_server['bbb_salt'],
-                                             @config_server['bbb_version'].to_s,
+  @api = BigBlueButton::BigBlueButtonApi.new(@config_server['url'],
+                                             @config_server['salt'],
+                                             @config_server['version'].to_s,
                                              @config['debug'])
   @api.timeout = @config['timeout_req']
 end
@@ -43,7 +43,8 @@ When /^that a meeting was created with all the optional arguments$/i do
 end
 
 When /^the meeting is running$/ do
-  BigBlueButtonBot.new(@api, @req.id, 1, @config['timeout_bot_start'])
+  mobile_salt = @config_server.has_key?('mobile_salt') ? @config_server['mobile_salt'] : ""
+  BigBlueButtonBot.new(@api, @req.id, mobile_salt, 1, @config['timeout_bot_start'])
 end
 
 When /^the response is an error with the key "(.*)"$/ do |key|

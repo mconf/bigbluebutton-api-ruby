@@ -2,14 +2,14 @@ class BigBlueButtonBot
   BOT_FILENAME = "bbb-bot.jar"
   @@pids = []
 
-  def initialize(api, meeting, count=1, timeout=20)
+  def initialize(api, meeting, salt="", count=1, timeout=20)
     server = parse_server_url(api.url)
 
     # note: fork + exec with these parameters was the only solution found to run the command in background
     # and be able to wait for it (kill it) later on (see BigBlueButtonBot.finalize)
     pid = Process.fork do
       bot_file = File.join(File.dirname(__FILE__), BOT_FILENAME)
-      exec("java", "-jar", "#{bot_file}", "-s", "#{server}", "-m", "#{meeting}", "-n", "#{count}")
+      exec("java", "-jar", "#{bot_file}", "-s", "#{server}", "-p", "#{salt}", "-m", "#{meeting}", "-n", "#{count}")
       # IO::popen("java -jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null")
       # exec(["java", "-jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null"])
       # exec("java -jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null")

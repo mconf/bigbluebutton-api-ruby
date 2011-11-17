@@ -257,7 +257,7 @@ describe BigBlueButton::BigBlueButtonApi do
     let(:response) {
       { :meetingName => 123, :participantCount => "50", :maxUsers => "100", :voiceBridge => "12341234",
         :createTime => "123123123", :attendees => { :attendee => [ ] },
-        :messageKey => "mkey", :message => "m", :recording => "false" }
+        :messageKey => "mkey", :message => "m", :recording => "false", :meta_1 => "1", :meta_2 => "2" }
     }
 
     before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
@@ -268,6 +268,8 @@ describe BigBlueButton::BigBlueButtonApi do
     it { subject[:voiceBridge].should == 12341234 }
     it { subject[:createTime].should == 123123123 }
     it { subject[:recording].should == false }
+    it { subject[:meta_1].should == "1" }
+    it { subject[:meta_2].should == "2" }
   end
 
 end

@@ -3,8 +3,7 @@ Feature: Check meeting configurations and status
   One needs to check the current meetings
   and the status and configurations of a meeting
 
-  # TODO not working for 0.8 yet
-  @version-07 @need-bot
+  @version-all @need-bot
   Scenario: Check that a meeting is running
     Given that a meeting was created
       And the meeting is running
