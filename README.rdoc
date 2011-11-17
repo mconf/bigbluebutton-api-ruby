@@ -16,7 +16,12 @@ Some details:
 * Deals with errors (e.g. timeouts) throwing BigBlueButtonException exceptions;
 * Support to multiple BigBlueButton API versions (see below).
 
-Tested in Ruby <b>1.8.7</b> and Ruby <b>1.9.2</b>.
+Tested in rubies:
+
+* ruby-1.8.7
+* ruby-1.9.2
+* ree-1.8.7
+* jruby
 
 == Supported Versions
 

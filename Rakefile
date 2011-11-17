@@ -10,11 +10,17 @@ task :default => [:spec, :cucumber]
 RSpec::Core::RakeTask.new(:spec)
 
 Cucumber::Rake::Task.new do |t|
+
+  # in jruby the class BigBlueButtonBot doesn't work (it uses fork)
+  if defined? RUBY_ENGINE && RUBY_ENGINE == 'jruby'
+    prepend = "--tags ~@need-bot"
+  end
+
   # defaults to BBB 0.7
   if ENV["V"]  == "0.8"
-    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-08"
+    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-08 #{prepend}"
   else
-    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-07"
+    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-07 #{prepend}"
   end
 end
 
