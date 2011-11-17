@@ -2,7 +2,7 @@ When /^the create method is called with all the optional arguments$/i do
   steps %Q{ When that a meeting was created with all the optional arguments }
 end
 
-When /^the create method is called with no optional argument$/i do
+When /^the create method is called with no optional arguments$/i do
   steps %Q{ When the default BigBlueButton server }
   steps %Q{ When that a meeting was created }
 end
