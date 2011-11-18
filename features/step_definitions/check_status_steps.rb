@@ -78,7 +78,7 @@ When /^it shows all the information of the meeting that was created$/ do
       (@req.response[:voiceBridge].should == @req.opts[:voiceBridge]) :
       (@req.response[:voiceBridge].should be_a(Numeric))
 
-    if @req.opts.has_key?(:maxParticipants)
+    if @req.opts.has_key?(:meta_one)
       @req.response[:metadata].size.should == 2
       @req.response[:metadata].should be_a(Hash)
       @req.response[:metadata].should include(:one => "one")
@@ -92,12 +92,23 @@ When /^it shows all the information of the meeting that was created$/ do
 end
 
 Then /^it shows the (\d+) attendees in the list$/ do |count|
-  @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
+  # check only what is different in a meeting that is RUNNING
+  # the rest is checked in other scenarios
 
+  @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
   participants = count.to_i
 
+  @req.response[:running].should be_true
+  @req.response[:moderatorCount].should > 0
+  @req.response[:hasBeenForciblyEnded].should be_false
   @req.response[:participantCount].should == participants
   @req.response[:attendees].size.should == 2
+
+  # check the start time that should be within 2 hours from now
+  @req.response[:startTime].should be_a(DateTime)
+  @req.response[:startTime].should < DateTime.now
+  @req.response[:startTime].should >= DateTime.now - (2/24.0)
+  @req.response[:endTime].should be_nil
 
   # in the bot being used, bots are always moderators with these names
   @req.response[:attendees].sort_by! { |h| h[:fullName] }

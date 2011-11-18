@@ -9,6 +9,7 @@ Feature: End rooms
     When the method to end the meeting is called
     Then the response is successful and well formatted
       And the meeting should be ended
+      And the information returned by get_meeting_info is correct
 
   # in 0.7 ending a meeting that is not running generates an error
   @version-07

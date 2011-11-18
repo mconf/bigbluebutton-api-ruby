@@ -61,8 +61,15 @@ When /^the response is successful$/ do
   @req.response[:returncode].should be_true
 end
 
+When /^the response is successful with no messages$/ do
+  @req.response[:returncode].should be_true
+  @req.response[:messageKey].should == ""
+  @req.response[:message].should == ""
+end
+
 When /^the response has the messageKey "(.*)"$/ do |key|
   @req.response[:messageKey].should == key
+  @req.response[:message].should_not be_empty
 end
 
 When /^the response is successful and well formatted$/ do
