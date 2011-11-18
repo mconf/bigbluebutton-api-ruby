@@ -32,6 +32,7 @@ When /^that a meeting was created with all the optional arguments$/i do
                 :dialNumber => Forgery(:basic).number(:at_most => 999999999).to_s,
                 :logoutURL => Forgery(:internet).url,
                 :voiceBridge => Forgery(:basic).number(:at_least => 70000, :at_most => 79999),
+                :webVoice => Forgery(:basic).text,
                 :maxParticipants => Forgery(:basic).number }
   if @api.version >= "0.8"
     @req.opts.merge!( { :record => false,
@@ -43,8 +44,12 @@ When /^that a meeting was created with all the optional arguments$/i do
 end
 
 When /^the meeting is running$/ do
+  steps %Q{ When the meeting is running with 1 attendees }
+end
+
+When /^the meeting is running with (\d+) attendees$/ do |count|
   mobile_salt = @config_server.has_key?('mobile_salt') ? @config_server['mobile_salt'] : ""
-  BigBlueButtonBot.new(@api, @req.id, mobile_salt, 1, @config['timeout_bot_start'])
+  BigBlueButtonBot.new(@api, @req.id, mobile_salt, count.to_i, @config['timeout_bot_start'])
 end
 
 When /^the response is an error with the key "(.*)"$/ do |key|

@@ -91,3 +91,18 @@ When /^it shows all the information of the meeting that was created$/ do
   end
 end
 
+Then /^it shows the (\d+) attendees in the list$/ do |count|
+  @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
+
+  participants = count.to_i
+
+  @req.response[:participantCount].should == participants
+  @req.response[:attendees].size.should == 2
+
+  # in the bot being used, bots are always moderators with these names
+  @req.response[:attendees].sort_by! { |h| h[:fullName] }
+  @req.response[:attendees][0][:fullName].should == "BOT0"
+  @req.response[:attendees][0][:role].should == :moderator
+  @req.response[:attendees][1][:fullName].should == "BOT1"
+  @req.response[:attendees][1][:role].should == :moderator
+end

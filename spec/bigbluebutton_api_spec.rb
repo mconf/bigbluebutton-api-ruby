@@ -45,7 +45,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:req_params) {
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
           :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
-          :maxParticipants => 25, :voiceBridge => 12345 }
+          :maxParticipants => 25, :voiceBridge => 12345, :webVoice => "12345abc" }
       }
       let(:req_response) {
         { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
@@ -58,7 +58,7 @@ describe BigBlueButton::BigBlueButtonApi do
       before { api.should_receive(:send_api_request).with(:create, req_params).and_return(req_response) }
       subject {
         options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
-          :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345 }
+          :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345, :webVoice => "12345abc" }
         api.create_meeting("name", "meeting-id", options)
       }
       it { subject.should == final_response }
@@ -199,8 +199,8 @@ describe BigBlueButton::BigBlueButtonApi do
       { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
         :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
         :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] },
-        :messageKey => "mkey", :message => "m" }
-    } # hash after the send_api_request call, before the specific formatting
+        :messageKey => "mkey", :message => "m", :participantCount => "50", :moderatorCount => "3" }
+    } # hash after the send_api_request call, before the formatting
 
     let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
     let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
@@ -208,7 +208,7 @@ describe BigBlueButton::BigBlueButtonApi do
       { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
         :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
         :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ],
-        :messageKey => "mkey", :message => "m" }
+        :messageKey => "mkey", :message => "m", :participantCount => 50, :moderatorCount => 3 }
     } # expected return hash after all the formatting
 
     # ps: not mocking the formatter here because it's easier to just check the results (final_response)

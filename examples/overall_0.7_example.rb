@@ -3,6 +3,7 @@ $:.unshift File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib')
 
 require 'bigbluebutton_api'
 require 'prepare'
+require 'securerandom'
 
 begin
   prepare
@@ -31,16 +32,19 @@ begin
 
   puts
   puts "---------------------------------------------------"
-  meeting_name = "Test Meeting"
-  meeting_id = "test-meeting"
+  meeting_id = SecureRandom.hex(4)
+  meeting_name = meeting_id
   moderator_name = "House"
   attendee_name = "Cameron"
   options = { :moderatorPW => "54321",
               :attendeePW => "12345",
               :welcome => 'Welcome to my meeting',
               :dialNumber => '1-800-000-0000x00000#',
+              :voiceBridge => 70000 + rand(9999),
+              :webVoice => SecureRandom.hex(4),
               :logoutURL => 'https://github.com/mconf/bigbluebutton-api-ruby',
               :maxParticipants => 25 }
+
   @api.create_meeting(meeting_name, meeting_id, options)
   puts "The meeting has been created. Please open a web browser and enter the meeting using either of the URLs below."
 

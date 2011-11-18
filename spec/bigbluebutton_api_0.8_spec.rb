@@ -248,27 +248,25 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  # TODO: metadata in the response
   describe "#get_meeting_info" do
     let(:params) { { :meetingID => "meeting-id", :password => "password" } }
 
     # new values were added in the response in 0.8 (we'll only test these values):
     #   meetingName, participantCount, maxUsers, voiceBridge, recording, metadata
     let(:response) {
-      { :meetingName => 123, :participantCount => "50", :maxUsers => "100", :voiceBridge => "12341234",
+      { :meetingName => 123, :maxUsers => "100", :voiceBridge => "12341234",
         :createTime => "123123123", :attendees => { :attendee => [ ] },
-        :messageKey => "mkey", :message => "m", :recording => "false", :meta_1 => "1", :meta_2 => "2" }
+        :messageKey => "mkey", :message => "m", :recording => "false", :meta_1 => "abc", :meta_2 => "2" }
     }
 
     before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
     subject { api.get_meeting_info("meeting-id", "password") }
     it { subject[:meetingName].should == "123" }
-    it { subject[:participantCount].should == 50 } # FIXME: wasn't this in 0.7 already?
     it { subject[:maxUsers].should == 100 }
     it { subject[:voiceBridge].should == 12341234 }
     it { subject[:createTime].should == 123123123 }
     it { subject[:recording].should == false }
-    it { subject[:meta_1].should == "1" }
+    it { subject[:meta_1].should == "abc" }
     it { subject[:meta_2].should == "2" }
   end
 

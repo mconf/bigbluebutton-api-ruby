@@ -122,8 +122,8 @@ module BigBlueButton
     #   }
     #
     def create_meeting(meeting_name, meeting_id, options={}, modules=nil)
-      valid_options = [:moderatorPW, :attendeePW, :welcome, :dialNumber, :logoutURL,
-                       :maxParticipants, :voiceBridge]
+      valid_options = [:moderatorPW, :attendeePW, :welcome, :maxParticipants,
+                       :dialNumber, :voiceBridge, :webVoice, :logoutURL]
 
       selected_opt = options.clone
       if @version >= "0.8"
@@ -274,9 +274,10 @@ module BigBlueButton
       formatter.to_boolean(:running)
       formatter.to_datetime(:startTime)
       formatter.to_datetime(:endTime)
+      formatter.to_int(:participantCount)
+      formatter.to_int(:moderatorCount)
       if @version >= "0.8"
         formatter.to_string(:meetingName)
-        formatter.to_int(:participantCount)
         formatter.to_int(:maxUsers)
         formatter.to_int(:voiceBridge)
         formatter.to_int(:createTime)

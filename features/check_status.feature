@@ -20,6 +20,13 @@ Feature: Check meeting configurations and status
     When calling the method get_meeting_info
     Then it shows all the information of the meeting that was created
 
+  @version-all
+  Scenario: Check the information of a meeting with attendees
+    Given that a meeting was created
+      And the meeting is running with 2 attendees
+    When calling the method get_meeting_info
+    Then it shows the 2 attendees in the list
+
   # to make sure that getMeetingInfo is returning the proper info used in create
   @version-all
   Scenario: Check the information of a meeting created with optional parameters

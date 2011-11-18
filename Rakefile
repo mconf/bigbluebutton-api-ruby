@@ -12,7 +12,8 @@ RSpec::Core::RakeTask.new(:spec)
 Cucumber::Rake::Task.new do |t|
 
   # in jruby the class BigBlueButtonBot doesn't work (it uses fork)
-  if defined? RUBY_ENGINE && RUBY_ENGINE == 'jruby'
+  if defined?(RUBY_ENGINE) and RUBY_ENGINE == 'jruby'
+    puts "Jruby detected, ignoring features with @need-bot"
     prepend = "--tags ~@need-bot"
   end
 

@@ -40,10 +40,12 @@ module BigBlueButtonAPITests
         srv
       end
 
-    end
+      def load
+        self.cfg = initialize_cfg
+        self.cfg_server = initialize_cfg_server
+        self.req = BigBlueButtonAPITests::APIRequest.new
+      end
 
-    self.cfg = initialize_cfg
-    self.cfg_server = initialize_cfg_server
-    self.req = BigBlueButtonAPITests::APIRequest.new
+    end
   end
 end

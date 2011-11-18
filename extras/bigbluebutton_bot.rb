@@ -10,6 +10,8 @@ class BigBlueButtonBot
     pid = Process.fork do
       bot_file = File.join(File.dirname(__FILE__), BOT_FILENAME)
       exec("java", "-jar", "#{bot_file}", "-s", "#{server}", "-p", "#{salt}", "-m", "#{meeting}", "-n", "#{count}")
+
+      # other options that didn't work:
       # IO::popen("java -jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null")
       # exec(["java", "-jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null"])
       # exec("java -jar #{bot_file} -s \"#{server}\" -m \"#{meeting}\" -n #{count} >/dev/null")
@@ -17,7 +19,7 @@ class BigBlueButtonBot
     end
     @@pids << pid
 
-    wait_bot_startup(api, meeting, timeout)
+    wait_bot_startup(api, meeting, count, timeout)
   end
 
   def self.finalize
@@ -35,16 +37,23 @@ class BigBlueButtonBot
     uri_s
   end
 
-  def wait_bot_startup(api, meeting, timeout=20)
-    # we wait until the meeting is running
-    # TODO: if the meeting was already running it will not wait properly
+  # wait until the meeting is running with a certain number of participants
+  def wait_bot_startup(api, meeting, participants, timeout=20)
     Timeout::timeout(timeout) do
-      running = false
-      while !running
+      stop_wait = false
+      while !stop_wait
         sleep 1
+
+        # find the meeting and hope it is running
         response = api.get_meetings
         selected = response[:meetings].reject!{ |m| m[:meetingID] != meeting }
-        running = selected[0][:running] unless selected.nil?
+        if selected and selected.size > 0 and selected[0][:running]
+
+          # check how many participants are in the meeting
+          pass = selected[0][:moderatorPW]
+          response = api.get_meeting_info(meeting, pass)
+          stop_wait = response[:participantCount] >= participants
+        end
       end
     end
   end

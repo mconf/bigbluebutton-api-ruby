@@ -14,10 +14,25 @@ def prepare
   end
   @config = YAML.load_file(config_file)
 
-  puts "config:"
+  puts "** Config:"
   @config.each do |k,v|
-    puts k + ": " + v
+    puts k + ": " + v.to_s
+  end
+  puts
+
+  if ARGV.size > 0
+    unless @config['servers'].has_key?(ARGV[0])
+      throw Exception.new("Server #{ARGV[0]} does not exists in your configuration file.")
+    end
+    server = @config['servers'][ARGV[0]]
+  else
+    key = @config['servers'].keys.first
+    server = @config['servers'][key]
   end
 
-  @api = BigBlueButton::BigBlueButtonApi.new(@config['bbb_url'], @config['bbb_salt'], @config['bbb_version'].to_s, true)
+  puts "** Using the server:"
+  puts server.inspect
+  puts
+
+  @api = BigBlueButton::BigBlueButtonApi.new(server['url'], server['salt'], server['version'].to_s, true)
 end
