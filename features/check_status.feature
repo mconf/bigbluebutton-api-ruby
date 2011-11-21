@@ -29,7 +29,7 @@ Feature: Check meeting configurations and status
     Then the response is successful with no messages
       And it shows all the information of the meeting that was created
 
-  @version-all
+  @version-all @need-bot
   Scenario: Check the information of a meeting that is running and has attendees
     Given that a meeting was created
       And the meeting is running with 2 attendees

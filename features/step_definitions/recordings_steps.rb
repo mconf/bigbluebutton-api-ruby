@@ -32,15 +32,7 @@ When /^the meeting is not set to be recorded$/i do
   @req.response[:recording].should be_false
 end
 
-When /^(\d+) recorded meetings$/ do |count|
-  pending
-end
-
 When /^the user calls the get_recordings method$/ do
   @req.method = :get_recordings
   @req.response = @api.get_recordings
-end
-
-When /^the recorded meetings are listed in the response$/ do
-  pending
 end
