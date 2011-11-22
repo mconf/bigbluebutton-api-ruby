@@ -4,7 +4,8 @@ class Hash
   class << self
     def from_xml(xml_io)
       begin
-        opts = { 'ForceArray' => false, 'ForceContent' => false } # 'KeyToSymbol' => true
+        # we'll not use 'KeyToSymbol' because it doesn't symbolize the keys for node attributes
+        opts = { 'ForceArray' => false, 'ForceContent' => false } #
         hash = XmlSimple.xml_in(xml_io, opts)
         return symbolize_keys(hash)
       rescue Exception => e
@@ -12,7 +13,7 @@ class Hash
       end
     end
 
-    def symbolize_keys arg
+    def symbolize_keys(arg)
       case arg
       when Array
         arg.map {  |elem| symbolize_keys elem }

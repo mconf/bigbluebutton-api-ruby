@@ -1,0 +1,45 @@
+<response>
+  <returncode>SUCCESS</returncode>
+  <recordings>
+    <recording>
+      <recordID>7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268</recordID>
+      <meetingID>bd1811beecd20f24314819a52ec202bf446ab94b</meetingID>
+      <name><![CDATA[Evening Class1]]></name>
+      <published>true</published>
+      <startTime>Fri Nov 18 12:10:23 UTC 2011</startTime>
+      <endTime>Fri Nov 18 12:12:25 UTC 2011</endTime>
+      <metadata>
+        <course><![CDATA[Fundamentals Of JAVA]]></course>
+        <description><![CDATA[List of recordings]]></description>
+        <activity><![CDATA[Evening Class1]]></activity>
+      </metadata>
+      <playback>
+        <format>
+          <type>slides</type>
+          <url>http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=7f5745</url>
+          <length>3</length>
+        </format>
+      </playback>
+    </recording>
+    <recording>
+      <recordID>6c1d35b82e2552bb254d239540e4f994c4a77367-1316717270941</recordID>
+      <meetingID>585a44eb32b526b100e12b7b755d971fbbd19ab0</meetingID>
+      <name><![CDATA[Test de fonctionnalit&#xe9;]]></name>
+      <published>false</published>
+      <startTime>2011-09-22 18:47:55 UTC</startTime>
+      <endTime>2011-09-22 19:08:35 UTC</endTime>
+      <metadata>
+        <course><![CDATA[Ressources technologiques]]></course>
+        <activity><![CDATA[Test de fonctionnalit&#xe9;]]></activity>
+        <recording><![CDATA[true]]></recording>
+      </metadata>
+      <playback>
+        <format>
+          <type>slides</type>
+          <url>http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=6c1d35</url>
+          <length>0</length>
+        </format>
+      </playback>
+    </recording>
+  </recordings>
+</response>

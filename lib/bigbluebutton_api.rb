@@ -346,12 +346,12 @@ module BigBlueButton
     #     :recordings => [
     #       {
     #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268", :meetingID=>"bd1811beecd20f24314819a52ec202bf446ab94b",
-    #         :name => "{:\"#cdata-section\"=>\"Evening Class1\"}", :published => true,
+    #         :name => "Evening Class1", :published => true,
     #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
     #         :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
-    #         :metadata => { :course => { :"#cdata-section" => "Fundamentals Of JAVA"},
-    #                        :description => {:"#cdata-section"=>"List of recordings"},
-    #                        :activity => {:"#cdata-section"=>"Evening Class1"} },
+    #         :metadata => { :course => "Fundamentals Of JAVA",
+    #                        :description => "List of recordings",
+    #                        :activity => "Evening Class1" },
     #         :playback => {
     #           :format => {
     #             :type => "slides",

@@ -224,7 +224,7 @@ describe BigBlueButton::BigBlueButtonApi do
     } # hash *after* the flatten_objects call
 
     before {
-      api.should_receive(:send_api_request).with(:getMeetings, hash_including(:random => instance_of(Fixnum))).
+      api.should_receive(:send_api_request).with(:getMeetings, hash_including(:random => kind_of(Integer))).
         and_return(flattened_response)
       formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
       formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
