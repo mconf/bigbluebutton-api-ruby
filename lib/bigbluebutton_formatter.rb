@@ -38,16 +38,25 @@ module BigBlueButton
       else
         # BBB >= 0.8 uses the unix epoch for all time related values
         # older versions use strings
-        if @hash[key].is_a?(Numeric)
-          v = @hash[key] == 0 ? nil : DateTime.parse(Time.at(@hash[key]/1000.0).to_s)
+
+        # a number but in a String class
+        if (@hash[key].class == String && @hash[key].to_i.to_s == @hash[key])
+          value = @hash[key].to_i
         else
-          if @hash[key].downcase == "null" or @hash[key] == "0"
-            v = nil
+          value = @hash[key]
+        end
+
+        if value.is_a?(Numeric)
+          result = value == 0 ? nil : DateTime.parse(Time.at(value/1000.0).to_s)
+        else
+          if value.downcase == "null"
+            result = nil
           else
-            v = DateTime.parse(@hash[key])
+            result = DateTime.parse(value)
           end
         end
-        @hash[key] = v
+
+        @hash[key] = result
       end
     end
 
@@ -68,9 +77,7 @@ module BigBlueButton
 
     # Default formatting for all responses given by a BBB server
     def default_formatting
-
-      # remove the "response" node
-      response = Hash[@hash[:response]].inject({}){|h,(k,v)| h[k] = v; h}
+      response = @hash
 
       # Adjust some values. There will always be a returncode, a message and a messageKey in the hash.
       response[:returncode] = response[:returncode].downcase == "success"                              # true instead of "SUCCESS"
@@ -88,6 +95,7 @@ module BigBlueButton
       f.to_string(:attendeePW)
       f.to_boolean(:hasBeenForciblyEnded)
       f.to_boolean(:running)
+      f.to_int(:createTime) if meeting.has_key?(:createTime)
       meeting
     end
 

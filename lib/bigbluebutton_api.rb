@@ -3,7 +3,6 @@ require 'cgi'
 require 'rexml/document'
 require 'digest/sha1'
 require 'rubygems'
-require 'nokogiri'
 require 'hash_to_xml'
 require 'bigbluebutton_exception'
 require 'bigbluebutton_formatter'
@@ -252,14 +251,16 @@ module BigBlueButton
     #   }
     #
     # === Example responses for 0.8
-    # TODO: Example with metadata
     #
     #   {
-    #    :returncode => true, :meetingID => "test", :createTime => 1315254777880, :attendeePW => "1234",
-    #    :moderatorPW => "4321", :running => false, :hasBeenForciblyEnded => false, :startTime => nil,
-    #    :endTime => nil, :participantCount => 0, :moderatorCount => 0,
-    #    :attendees => [], :messageKey => "", :message => ""
+    #     :returncode => true, :meetingName => "test", :meetingID => "test", :createTime => 1321906390524,
+    #     :voiceBridge => 72194, :attendeePW => "1234", :moderatorPW => "4321", :running => false, :recording => false,
+    #     :hasBeenForciblyEnded => false, :startTime => nil, :endTime => nil, :participantCount => 0, :maxUsers => 9,
+    #     :moderatorCount => 0, :attendees => [],
+    #     :metadata => { :two => "TWO", :one => "one" },
+    #     :messageKey => "", :message => ""
     #   }
+    #
     def get_meeting_info(meeting_id, password)
       response = send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
 
@@ -342,23 +343,23 @@ module BigBlueButton
     # TODO: this example is not accurate yet
     #
     #   { :returncode => true,
-    #     :recording => [
-    #       { :recordID => "183f0bf3a0982a127bdb8161-1308597520", :meetingID => "CS101",
-    #         :name => "On-line session for CS 101", :published => false,
-    #         :startTime => DateTime("Thu Mar 04 14:05:56 UTC 2010"),
-    #         :endTime => DateTime("Thu Mar 04 15:01:01 UTC 2010"),
-    #         :metadata => {
-    #           :title => "Test Recording", :subject => "English 232 session",
-    #           :description => "First Class", :creator => "Fred Dixon",
-    #           :contributor => "Richard Alam", :language => "en_US"
-    #         },
+    #     :recordings => [
+    #       {
+    #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268", :meetingID=>"bd1811beecd20f24314819a52ec202bf446ab94b",
+    #         :name => "{:\"#cdata-section\"=>\"Evening Class1\"}", :published => true,
+    #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
+    #         :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #         :metadata => { :course => { :"#cdata-section" => "Fundamentals Of JAVA"},
+    #                        :description => {:"#cdata-section"=>"List of recordings"},
+    #                        :activity => {:"#cdata-section"=>"Evening Class1"} },
     #         :playback => {
     #           :format => {
-    #             :type => "simple",
-    #             :url => "http://server.com/simple/playback?recordID=183f0bf3a0982a127bdb8161-1",
-    #             :length => 62 }
+    #             :type => "slides",
+    #             :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
+    #             :length=>3
+    #           }
     #         }
-    #       }
+    #       },
     #       { :recordID => "183f0bf3a0982a127bdb8161-13085974450", :meetingID => "CS102",
     #         ...
     #         ...
@@ -449,6 +450,11 @@ module BigBlueButton
       @http_response
     end
 
+    # Returns the XML returned in the last API call.
+    def last_xml_response
+      @xml_response
+    end
+
     # Formats an API call URL for the method 'method' using the parameters in 'params'.
     # method (symbol)::  The API method to be called (:create, :index, :join, and others)
     # params (Hash)::    The parameters to be passed in the URL
@@ -492,17 +498,18 @@ module BigBlueButton
       return { } if @http_response.body.empty?
 
       # 'Hashify' the XML
-      hash = Hash.from_xml(@http_response.body)
+      @xml_response = @http_response.body
+      hash = Hash.from_xml(@xml_response)
 
       # simple validation of the xml body
-      unless hash.has_key?(:response) and hash[:response].has_key?(:returncode)
+      unless hash.has_key?(:returncode)
         raise BigBlueButtonException.new("Invalid response body. Is the API URL correct? \"#{@url}\", version #{@version}")
       end
 
       # default cleanup in the response
       hash = BigBlueButtonFormatter.new(hash).default_formatting
 
-      # all responses should have a returncode
+      # if the return code is an error generates an exception
       unless hash[:returncode]
         exception = BigBlueButtonException.new(hash[:message])
         exception.key = hash.has_key?(:messageKey) ? hash[:messageKey] : ""

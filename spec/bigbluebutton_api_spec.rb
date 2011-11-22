@@ -224,8 +224,8 @@ describe BigBlueButton::BigBlueButtonApi do
     } # hash *after* the flatten_objects call
 
     before {
-      # FIXME: how to expect a hash with a random value in the should_receive below?
-      api.should_receive(:send_api_request).with(:getMeetings, anything).and_return(flattened_response)
+      api.should_receive(:send_api_request).with(:getMeetings, hash_including(:random => instance_of(Fixnum))).
+        and_return(flattened_response)
       formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
       formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
       BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
@@ -297,6 +297,20 @@ describe BigBlueButton::BigBlueButtonApi do
       api.test_connection
     }
     it { api.last_http_response.should == request_mock }
+  end
+
+  describe "#last_xml_response" do
+    # we test this through a #test_connection call
+
+    let(:request_mock) { mock }
+    let(:expected_xml) { "<response><returncode>SUCCESS</returncode></response>" }
+    before {
+      api.should_receive(:get_url)
+      api.should_receive(:send_request).and_return(request_mock)
+      request_mock.should_receive(:body).at_least(1).and_return(expected_xml)
+      api.test_connection
+    }
+    it { api.last_xml_response.should == expected_xml }
   end
 
   describe "#get_url" do
@@ -391,14 +405,15 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     context "formats the response hash" do
-      let(:response) { { :response => { :returncode => true } } }
-      let(:formatted_response) { { :returncode => true } }
+      let(:response) { { :returncode => "SUCCESS" } }
+      let(:formatted_response) { { :returncode => true, :messageKey => "", :message => "" } }
       before do
         api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
         Hash.should_receive(:from_xml).with("response-body").and_return(response)
 
         # here starts the validation
+        # doesn't test the resulting format, only that the formatter was called
         formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
         BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_mock)
         formatter_mock.should_receive(:default_formatting).and_return(formatted_response)
@@ -407,7 +422,7 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     context "raise an error if the formatted response has no :returncode" do
-      let(:response) { { :response => { :returncode => true } } }
+      let(:response) { { :returncode => true } }
       let(:formatted_response) { { } }
       before do
         api.should_receive(:send_request).with(url, data).and_return(response_mock)

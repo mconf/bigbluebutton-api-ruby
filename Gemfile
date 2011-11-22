@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'nokogiri', '~> 1.5.0'
+gem 'xml-simple', '>= 1.1.1'
 
 group :developement do
   gem 'rspec', '~> 2.6'

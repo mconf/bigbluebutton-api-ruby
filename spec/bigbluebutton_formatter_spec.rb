@@ -71,8 +71,9 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe "#to_datetime" do
     let(:hash) { { :param1 => "Thu Sep 01 17:51:42 UTC 2011", :param2 => "Thu Sep 08",
-                   :param3 => 1315254777880, :param4 => "0", :param5 => 0,
-                   :param6 => "NULL", :param7 => nil } }
+                   :param3 => 1315254777880, :param4 => "1315254777880",
+                   :param5 => "0", :param6 => 0,
+                   :param7 => "NULL", :param8 => nil } }
     let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
     before {
       formatter.to_datetime(:param1)
@@ -86,10 +87,11 @@ describe BigBlueButton::BigBlueButtonFormatter do
     it { hash[:param1].should == DateTime.parse("Thu Sep 01 17:51:42 UTC 2011") }
     it { hash[:param2].should == DateTime.parse("Thu Sep 08") }
     it { hash[:param3].should == DateTime.parse("2011-09-05 17:32:57 -0300") }
-    it { hash[:param4].should == nil }
+    it { hash[:param4].should == DateTime.parse("2011-09-05 17:32:57 -0300") }
     it { hash[:param5].should == nil }
     it { hash[:param6].should == nil }
     it { hash[:param7].should == nil }
+    it { hash[:param8].should == nil }
 
     context "returns nil if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
@@ -157,7 +159,7 @@ describe BigBlueButton::BigBlueButtonFormatter do
   end
 
   describe "#default_formatting" do
-    let(:input) { { :response => { :returncode => "SUCCESS", :messageKey => "mkey", :message => "m" } } }
+    let(:input) { { :returncode => "SUCCESS", :messageKey => "mkey", :message => "m" } }
     let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(input) }
 
     context "standard case" do
@@ -167,31 +169,31 @@ describe BigBlueButton::BigBlueButtonFormatter do
     end
 
     context "when :returncode should be false" do
-      before { input[:response][:returncode] = "ERROR" }
+      before { input[:returncode] = "ERROR" }
       subject { formatter.default_formatting }
       it { subject[:returncode].should be_false }
     end
 
     context "when :messageKey is empty" do
-      before { input[:response][:messageKey] = {} }
+      before { input[:messageKey] = {} }
       subject { formatter.default_formatting }
       it { subject[:messageKey].should == "" }
     end
 
     context "when :messageKey is nil" do
-      before { input[:response].delete(:messageKey) }
+      before { input.delete(:messageKey) }
       subject { formatter.default_formatting }
       it { subject[:messageKey].should == "" }
     end
 
     context "when :message is empty" do
-      before { input[:response][:message] = {} }
+      before { input[:message] = {} }
       subject { formatter.default_formatting }
       it { subject[:message].should == "" }
     end
 
     context "when there's no :message key" do
-      before { input[:response].delete(:message) }
+      before { input.delete(:message) }
       subject { formatter.default_formatting }
       it { subject[:message].should == "" }
     end
@@ -200,7 +202,7 @@ describe BigBlueButton::BigBlueButtonFormatter do
   describe ".format_meeting" do
     let(:hash) {
       { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222,
-        :hasBeenForciblyEnded => "FALSE", :running => "TRUE" }
+        :hasBeenForciblyEnded => "FALSE", :running => "TRUE", :createTime => "123456789" }
     }
 
     subject { BigBlueButton::BigBlueButtonFormatter.format_meeting(hash) }
@@ -209,6 +211,7 @@ describe BigBlueButton::BigBlueButtonFormatter do
     it { subject[:attendeePW].should == "222" }
     it { subject[:hasBeenForciblyEnded].should == false }
     it { subject[:running].should == true }
+    it { subject[:createTime].should == 123456789 }
   end
 
   describe ".format_attendee" do
