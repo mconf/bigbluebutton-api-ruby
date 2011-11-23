@@ -3,12 +3,16 @@ class BigBlueButtonBot
   @@pids = []
 
   def initialize(api, meeting, salt="", count=1, timeout=20)
+    bot_file = File.join(File.dirname(__FILE__), BOT_FILENAME)
+    unless File.exist?(bot_file)
+      throw Exception.new(bot_file + " does not exists. See download_bot_from.txt and download the bot file.")
+    end
+
     server = parse_server_url(api.url)
 
     # note: fork + exec with these parameters was the only solution found to run the command in background
     # and be able to wait for it (kill it) later on (see BigBlueButtonBot.finalize)
     pid = Process.fork do
-      bot_file = File.join(File.dirname(__FILE__), BOT_FILENAME)
       exec("java", "-jar", "#{bot_file}", "-s", "#{server}", "-p", "#{salt}", "-m", "#{meeting}", "-n", "#{count}")
 
       # other options that didn't work:
