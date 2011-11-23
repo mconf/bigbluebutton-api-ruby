@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'xml-simple', '>= 1.1.1'
+gemspec
 
 group :developement do
   gem 'rake', '>= 0.9'

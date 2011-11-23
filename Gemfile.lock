@@ -1,3 +1,9 @@
+PATH
+  remote: .
+  specs:
+    bigbluebutton-api-ruby (0.1.0.rc1)
+      xml-simple (>= 1.1.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -59,9 +65,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bigbluebutton-api-ruby!
   cucumber-rails
   forgery
   rake (>= 0.9)
   rdoc
   rspec (~> 2.6)
-  xml-simple (>= 1.1.1)

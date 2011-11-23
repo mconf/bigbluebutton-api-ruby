@@ -16,21 +16,22 @@ Some details:
 * Deals with errors (e.g. timeouts) throwing BigBlueButtonException exceptions;
 * Support to multiple BigBlueButton API versions (see below).
 
+== Supported BigBlueButton versions
+
+Currently supports the following versions of BigBlueButton:
+
+* 0.8 (currently in the beta3 stage).
+* 0.7 (including 0.7, 0.71 and 0.71a).
+* 0.64: see the branch "api-0.64". The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10].
+
+== Supported ruby versions
+
 Tested in rubies:
 
 * ruby-1.8.7
 * ruby-1.9.2
 * ree-1.8.7
 * jruby
-
-== Supported Versions
-
-Currently supports the following versions of BigBlueButton:
-
-* 0.8 (currently in the beta2 stage)
-* 0.7 (including 0.7, 0.71 and 0.71a).
-
-For version 0.64 see the branch "api-0.64". The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10].
 
 == Releases
 
