@@ -20,7 +20,7 @@ module BigBlueButtonAPITests
 
       def initialize_cfg
         config_file = File.join(File.dirname(__FILE__), '..', '..', 'config.yml')
-        unless File.exist? config_file
+        unless File.exist?(config_file)
           throw Exception.new(config_file + " does not exists. Copy the example and configure your server.")
         end
         config = YAML.load_file(config_file)
@@ -32,12 +32,12 @@ module BigBlueButtonAPITests
           unless self.cfg['servers'].has_key?(ENV['SERVER'])
             throw Exception.new("Server #{ENV['SERVER']} does not exists in your configuration file.")
           end
-          srv = self.cfg['servers'][ENV['SERVER']]
+          server = self.cfg['servers'][ENV['SERVER']]
         else
-          srv = self.cfg['servers'][self.cfg['servers'].keys.first]
+          server = self.cfg['servers'][self.cfg['servers'].keys.first]
         end
-        srv['bbb_version'] = '0.7' unless srv.has_key?('bbb_version')
-        srv
+        server['version'] = '0.7' unless server.has_key?('version')
+        server
       end
 
       def load

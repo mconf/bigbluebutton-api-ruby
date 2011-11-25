@@ -18,11 +18,14 @@ Some details:
 
 == Supported BigBlueButton versions
 
-Currently supports the following versions of BigBlueButton:
+The current version of this gem supports *all* the following versions of BigBlueButton:
 
-* 0.8 (currently in the beta3 stage).
-* 0.7 (including 0.7, 0.71 and 0.71a).
-* 0.64: see the branch "api-0.64". The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10].
+* 0.8: currently in the beta3 stage.
+* 0.7: including 0.7, 0.71 and 0.71a.
+
+Older versions:
+
+* 0.64: see the branch "api-0.64". The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10]. It supports both 0.64 and 0.7.
 
 == Supported ruby versions
 
