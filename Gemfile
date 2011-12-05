@@ -11,5 +11,6 @@ group :development, :test do
   gem 'rspec', '~> 2.6'
   gem 'cucumber-rails'
   gem 'forgery'
+  gem 'bbbot-ruby', :git => 'git://github.com/mconf/bbbot-ruby.git'
   # gem 'rails_best_practices'
 end

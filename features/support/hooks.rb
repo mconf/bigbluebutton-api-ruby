@@ -1,9 +1,9 @@
 Before do
   # stores the global configurations in variables that are easier to access
-  BigBlueButtonAPITests::Configs.load
-  @config = BigBlueButtonAPITests::Configs.cfg
-  @config_server = BigBlueButtonAPITests::Configs.cfg_server
-  @req = BigBlueButtonAPITests::Configs.req
+  BigBlueButton::Features::Configs.load
+  @config = BigBlueButton::Features::Configs.cfg
+  @config_server = BigBlueButton::Features::Configs.cfg_server
+  @req = BigBlueButton::Features::Configs.req
 end
 
 After do |scenario|

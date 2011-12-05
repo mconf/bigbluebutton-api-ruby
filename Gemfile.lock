@@ -1,3 +1,9 @@
+GIT
+  remote: git://github.com/mconf/bbbot-ruby.git
+  revision: 05d55b641c9549fd31f77fdb6555494d7ae44dea
+  specs:
+    bbbot-ruby (0.0.1)
+
 PATH
   remote: .
   specs:
@@ -65,6 +71,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bbbot-ruby!
   bigbluebutton-api-ruby!
   cucumber-rails
   forgery
