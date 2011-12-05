@@ -112,8 +112,8 @@ Then /^it shows the (\d+) attendees in the list$/ do |count|
 
   # in the bot being used, bots are always moderators with these names
   @req.response[:attendees].sort! { |h1,h2| h1[:fullName] <=> h2[:fullName] }
-  @req.response[:attendees][0][:fullName].should == "BOT0"
+  @req.response[:attendees][0][:fullName].should == "Bot 1"
   @req.response[:attendees][0][:role].should == :moderator
-  @req.response[:attendees][1][:fullName].should == "BOT1"
+  @req.response[:attendees][1][:fullName].should == "Bot 2"
   @req.response[:attendees][1][:role].should == :moderator
 end

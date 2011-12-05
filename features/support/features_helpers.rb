@@ -33,12 +33,12 @@ module BigBlueButton
             unless self.cfg['servers'].has_key?(ENV['SERVER'])
               throw Exception.new("Server #{ENV['SERVER']} does not exists in your configuration file.")
             end
-            srv = self.cfg['servers'][ENV['SERVER']]
+            server = self.cfg['servers'][ENV['SERVER']]
           else
-            srv = self.cfg['servers'][self.cfg['servers'].keys.first]
+            server = self.cfg['servers'].first[1]
           end
-          srv['bbb_version'] = '0.7' unless srv.has_key?('bbb_version')
-          srv
+          server['version'] = '0.7' unless server.has_key?('version')
+          server
         end
 
         def load

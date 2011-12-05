@@ -38,12 +38,12 @@ When /^the information returned by get_meeting_info is correct$/ do
   @req.response[:moderatorCount].should == 0
   @req.response[:attendees].should == []
 
-  # start and end times that should be within 2 hours from now
+  # start and end times should be within half an hour from now
   @req.response[:startTime].should be_a(DateTime)
-  @req.response[:startTime].should < DateTime.now
-  @req.response[:startTime].should >= DateTime.now - (2/24.0)
+  @req.response[:startTime].should < DateTime.now + (0.5/24.0)
+  @req.response[:startTime].should >= DateTime.now - (0.5/24.0)
   @req.response[:endTime].should be_a(DateTime)
-  @req.response[:endTime].should < DateTime.now
-  @req.response[:endTime].should >= DateTime.now - (2/24.0)
+  @req.response[:endTime].should < DateTime.now + (0.5/24.0)
+  @req.response[:endTime].should >= DateTime.now - (0.5/24.0)
   @req.response[:endTime].should > @req.response[:startTime]
 end
