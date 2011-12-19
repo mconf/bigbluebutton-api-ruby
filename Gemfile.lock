@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/mconf/bbbot-ruby.git
-  revision: 47f677291610da475d9872aa3834f4cecdf9e7b7
+  revision: 83f3ccf88aa355260a791eb450a8d73f94049053
   specs:
     bbbot-ruby (0.0.1)
 
