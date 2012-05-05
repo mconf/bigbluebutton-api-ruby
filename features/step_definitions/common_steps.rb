@@ -90,6 +90,7 @@ When /^the response to the create method is successful and well formatted$/ do
   @req.response[:messageKey].should == ""
   @req.response[:message].should == ""
 
+  @req.opts = {} if @req.opts.nil?
   if @req.opts.has_key?(:attendeePW)
     @req.response[:attendeePW].should == @req.opts[:attendeePW]
   else # auto generated password

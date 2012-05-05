@@ -19,7 +19,7 @@ Feature: Create rooms
     When the create method is called with a duplicated meeting id
     Then the response is an error with the key "idNotUnique"
 
-  @version-all @need-bot
+  @version-07 @need-bot
   Scenario: Try to recreate a previously ended meeting
     Given the create method is called
       # note: meeting needs to be running to be ended in 0.7
@@ -27,3 +27,12 @@ Feature: Create rooms
       And the meeting is forcibly ended
     When the create method is called again with the same meeting id
     Then the response is an error with the key "idNotUnique"
+
+  @version-08 @need-bot
+  Scenario: Try to recreate a previously ended meeting
+    Given the create method is called
+      And the meeting is running
+      And the meeting is forcibly ended
+    When the create method is called again with the same meeting id
+    Then the response is successful and well formatted
+      And the meeting exists in the server
