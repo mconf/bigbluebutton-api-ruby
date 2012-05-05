@@ -18,7 +18,7 @@ Cucumber::Rake::Task.new do |t|
   end
 
   # defaults to BBB 0.7
-  if ENV["V"]  == "0.8"
+  if ENV["V"] == "0.8" || ENV["VERSION"] == "0.8"
     t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-08 #{prepend}"
   else
     t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-07 #{prepend}"

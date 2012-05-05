@@ -52,6 +52,7 @@ module BigBlueButton
           if value.downcase == "null"
             result = nil
           else
+            # note: BBB 0.7 uses strings in the format: "Thu Sep 01 17:51:42 UTC 2011"
             result = DateTime.parse(value)
           end
         end

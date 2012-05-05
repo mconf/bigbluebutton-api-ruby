@@ -8,7 +8,7 @@ group :developement do
 end
 
 group :development, :test do
-  gem 'rspec', '~> 2.6'
+  gem 'rspec', '~> 2.10'
   gem 'cucumber-rails'
   gem 'forgery'
   gem 'bbbot-ruby', :git => 'git://github.com/mconf/bbbot-ruby.git'

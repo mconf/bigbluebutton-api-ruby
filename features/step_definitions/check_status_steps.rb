@@ -105,9 +105,11 @@ Then /^it shows the (\d+) attendees in the list$/ do |count|
   @req.response[:attendees].size.should == 2
 
   # check the start time that should be within 2 hours from now
+  # we check with this 2-hour time window to prevent errors if the
+  # server clock is different
   @req.response[:startTime].should be_a(DateTime)
-  @req.response[:startTime].should < DateTime.now
-  @req.response[:startTime].should >= DateTime.now - (2/24.0)
+  @req.response[:startTime].should < DateTime.now + (1/24.0)
+  @req.response[:startTime].should >= DateTime.now - (1/24.0)
   @req.response[:endTime].should be_nil
 
   # in the bot being used, bots are always moderators with these names
