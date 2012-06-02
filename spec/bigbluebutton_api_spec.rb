@@ -13,13 +13,14 @@ describe BigBlueButton::BigBlueButtonApi do
   describe "#initialize" do
     context "standard initialization" do
       subject { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
-      it { subject.url.should be(url) }
-      it { subject.salt.should be(salt) }
-      it { subject.version.should be(version) }
-      it { subject.debug.should be(debug) }
-      it { subject.timeout.should be(10) }
+      it { subject.url.should == url }
+      it { subject.salt.should == salt }
+      it { subject.version.should == version }
+      it { subject.debug.should == debug }
+      it { subject.timeout.should == 10 }
       it { subject.supported_versions.should include("0.7") }
       it { subject.supported_versions.should include("0.8") }
+      it { subject.request_headers.should == {} }
     end
 
     context "when the version is not informed, get it from the BBB server" do
@@ -449,7 +450,7 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     context "standard case" do
-      before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345").and_return("ok") }
+      before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", {}).and_return("ok") }
       it { api.send(:send_request, url).should == "ok" }
     end
 
@@ -463,7 +464,7 @@ describe BigBlueButton::BigBlueButtonApi do
       it { expect { api.send(:send_request, url) }.to raise_error(BigBlueButton::BigBlueButtonException) }
     end
 
-    context "with data" do
+    context "post with data" do
       let(:data) { "any data" }
       before {
         path = "/res?param1=value1&checksum=12345"
@@ -471,6 +472,29 @@ describe BigBlueButton::BigBlueButtonApi do
         @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
       }
       it {
+        api.send(:send_request, url, data).should == "ok"
+      }
+    end
+
+    context "get with headers" do
+      let(:headers_hash) { { :anything => "anything" } }
+      before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", headers_hash).and_return("ok") }
+      it {
+        api.request_headers = headers_hash
+        api.send(:send_request, url).should == "ok"
+      }
+    end
+
+    context "get with headers" do
+      let(:headers_hash) { { :anything => "anything" } }
+      let(:data) { "any data" }
+      before {
+        path = "/res?param1=value1&checksum=12345"
+        opts = { 'Content-Type' => 'text/xml', :anything => "anything" }
+        @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
+      }
+      it {
+        api.request_headers = headers_hash
         api.send(:send_request, url, data).should == "ok"
       }
     end

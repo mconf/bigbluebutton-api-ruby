@@ -35,18 +35,39 @@ module BigBlueButton
   #
   class BigBlueButtonApi
 
-    attr_accessor :url, :supported_versions, :salt, :version, :debug, :timeout
+    # URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
+    attr_accessor :url
+
+    # Secret salt for this server
+    attr_accessor :salt
+
+    # API version e.g. 0.7 (valid for 0.7, 0.71 and 0.71a)
+    attr_accessor :version
+
+    # Flag to turn on/off debug mode
+    attr_accessor :debug
+
+    # Maximum wait time for HTTP requests (secs)
+    attr_accessor :timeout
+
+    # HTTP headers to be sent in all GET/POST requests
+    attr_accessor :request_headers
+
+    # Array with the version of BigBlueButton supported
+    # TODO: do we really need an accessor? shouldn't be internal?
+    attr_accessor :supported_versions
 
     # Initializes an instance
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # salt::      Secret salt for this server
-    # version::   API version: 0.7 (valid for 0.7, 0.71 and 0.71a)
+    # version::   API version e.g. 0.7 (valid for 0.7, 0.71 and 0.71a)
     def initialize(url, salt, version='0.7', debug=false)
       @supported_versions = ['0.7', '0.8']
       @url = url
       @salt = salt
       @debug = debug
-      @timeout = 10 # default timeout for api requests
+      @timeout = 10         # default timeout for api requests
+      @request_headers = {} # http headers sent in all requests
 
       @version = version || get_api_version
       unless @supported_versions.include?(@version)
@@ -532,19 +553,19 @@ module BigBlueButton
         http.open_timeout = @timeout
         http.read_timeout = @timeout
         if data.nil?
-          response = http.get(url_parsed.request_uri)
+          response = http.get(url_parsed.request_uri, @request_headers)
         else
           puts "BigBlueButtonAPI: Sending as a POST request with data.size = #{data.size}" if @debug
-          opts = { 'Content-Type' => 'text/xml' }
+          opts = { 'Content-Type' => 'text/xml' }.merge @request_headers
           response = http.post(url_parsed.request_uri, data, opts)
         end
         puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
 
       rescue TimeoutError => error
-        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\"")
+        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\". Error: #{error}")
 
       rescue Exception => error
-        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\"")
+        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\". Error: #{error}")
       end
 
       response
