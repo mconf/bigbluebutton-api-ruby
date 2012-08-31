@@ -53,6 +53,6 @@ See {LICENSE}[https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENS
 
 == Contact
 
-<b>Version 0.0.4+</b>: Leonardo Crauss Daronco (leonardodaronco@gmail.com), GT-Mconf: Multiconference system for interoperable web and mobile @ PRAV Labs - UFRGS. Home page: http://www.inf.ufrgs.br/prav/gtmconf
+<b>Version 0.0.4+</b>: This project is developed as part of Mconf (http://mconf.org). Contact: Leonardo Crauss Daronco (leonardodaronco@gmail.com), Mconf: A scalable opensource multiconference system for web and mobile devices @ PRAV Labs - UFRGS. Home page: http://www.inf.ufrgs.br/prav/gtmconf
 
 <b>Version 0.0.3 and below</b>: Joe Kinsella (joe.kinsella@gmail.com), Home page: http://www.brownbaglunch.com/bigbluebutton
