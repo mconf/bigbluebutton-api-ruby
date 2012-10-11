@@ -16,7 +16,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:req_params) {
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
           :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
-          :maxParticipants => 25, :voiceBridge => 12345, :record => "true", :duration => 20,
+          :maxParticipants => 25, :voiceBridge => 12345, :record => true, :duration => 20,
           :meta_1 => "meta1", :meta_2 => "meta2" }
       }
       let(:req_response) {
@@ -107,10 +107,10 @@ describe BigBlueButton::BigBlueButtonApi do
       it { expect { api.get_recordings }.to raise_error(BigBlueButton::BigBlueButtonException) }
     end
 
-    context "discards invalid options" do
-      let(:req_params) { { :meetingID => "meeting-id" } }
-      before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
-      it { api.get_recordings({ :meetingID => "meeting-id", :invalidParam1 => "1" }) }
+    context "accepts non standard options" do
+      let(:params) { { :meetingID => "meeting-id", :nonStandard => 1 } }
+      before { api.should_receive(:send_api_request).with(:getRecordings, params).and_return(response) }
+      it { api.get_recordings(params) }
     end
 
     context "without meeting ID" do

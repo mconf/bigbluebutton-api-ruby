@@ -65,26 +65,13 @@ describe BigBlueButton::BigBlueButtonApi do
       it { subject.should == final_response }
     end
 
-    context "discards invalid options" do
-      let(:req_params) {
-        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap" }
+    context "accepts non standard options" do
+      let(:params) {
+        { :name => "name", :meetingID => "meeting-id",
+          :moderatorPW => "mp", :attendeePW => "ap", :nonStandard => 1 }
       }
-      before { api.should_receive(:send_api_request).with(:create, req_params) }
-      it {
-        options = { :invalidParam => "1", :moderatorPW => "mp", :attendeePW => "ap", :invalidParam2 => "1" }
-        api.create_meeting("name", "meeting-id", options)
-      }
-    end
-
-    context "discards options for >0.7" do
-      let(:req_params) {
-        { :name => "name", :meetingID => "meeting-id" }
-      }
-      before { api.should_receive(:send_api_request).with(:create, req_params) }
-      it {
-        options = { :record => true, :duration => 25, :meta_any => "meta" }
-        api.create_meeting("name", "meeting-id", options)
-      }
+      before { api.should_receive(:send_api_request).with(:create, params) }
+      it { api.create_meeting("name", "meeting-id", params) }
     end
   end
 
@@ -129,26 +116,13 @@ describe BigBlueButton::BigBlueButtonApi do
       }
     end
 
-    context "discards invalid options" do
+    context "accepts non standard options" do
       let(:params) {
-        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name", :userID => "id123" }
+        { :meetingID => "meeting-id", :password => "pw",
+          :fullName => "Name", :userID => "id123", :nonStandard => 1 }
       }
       before { api.should_receive(:get_url).with(:join, params) }
-      it {
-        options = { :invalidParam => "1", :userID => "id123", :invalidParam2 => "1" }
-        api.join_meeting_url("meeting-id", "Name", "pw", options)
-      }
-    end
-
-    context "discards options for <= 0.7" do
-      let(:params) {
-        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name" }
-      }
-      before { api.should_receive(:get_url).with(:join, params) }
-      it {
-        options = { :createTime => 123456789 }
-        api.join_meeting_url("meeting-id", "Name", "pw", options)
-      }
+      it { api.join_meeting_url("meeting-id", "Name", "pw", params) }
     end
   end
 
@@ -166,26 +140,13 @@ describe BigBlueButton::BigBlueButtonApi do
       }
     end
 
-    context "discards invalid options" do
+    context "accepts non standard options" do
       let(:params) {
-        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name", :userID => "id123" }
+        { :meetingID => "meeting-id", :password => "pw",
+          :fullName => "Name", :userID => "id123", :nonStandard => 1 }
       }
       before { api.should_receive(:send_api_request).with(:join, params) }
-      it {
-        options = { :invalidParam => "1", :userID => "id123", :invalidParam2 => "1" }
-        api.join_meeting("meeting-id", "Name", "pw", options)
-      }
-    end
-
-    context "discards options for <= 0.7" do
-      let(:params) {
-        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name" }
-      }
-      before { api.should_receive(:send_api_request).with(:join, params) }
-      it {
-        options = { :createTime => 123456789 }
-        api.join_meeting("meeting-id", "Name", "pw", options)
-      }
+      it { api.join_meeting("meeting-id", "Name", "pw", params) }
     end
   end
 

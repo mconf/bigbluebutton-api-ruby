@@ -142,19 +142,7 @@ module BigBlueButton
     #   }
     #
     def create_meeting(meeting_name, meeting_id, options={}, modules=nil)
-      valid_options = [:moderatorPW, :attendeePW, :welcome, :maxParticipants,
-                       :dialNumber, :voiceBridge, :webVoice, :logoutURL]
-
-      selected_opt = options.clone
-      if @version >= "0.8"
-        # v0.8 added "record", "duration" and "meta_" parameters
-        valid_options += [:record, :duration]
-        selected_opt.reject!{ |k,v| !valid_options.include?(k) and !(k.to_s =~ /^meta_.*$/) }
-        selected_opt[:record] = selected_opt[:record].to_s if selected_opt.has_key?(:record)
-      else
-        selected_opt.reject!{ |k,v| !valid_options.include?(k) }
-      end
-      params = { :name => meeting_name, :meetingID => meeting_id }.merge(selected_opt)
+      params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
 
       # with modules we send a post request (only for >= 0.8)
       if modules and @version >= "0.8"
@@ -209,12 +197,7 @@ module BigBlueButton
     #                              userID (string, int), webVoiceConf (string, int) and createTime (int).
     #                              For details about each see BBB API docs.
     def join_meeting_url(meeting_id, user_name, password, options={})
-      valid_options = [:userID, :webVoiceConf]
-      valid_options += [:createTime] if @version >= "0.8"
-      options.reject!{ |k,v| !valid_options.include?(k) }
-
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
-
       get_url(:join, params)
     end
 
@@ -232,12 +215,7 @@ module BigBlueButton
     #                              userID (string, int), webVoiceConf (string, int) and createTime (int).
     #                              For details about each see BBB API docs.
     def join_meeting(meeting_id, user_name, password, options={})
-      valid_options = [:userID, :webVoiceConf]
-      valid_options += [:createTime] if @version >= "0.8"
-      options.reject!{ |k,v| !valid_options.include?(k) }
-
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
-
       send_api_request(:join, params)
     end
 
@@ -391,9 +369,6 @@ module BigBlueButton
     def get_recordings(options={})
       raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
 
-      valid_options = [:meetingID]
-      options.reject!{ |k,v| !valid_options.include?(k) }
-
       # ["id1", "id2", "id3"] becomes "id1,id2,id3"
       if options.has_key?(:meetingID)
         options[:meetingID] = options[:meetingID].join(",") if options[:meetingID].instance_of?(Array)
@@ -424,7 +399,7 @@ module BigBlueButton
       raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
 
       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
-      response = send_api_request(:publishRecordings, { :recordID => recordIDs, :publish => publish.to_s })
+      send_api_request(:publishRecordings, { :recordID => recordIDs, :publish => publish.to_s })
     end
 
     # Delete one or more recordings for a given recordID (or set of record IDs).
@@ -443,7 +418,7 @@ module BigBlueButton
       raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
 
       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
-      response = send_api_request(:deleteRecordings, { :recordID => recordIDs })
+      send_api_request(:deleteRecordings, { :recordID => recordIDs })
     end
 
 
@@ -573,5 +548,3 @@ module BigBlueButton
 
   end
 end
-
-
