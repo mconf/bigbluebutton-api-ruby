@@ -102,7 +102,7 @@ module BigBlueButton
     #
     #   options = { :moderatorPW => "123", :attendeePW => "321", :welcome => "Welcome here!",
     #               :dialNumber => 5190909090, :logoutURL => "http://mconf.org", :maxParticipants => 25,
-    #               :voiceBridge => 76543, :record => "true", :duration => 0, :meta_category => "Remote Class" }
+    #               :voiceBridge => 76543, :record => true, :duration => 0, :meta_category => "Remote Class" }
     #   create_meeting("My Meeting", "my-meeting", options)
     #
     # === Example with modules (see BigBlueButtonModules docs for more)
@@ -143,6 +143,11 @@ module BigBlueButton
     #
     def create_meeting(meeting_name, meeting_id, options={}, modules=nil)
       params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
+
+      # :record is passed as string, but we accept boolean as well
+      if params[:record] and !!params[:record] == params[:record]
+        params[:record] = params[:record].to_s
+      end
 
       # with modules we send a post request (only for >= 0.8)
       if modules and @version >= "0.8"
@@ -339,24 +344,30 @@ module BigBlueButton
     #                                   :meetingID => ["id1", "id2", "id3"]
     #
     # === Example responses
-    # TODO: this example is not accurate yet
     #
     #   { :returncode => true,
     #     :recordings => [
     #       {
-    #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268", :meetingID=>"bd1811beecd20f24314819a52ec202bf446ab94b",
-    #         :name => "Evening Class1", :published => true,
+    #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
+    #         :meetingID=>"bd1811beecd20f24314819a52ec202bf446ab94b",
+    #         :name => "Evening Class1",
+    #         :published => true,
     #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
     #         :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
-    #         :metadata => { :course => "Fundamentals Of JAVA",
+    #         :metadata => { :course => "Fundamentals of JAVA",
     #                        :description => "List of recordings",
     #                        :activity => "Evening Class1" },
     #         :playback => {
-    #           :format => {
-    #             :type => "slides",
-    #             :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
-    #             :length=>3
-    #           }
+    #           :format => [
+    #             { :type => "slides",
+    #               :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=125468758b24fa27551e7a065849dda3ce65dd32-1329872486268",
+    #               :length => 64
+    #             },
+    #             { :type => "presentation",
+    #               :url => "http://test-install.blindsidenetworks.com/presentation/slides/playback.html?meetingId=125468758b24fa27551e7a065849dda3ce65dd32-1329872486268",
+    #               :length => 64
+    #             }
+    #           ]
     #         }
     #       },
     #       { :recordID => "183f0bf3a0982a127bdb8161-13085974450", :meetingID => "CS102",

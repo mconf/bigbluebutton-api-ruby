@@ -32,6 +32,14 @@ begin
 
   puts
   puts "---------------------------------------------------"
+  response = @api.get_recordings
+  puts "Existent recordings in your server:"
+  response[:recordings].each do |m|
+    puts "  " + m[:recordID] + ": " + m.inspect
+  end
+
+  puts
+  puts "---------------------------------------------------"
   meeting_id = SecureRandom.hex(4)
   meeting_name = meeting_id
   moderator_name = "House"

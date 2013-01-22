@@ -46,7 +46,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:req_params) {
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
           :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
-          :maxParticipants => 25, :voiceBridge => 12345, :webVoice => "12345abc" }
+          :maxParticipants => 25, :voiceBridge => 12345, :webVoice => "12345abc", :record => "true" }
       }
       let(:req_response) {
         { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE" }
@@ -58,8 +58,9 @@ describe BigBlueButton::BigBlueButtonApi do
       # ps: not mocking the formatter here because it's easier to just check the results (final_response)
       before { api.should_receive(:send_api_request).with(:create, req_params).and_return(req_response) }
       subject {
-        options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
-          :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345, :webVoice => "12345abc" }
+        options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!",
+          :dialNumber => 12345678, :logoutURL => "http://example.com", :maxParticipants => 25,
+          :voiceBridge => 12345, :webVoice => "12345abc", :record => "true" }
         api.create_meeting("name", "meeting-id", options)
       }
       it { subject.should == final_response }
@@ -72,6 +73,19 @@ describe BigBlueButton::BigBlueButtonApi do
       }
       before { api.should_receive(:send_api_request).with(:create, params) }
       it { api.create_meeting("name", "meeting-id", params) }
+    end
+
+    context "accepts :record as boolean" do
+      let(:req_params) {
+        { :name => "name", :meetingID => "meeting-id",
+          :moderatorPW => "mp", :attendeePW => "ap", :record => "true" }
+      }
+      before { api.should_receive(:send_api_request).with(:create, req_params) }
+      it {
+        params = { :name => "name", :meetingID => "meeting-id",
+          :moderatorPW => "mp", :attendeePW => "ap", :record => true }
+        api.create_meeting("name", "meeting-id", params)
+      }
     end
   end
 

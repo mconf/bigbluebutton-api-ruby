@@ -16,7 +16,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:req_params) {
         { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
           :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
-          :maxParticipants => 25, :voiceBridge => 12345, :record => true, :duration => 20,
+          :maxParticipants => 25, :voiceBridge => 12345, :record => "true", :duration => 20,
           :meta_1 => "meta1", :meta_2 => "meta2" }
       }
       let(:req_response) {
