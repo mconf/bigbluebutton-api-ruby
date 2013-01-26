@@ -117,6 +117,17 @@ module BigBlueButton
       f.to_boolean(:published)
       f.to_datetime(:startTime)
       f.to_datetime(:endTime)
+      if rec[:playback] and rec[:playback][:format]
+        if rec[:playback][:format].is_a?(Hash)
+          f2 = BigBlueButtonFormatter.new(rec[:playback][:format])
+          f2.to_int(:length)
+        elsif rec[:playback][:format].is_a?(Array)
+          rec[:playback][:format].each do |format|
+            f2 = BigBlueButtonFormatter.new(format)
+            f2.to_int(:length)
+          end
+        end
+      end
       rec
     end
 

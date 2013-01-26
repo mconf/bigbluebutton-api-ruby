@@ -224,28 +224,44 @@ describe BigBlueButton::BigBlueButtonFormatter do
   end
 
   describe ".format_recording" do
-    let(:hash) { { :recordID => 123, :meetingID => 123, :name => 123, :published => "true",
-                   :startTime => "Thu Mar 04 14:05:56 UTC 2010",
-                   :endTime => "Thu Mar 04 15:01:01 UTC 2010",
-                   :metadata => {
-                     :title => "Test Recording", :subject => "English 232 session",
-                     :description => "First Class", :creator => "Fred Dixon",
-                     :contributor => "Richard Alam", :language => "en_US"
-                    },
-                   :playback => {
-                     :format => {
-                       :type => "simple",
-                       :url => "http://server.com/simple/playback?recordID=183f0bf3a0982a127bdb8161-1",
-                       :length => 62 }
-                   }
-    } }
+    let(:hash) {
+      { :recordID => 123, :meetingID => 123, :name => 123, :published => "true",
+        :startTime => "Thu Mar 04 14:05:56 UTC 2010",
+        :endTime => "Thu Mar 04 15:01:01 UTC 2010",
+        :metadata => {
+          :title => "Test Recording", :subject => "English 232 session",
+          :description => "First Class", :creator => "Fred Dixon",
+          :contributor => "Richard Alam", :language => "en_US"
+        },
+        :playback => {
+          :format => [
+            { :type => "simple",
+              :url => "http://server.com/simple/playback?recordID=183f0bf3a0982a127bdb8161-1",
+              :length => "62" },
+            { :type => "simple",
+              :url => "http://server.com/simple/playback?recordID=183f0bf3a0982a127bdb8161-1",
+              :length => "48" }
+          ]
+        }
+      }
+    }
 
-    subject { BigBlueButton::BigBlueButtonFormatter.format_recording(hash) }
-    it { subject[:recordID].should == "123" }
-    it { subject[:meetingID].should == "123" }
-    it { subject[:name].should == "123" }
-    it { subject[:startTime].should == DateTime.parse("Thu Mar 04 14:05:56 UTC 2010") }
-    it { subject[:endTime].should == DateTime.parse("Thu Mar 04 15:01:01 UTC 2010") }
+    context do
+      subject { BigBlueButton::BigBlueButtonFormatter.format_recording(hash) }
+      it { subject[:recordID].should == "123" }
+      it { subject[:meetingID].should == "123" }
+      it { subject[:name].should == "123" }
+      it { subject[:startTime].should == DateTime.parse("Thu Mar 04 14:05:56 UTC 2010") }
+      it { subject[:endTime].should == DateTime.parse("Thu Mar 04 15:01:01 UTC 2010") }
+      it { subject[:playback][:format][0][:length].should == 62 }
+      it { subject[:playback][:format][1][:length].should == 48 }
+    end
+
+    context "doesn't fail without playback formats" do
+      before { hash.delete(:playback) }
+      subject { BigBlueButton::BigBlueButtonFormatter.format_recording(hash) }
+      it { subject[:playback].should == nil }
+    end
   end
 
   describe "#flatten_objects" do
