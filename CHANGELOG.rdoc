@@ -1,3 +1,9 @@
+=== 1.1.2
+
+* Allow non standard options to be passed to some API calls. These API calls are: create_meeting, join_meeting_url, join_meeting, get_recordings. Useful for development of for custom versions of BigBlueButton.
+* Accept :record as boolean in create_meeting
+* Better formatting of data returned by get_recordings
+
 === 1.1.1
 
 * BigBlueButtonApi can now receive http headers to be sent in all get/post requests
