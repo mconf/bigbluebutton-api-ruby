@@ -7,7 +7,7 @@ GIT
 PATH
   remote: .
   specs:
-    bigbluebutton-api-ruby (1.1.1)
+    bigbluebutton-api-ruby (1.1.2)
       xml-simple (>= 1.1.1)
 
 GEM
