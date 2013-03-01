@@ -128,6 +128,14 @@ module BigBlueButton
           end
         end
       end
+      if rec[:metadata]
+        rec[:metadata].each do |key, value|
+          if value.nil? or value.empty? or value.split.empty?
+            # removes any no {}s, []s, or " "s, should always be empty string
+            rec[:metadata][key] = ""
+          end
+        end
+      end
       rec
     end
 

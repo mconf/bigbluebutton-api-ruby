@@ -229,9 +229,12 @@ describe BigBlueButton::BigBlueButtonFormatter do
         :startTime => "Thu Mar 04 14:05:56 UTC 2010",
         :endTime => "Thu Mar 04 15:01:01 UTC 2010",
         :metadata => {
-          :title => "Test Recording", :subject => "English 232 session",
-          :description => "First Class", :creator => "Fred Dixon",
-          :contributor => "Richard Alam", :language => "en_US"
+          :title => "Test Recording",
+          :empty1 => nil,
+          :empty2 => {},
+          :empty3 => [],
+          :empty4 => " ",
+          :empty5 => "\n\t"
         },
         :playback => {
           :format => [
@@ -254,7 +257,11 @@ describe BigBlueButton::BigBlueButtonFormatter do
       it { subject[:startTime].should == DateTime.parse("Thu Mar 04 14:05:56 UTC 2010") }
       it { subject[:endTime].should == DateTime.parse("Thu Mar 04 15:01:01 UTC 2010") }
       it { subject[:playback][:format][0][:length].should == 62 }
-      it { subject[:playback][:format][1][:length].should == 48 }
+      it { subject[:metadata][:empty1].should == "" }
+      it { subject[:metadata][:empty2].should == "" }
+      it { subject[:metadata][:empty3].should == "" }
+      it { subject[:metadata][:empty4].should == "" }
+      it { subject[:metadata][:empty5].should == "" }
     end
 
     context "doesn't fail without playback formats" do
