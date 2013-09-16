@@ -3,7 +3,7 @@
 This is a ruby gem that provides access to the {BigBlueButton}[http://bigbluebutton.org] API.
 For the API documentation see {this page}[http://code.google.com/p/bigbluebutton/wiki/API].
 
-Basically it enables a ruby application to interact with BigBlueButton by calling ruby methods instead of HTTP requests making it a lot easier to
+It enables a ruby application to interact with BigBlueButton by calling ruby methods instead of HTTP requests making it a lot easier to
 interact with BigBlueButton. And also formats the responses to a ruby-friendly format.
 
 Some details:
@@ -18,23 +18,25 @@ Some details:
 
 == Supported BigBlueButton versions
 
-The current version of this gem supports *all* the following versions of BigBlueButton:
+The current version of this gem supports <em>all</em> the following versions of BigBlueButton:
 
 * 0.8: currently in the beta3 stage.
 * 0.7: including 0.7, 0.71 and 0.71a.
 
 Older versions:
 
-* 0.64: see the branch "api-0.64". The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10]. It supports both 0.64 and 0.7.
+* 0.64: see the branch <tt>api-0.64</tt>. The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10]. It supports both 0.64 and 0.7.
 
 == Supported ruby versions
 
 Tested in rubies:
 
-* ruby-1.8.7
-* ruby-1.9.2
-* ree-1.8.7
-* jruby
+* ruby-1.9.3 (p194)
+* ruby-1.9.2 (p290)
+* ruby-1.8.7 (p370)
+* jruby 1.6.7
+
+Use these versions to be sure it will work. Other varieties of these rubies (e.g. ruby 1.9.3-p448) should work as well.
 
 == Releases
 
@@ -44,7 +46,7 @@ For a list of releases and release notes see {CHANGELOG.rdoc}[https://github.com
 
 Information about the development of <tt>bigbluebutton-api-ruby</tt> can be found in {our wiki}[https://github.com/mconf/bigbluebutton-api-ruby/wiki].
 
-The development of this gem is guided by the requirements of the project Mconf. To know more about it visit the {project's wiki}[http://code.google.com/p/mconf/].
+The development of this gem is guided by the requirements of the project Mconf. To know more about it visit the {project's wiki}[https://github.com/mconf/wiki/wiki].
 
 == License
 
