@@ -45,14 +45,6 @@ begin
   puts "Meeting info:"
   puts response.inspect
 
-  puts
-  puts
-  puts
-  puts "---------------------------------------------------"
-  response = @api.join_meeting(meeting_id, attendee_name, options[:attendeePW])
-  puts "Join meeting response:"
-  puts response.inspect
-
 rescue Exception => ex
   puts "Failed with error #{ex.message}"
   puts ex.backtrace

@@ -226,24 +226,6 @@ module BigBlueButton
       get_url(:join, params)
     end
 
-    # Warning: As of this version of the gem, this call does not work
-    # (instead of returning XML response, it should join the meeting).
-    #
-    # Joins a user into the meeting using an API call, instead of
-    # directing the user's browser to moderator_url or attendee_url
-    # (note: this will still be required however to actually use bbb).
-    # Returns the URL a user can use to enter this meeting.
-    # meeting_id (string)::    Unique identifier for the meeting
-    # user_name (string)::     Name of the user
-    # password (string)::      Moderator or attendee password for this meeting
-    # options (Hash)::         Hash with additional parameters. The accepted parameters are:
-    #                          userID (string), webVoiceConf (string) and createTime (int).
-    #                          For details about each see BigBlueButton's API docs.
-    def join_meeting(meeting_id, user_name, password, options={})
-      params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
-      send_api_request(:join, params)
-    end
-
     # Returns a hash object containing the information of a meeting.
     #
     # meeting_id (string)::  Unique identifier for the meeting

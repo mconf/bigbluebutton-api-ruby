@@ -220,30 +220,6 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  describe "#join_meeting" do
-    context "standard case" do
-      let(:params) {
-        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name",
-          :userID => "id123", :webVoiceConf => 12345678, :createTime => 9876543 }
-      }
-
-      before { api.should_receive(:send_api_request).with(:join, params).and_return("join-return") }
-      it {
-        options = { :userID => "id123", :webVoiceConf => 12345678, :createTime => 9876543 }
-        api.join_meeting("meeting-id", "Name", "pw", options).should == "join-return"
-      }
-    end
-
-    context "accepts non standard options" do
-      let(:params) {
-        { :meetingID => "meeting-id", :password => "pw",
-          :fullName => "Name", :userID => "id123", :nonStandard => 1 }
-      }
-      before { api.should_receive(:send_api_request).with(:join, params) }
-      it { api.join_meeting("meeting-id", "Name", "pw", params) }
-    end
-  end
-
   describe "#get_meeting_info" do
     let(:meeting_id) { "meeting-id" }
     let(:password) { "password" }
