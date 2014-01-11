@@ -52,7 +52,7 @@ module BigBlueButton
           if value.downcase == "null"
             result = nil
           else
-            # note: BBB 0.7 uses strings in the format: "Thu Sep 01 17:51:42 UTC 2011"
+            # note: just in case the value comes as a string in the format: "Thu Sep 01 17:51:42 UTC 2011"
             result = DateTime.parse(value)
           end
         end
@@ -152,14 +152,14 @@ module BigBlueButton
     #
     # Other examples:
     #
-    # Hash:
+    #   # Hash:
     #   { :name => "Test", :attendees => {} }
-    # Result:
+    #   # Result:
     #   { :name => "Test", :attendees => [] }
     #
-    # Hash:
+    #   # Hash:
     #   { :name => "Test", :attendees => { :attendee => { :name => "attendee1" } } }
-    # Result:
+    #   # Result:
     #   { :name => "Test", :attendees => [ { :name => "attendee1" } ] }
     #
     def flatten_objects(first, second)

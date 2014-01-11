@@ -41,7 +41,7 @@ module BigBlueButton
     # Secret salt for this server
     attr_accessor :salt
 
-    # API version e.g. 0.7 (valid for 0.7, 0.71 and 0.71a)
+    # API version e.g. 0.81
     attr_accessor :version
 
     # Flag to turn on/off debug mode
@@ -60,9 +60,9 @@ module BigBlueButton
     # Initializes an instance
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # salt::      Secret salt for this server
-    # version::   API version e.g. 0.7 (valid for 0.7, 0.71 and 0.71a)
-    def initialize(url, salt, version='0.7', debug=false)
-      @supported_versions = ['0.7', '0.8']
+    # version::   API version e.g. 0.81
+    def initialize(url, salt, version='0.81', debug=false)
+      @supported_versions = ['0.8', '0.81']
       @url = url
       @salt = salt
       @debug = debug
@@ -77,12 +77,6 @@ module BigBlueButton
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 
-
-    #
-    # API calls since 0.7
-    #
-
-
     # Creates a new meeting. Returns the hash with the response or
     # throws BigBlueButtonException on failure.
     # meeting_name (string)::           Name for the meeting
@@ -95,7 +89,7 @@ module BigBlueButton
     #                                   simply be discarded. For details about each see BBB API docs.
     # modules (BigBlueButtonModules)::  Configuration for the modules. The modules are sent as an xml and the
     #                                   request will use an HTTP POST instead of GET. Currently only the
-    #                                   "presentation" module is available. Only used for version > 0.8.
+    #                                   "presentation" module is available.
     #                                   See usage examples below.
     #
     # === Example
@@ -114,12 +108,12 @@ module BigBlueButton
     #   modules.add_presentation(:base64, "JVBERi0xLjQKJ....[clipped here]....0CiUlRU9GCg==", "first-class.pdf")
     #   create_meeting("My Meeting", "my-meeting", nil, modules)
     #
-    # === Example response for 0.7
+    # === Example response for 0.81
     #
     # On successful creation:
     #
     #   {
-    #    :returncode => true, :meetingID => "test",
+    #    :returncode => true, :meetingID => "Test", :createTime => 1308591802,
     #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => false,
     #    :messageKey => "", :message => ""
     #   }
@@ -133,14 +127,6 @@ module BigBlueButton
     #    :message => "This conference was already in existence and may currently be in progress."
     #   }
     #
-    # === Example response for 0.8
-    #
-    #   {
-    #    :returncode => true, :meetingID => "Test", :createTime => 1308591802,
-    #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => false,
-    #    :messageKey => "", :message => ""
-    #   }
-    #
     def create_meeting(meeting_name, meeting_id, options={}, modules=nil)
       params = { :name => meeting_name, :meetingID => meeting_id }.merge(options)
 
@@ -149,8 +135,8 @@ module BigBlueButton
         params[:record] = params[:record].to_s
       end
 
-      # with modules we send a post request (only for >= 0.8)
-      if modules and @version >= "0.8"
+      # with modules we send a post request
+      if modules
         response = send_api_request(:create, params, modules.to_xml)
       else
         response = send_api_request(:create, params)
@@ -161,9 +147,7 @@ module BigBlueButton
       formatter.to_string(:moderatorPW)
       formatter.to_string(:attendeePW)
       formatter.to_boolean(:hasBeenForciblyEnded)
-      if @version >= "0.8"
-        formatter.to_int(:createTime)
-      end
+      formatter.to_int(:createTime)
 
       response
     end
@@ -172,14 +156,14 @@ module BigBlueButton
     # meeting_id (string, int)::          Unique identifier for the meeting
     # moderator_password (string, int)::  Moderator password
     #
-    # === Return examples (for 0.7)
+    # === Return examples (for 0.81)
     #
     # On success:
     #
     #   {
-    #    :returncode=>true, :messageKey=>"sentEndMeetingRequest",
-    #    :message=>"A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo
-    #               or isMeetingRunning API calls to verify that it was ended."
+    #    :returncode => true, :messageKey => "sentEndMeetingRequest",
+    #    :message => "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo
+    #                 or isMeetingRunning API calls to verify that it was ended."
     #   }
     #
     def end_meeting(meeting_id, moderator_password)
@@ -231,19 +215,23 @@ module BigBlueButton
     # meeting_id (string, int)::  Unique identifier for the meeting
     # password (string, int)::    Moderator password for this meeting
     #
-    # === Example responses for 0.7
+    # === Example responses for 0.81
     #
     # With attendees:
     #
     #   {
-    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>"1234", :moderatorPW=>"4321", :running=>true,
-    #    :hasBeenForciblyEnded=>false, :startTime=>DateTime("Wed Apr 06 17:09:57 UTC 2011"), :endTime=>nil, :participantCount=>4, :moderatorCount=>2,
-    #    :attendees => [
-    #      {:userID=>"ndw1fnaev0rj", :fullName=>"House M.D.", :role=>:moderator},
-    #      {:userID=>"gn9e22b7ynna", :fullName=>"Dexter Morgan", :role=>:moderator},
-    #      {:userID=>"llzihbndryc3", :fullName=>"Cameron Palmer", :role=>:viewer},
-    #      {:userID=>"rbepbovolsxt", :fullName=>"Trinity", :role=>:viewer}
-    #    ], :messageKey=>"", :message=>""
+    #     :returncode => true, :meetingName => "test", :meetingID => "test", :createTime => 1321906390524,
+    #     :voiceBridge => 72194, :attendeePW => "1234", :moderatorPW => "4321", :running => false,
+    #     :recording => false, :hasBeenForciblyEnded => false, :startTime => nil, :endTime => nil,
+    #     :participantCount => 0, :maxUsers => 9, :moderatorCount => 0,
+    #     :attendees => [
+    #       {:userID=>"ndw1fnaev0rj", :fullName=>"House M.D.", :role=>:moderator},
+    #       {:userID=>"gn9e22b7ynna", :fullName=>"Dexter Morgan", :role=>:moderator},
+    #       {:userID=>"llzihbndryc3", :fullName=>"Cameron Palmer", :role=>:viewer},
+    #       {:userID=>"rbepbovolsxt", :fullName=>"Trinity", :role=>:viewer}
+    #     ],
+    #     :metadata => { :two => "TWO", :one => "one" },
+    #     :messageKey => "", :message => ""
     #   }
     #
     # Without attendees (not started):
@@ -252,17 +240,6 @@ module BigBlueButton
     #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>"1234", :moderatorPW=>"4321", :running=>false,
     #    :hasBeenForciblyEnded=>false, :startTime=>nil, :endTime=>nil, :participantCount=>0, :moderatorCount=>0,
     #    :attendees=>[], :messageKey=>"", :message=>""
-    #   }
-    #
-    # === Example responses for 0.8
-    #
-    #   {
-    #     :returncode => true, :meetingName => "test", :meetingID => "test", :createTime => 1321906390524,
-    #     :voiceBridge => 72194, :attendeePW => "1234", :moderatorPW => "4321", :running => false, :recording => false,
-    #     :hasBeenForciblyEnded => false, :startTime => nil, :endTime => nil, :participantCount => 0, :maxUsers => 9,
-    #     :moderatorCount => 0, :attendees => [],
-    #     :metadata => { :two => "TWO", :one => "one" },
-    #     :messageKey => "", :message => ""
     #   }
     #
     def get_meeting_info(meeting_id, password)
@@ -281,13 +258,11 @@ module BigBlueButton
       formatter.to_datetime(:endTime)
       formatter.to_int(:participantCount)
       formatter.to_int(:moderatorCount)
-      if @version >= "0.8"
-        formatter.to_string(:meetingName)
-        formatter.to_int(:maxUsers)
-        formatter.to_int(:voiceBridge)
-        formatter.to_int(:createTime)
-        formatter.to_boolean(:recording)
-      end
+      formatter.to_string(:meetingName)
+      formatter.to_int(:maxUsers)
+      formatter.to_int(:voiceBridge)
+      formatter.to_int(:createTime)
+      formatter.to_boolean(:recording)
 
       response
     end
@@ -295,7 +270,7 @@ module BigBlueButton
     # Returns a hash object containing information about the meetings currently existent in the BBB
     # server, either they are running or not.
     #
-    # === Example responses for 0.7
+    # === Example responses for 0.81
     #
     # Server with one or more meetings:
     #
@@ -327,7 +302,6 @@ module BigBlueButton
       response = send_api_request(:index)
       response[:returncode] ? response[:version].to_s : ""
     end
-
 
 
     #
@@ -378,8 +352,6 @@ module BigBlueButton
     #   }
     #
     def get_recordings(options={})
-      raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
-
       # ["id1", "id2", "id3"] becomes "id1,id2,id3"
       if options.has_key?(:meetingID)
         options[:meetingID] = options[:meetingID].join(",") if options[:meetingID].instance_of?(Array)
@@ -407,8 +379,6 @@ module BigBlueButton
     #   { :returncode => true, :published => true }
     #
     def publish_recordings(recordIDs, publish)
-      raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
-
       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
       send_api_request(:publishRecordings, { :recordID => recordIDs, :publish => publish.to_s })
     end
@@ -426,8 +396,6 @@ module BigBlueButton
     #   { :returncode => true, :deleted => true }
     #
     def delete_recordings(recordIDs)
-      raise BigBlueButtonException.new("Method only supported for versions >= 0.8") if @version < "0.8"
-
       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
       send_api_request(:deleteRecordings, { :recordID => recordIDs })
     end

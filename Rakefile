@@ -17,11 +17,12 @@ Cucumber::Rake::Task.new do |t|
     prepend = "--tags ~@need-bot"
   end
 
-  # defaults to BBB 0.8
-  if ENV["V"] == "0.7" or ENV["VERSION"] == "0.7"
-    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-07 #{prepend}"
+  # defaults to BBB 0.81, that runs all tests
+  # if set to 0.8 only, won't run tests for newer versions
+  if ENV["V"] == "0.8" or ENV["VERSION"] == "0.8"
+    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all #{prepend}"
   else
-    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-08 #{prepend}"
+    t.cucumber_opts = "--format pretty --tags ~@wip --tags @version-all,@version-081 #{prepend}"
   end
 end
 

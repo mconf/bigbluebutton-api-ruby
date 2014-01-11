@@ -70,10 +70,17 @@ describe BigBlueButton::BigBlueButtonFormatter do
   end
 
   describe "#to_datetime" do
-    let(:hash) { { :param1 => "Thu Sep 01 17:51:42 UTC 2011", :param2 => "Thu Sep 08",
-                   :param3 => 1315254777880, :param4 => "1315254777880",
-                   :param5 => "0", :param6 => 0,
-                   :param7 => "NULL", :param8 => nil } }
+    let(:hash) {
+      { :param1 => "Thu Sep 01 17:51:42 UTC 2011",
+        :param2 => "Thu Sep 08",
+        :param3 => 1315254777880,
+        :param4 => "1315254777880",
+        :param5 => "0",
+        :param6 => 0,
+        :param7 => "NULL",
+        :param8 => nil
+      }
+    }
     let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
     before {
       formatter.to_datetime(:param1)

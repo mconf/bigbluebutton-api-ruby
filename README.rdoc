@@ -1,31 +1,34 @@
 = bigbluebutton-api-ruby {<img src="http://travis-ci.org/mconf/bigbluebutton-api-ruby.png"/>}[http://travis-ci.org/mconf/bigbluebutton-api-ruby]
 
-This is a ruby gem that provides access to the {BigBlueButton}[http://bigbluebutton.org] API.
-For the API documentation see {this page}[http://code.google.com/p/bigbluebutton/wiki/API].
+This is a ruby gem that provides access to the API of {BigBlueButton}[http://bigbluebutton.org].
+See the documentation of the API {here}[http://code.google.com/p/bigbluebutton/wiki/API].
 
-It enables a ruby application to interact with BigBlueButton by calling ruby methods instead of HTTP requests making it a lot easier to
-interact with BigBlueButton. And also formats the responses to a ruby-friendly format.
+It enables a ruby application to interact with BigBlueButton by calling ruby methods instead of
+HTTP requests, making it a lot easier to interact with BigBlueButton. It also formats the responses
+to a ruby-friendly format and includes helper classes to deal with more complicated API calls, such
+as the pre-upload of slides.
 
-Some details:
+A few features it has:
 
 * Provides methods to perform all API calls and get the responses;
 * Converts the XML responses to ruby hashes, that are easier to work with;
 * Converts the string values returned to native ruby types. For instance:
   * Dates are converted DateTime objects (e.g. "Thu Sep 01 17:51:42 UTC 2011");
   * Response codes are converted to boolean (e.g. "SUCCESS" becomes <tt>true</tt>);
-* Deals with errors (e.g. timeouts) throwing BigBlueButtonException exceptions;
+* Deals with errors (e.g. timeouts) throwing <tt>BigBlueButtonException</tt> exceptions;
 * Support to multiple BigBlueButton API versions (see below).
 
 == Supported BigBlueButton versions
 
 The current version of this gem supports <em>all</em> the following versions of BigBlueButton:
 
-* 0.8: currently in the beta3 stage.
-* 0.7: including 0.7, 0.71 and 0.71a.
+* 0.8
+* 0.81
 
 Older versions:
 
-* 0.64: see the branch <tt>api-0.64</tt>. The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10]. It supports both 0.64 and 0.7.
+* 0.7 (including 0.7, 0.71 and 0.71a): The last version with support to 0.7* is {version 1.2.0}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v1.2.0]. It supports versions 0.7 and 0.8.
+* 0.64: see the branch <tt>api-0.64</tt>. The last version with support to 0.64 is {version 0.0.10}[https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10]. It supports versions 0.64 and 0.7.
 
 == Supported ruby versions
 
@@ -44,7 +47,7 @@ For a list of releases and release notes see {CHANGELOG.rdoc}[https://github.com
 
 == Development
 
-Information about the development of <tt>bigbluebutton-api-ruby</tt> can be found in {our wiki}[https://github.com/mconf/bigbluebutton-api-ruby/wiki].
+Information for developers of <tt>bigbluebutton-api-ruby</tt> can be found in {our wiki}[https://github.com/mconf/bigbluebutton-api-ruby/wiki].
 
 The development of this gem is guided by the requirements of the project Mconf. To know more about it visit the {project's wiki}[https://github.com/mconf/wiki/wiki].
 
