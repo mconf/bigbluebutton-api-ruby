@@ -146,11 +146,26 @@ describe BigBlueButton::BigBlueButtonApi do
   describe "#end_meeting" do
     let(:meeting_id) { "meeting-id" }
     let(:moderator_password) { "password" }
-    let(:params) { { :meetingID => meeting_id, :password => moderator_password } }
-    let(:response) { "anything" }
 
-    before { api.should_receive(:send_api_request).with(:end, params).and_return(response) }
-    it { api.end_meeting(meeting_id, moderator_password).should == response }
+    context "standard case" do
+      let(:params) { { :meetingID => meeting_id, :password => moderator_password } }
+      let(:response) { "anything" }
+
+      before { api.should_receive(:send_api_request).with(:end, params).and_return(response) }
+      it { api.end_meeting(meeting_id, moderator_password).should == response }
+    end
+
+    context "accepts non standard options" do
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :meetingID => meeting_id, :password => moderator_password,
+          :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:end, params_out) }
+      it { api.end_meeting(meeting_id, moderator_password, params_in) }
+    end
   end
 
   describe "#is_meeting_running?" do
@@ -167,6 +182,17 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:response) { { :running => "FALSE" } }
       before { api.should_receive(:send_api_request).with(:isMeetingRunning, params).and_return(response) }
       it { api.is_meeting_running?(meeting_id).should == false }
+    end
+
+    context "accepts non standard options" do
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :meetingID => meeting_id, :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:isMeetingRunning, params_out) }
+      it { api.is_meeting_running?(meeting_id, params_in) }
     end
   end
 
@@ -221,52 +247,77 @@ describe BigBlueButton::BigBlueButtonApi do
   describe "#get_meeting_info" do
     let(:meeting_id) { "meeting-id" }
     let(:password) { "password" }
-    let(:params) { { :meetingID => meeting_id, :password => password } }
 
-    let(:attendee1) { { :userID => 123, :fullName => "Dexter Morgan", :role => "MODERATOR" } }
-    let(:attendee2) { { :userID => "id2", :fullName => "Cameron", :role => "VIEWER" } }
-    let(:response) {
-      { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
-        :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
-        :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] },
-        :messageKey => "mkey", :message => "m", :participantCount => "50", :moderatorCount => "3",
-        :meetingName => "meeting-name", :maxUsers => "100", :voiceBridge => "12341234", :createTime => "123123123",
-        :recording => "false", :meta_1 => "abc", :meta_2 => "2" }
-    } # hash after the send_api_request call, before the formatting
+    context "standard case" do
+      let(:params) { { :meetingID => meeting_id, :password => password } }
 
-    let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
-    let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
-    let(:final_response) {
-      { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
-        :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
-        :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ],
-        :messageKey => "mkey", :message => "m", :participantCount => 50, :moderatorCount => 3,
-        :meetingName => "meeting-name", :maxUsers => 100, :voiceBridge => 12341234, :createTime => 123123123,
-        :recording => false, :meta_1 => "abc", :meta_2 => "2" }
-    } # expected return hash after all the formatting
+      let(:attendee1) { { :userID => 123, :fullName => "Dexter Morgan", :role => "MODERATOR" } }
+      let(:attendee2) { { :userID => "id2", :fullName => "Cameron", :role => "VIEWER" } }
+      let(:response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
+          :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
+          :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] },
+          :messageKey => "mkey", :message => "m", :participantCount => "50", :moderatorCount => "3",
+          :meetingName => "meeting-name", :maxUsers => "100", :voiceBridge => "12341234", :createTime => "123123123",
+          :recording => "false", :meta_1 => "abc", :meta_2 => "2" }
+      } # hash after the send_api_request call, before the formatting
 
-    # ps: not mocking the formatter here because it's easier to just check the results (final_response)
-    before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
-    it { api.get_meeting_info(meeting_id, password).should == final_response }
+      let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
+      let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
+      let(:final_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
+          :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
+          :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ],
+          :messageKey => "mkey", :message => "m", :participantCount => 50, :moderatorCount => 3,
+          :meetingName => "meeting-name", :maxUsers => 100, :voiceBridge => 12341234, :createTime => 123123123,
+          :recording => false, :meta_1 => "abc", :meta_2 => "2" }
+      } # expected return hash after all the formatting
+
+      # ps: not mocking the formatter here because it's easier to just check the results (final_response)
+      before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
+      it { api.get_meeting_info(meeting_id, password).should == final_response }
+    end
+
+    context "accepts non standard options" do
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :meetingID => meeting_id, :password => password,
+          :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:getMeetingInfo, params_out).and_return({}) }
+      it { api.get_meeting_info(meeting_id, password, params_in) }
+    end
   end
 
   describe "#get_meetings" do
-    let(:meeting_hash1) { { :meetingID => "Demo Meeting", :attendeePW => "ap", :moderatorPW => "mp", :hasBeenForciblyEnded => false, :running => true } }
-    let(:meeting_hash2) { { :meetingID => "Ended Meeting", :attendeePW => "pass", :moderatorPW => "pass", :hasBeenForciblyEnded => true, :running => false } }
-    let(:flattened_response) {
-      { :returncode => true, :meetings => [ meeting_hash1, meeting_hash2 ], :messageKey => "mkey", :message => "m" }
-    } # hash *after* the flatten_objects call
+    context "standard case" do
+      let(:meeting_hash1) { { :meetingID => "Demo Meeting", :attendeePW => "ap", :moderatorPW => "mp", :hasBeenForciblyEnded => false, :running => true } }
+      let(:meeting_hash2) { { :meetingID => "Ended Meeting", :attendeePW => "pass", :moderatorPW => "pass", :hasBeenForciblyEnded => true, :running => false } }
+      let(:flattened_response) {
+        { :returncode => true, :meetings => [ meeting_hash1, meeting_hash2 ], :messageKey => "mkey", :message => "m" }
+      } # hash *after* the flatten_objects call
 
-    before {
-      api.should_receive(:send_api_request).with(:getMeetings).
+      before {
+        api.should_receive(:send_api_request).with(:getMeetings, {}).
         and_return(flattened_response)
-      formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-      formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
-      BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
-      BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
-      BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
-    }
-    it { api.get_meetings }
+        formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+        formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
+      }
+      it { api.get_meetings }
+    end
+
+    context "accepts non standard options" do
+      let(:params) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:getMeetings, params).and_return({}) }
+      it { api.get_meetings(params) }
+    end
   end
 
   describe "#get_api_version" do
@@ -639,6 +690,19 @@ describe BigBlueButton::BigBlueButtonApi do
         it { api.publish_recordings(recordIDs, true) }
       end
     end
+
+    context "accepts non standard options" do
+      let(:recordIDs) { ["id-1"] }
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :publish => "true", :recordID => "id-1",
+          :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:publishRecordings, params_out) }
+      it { api.publish_recordings(recordIDs, true, params_in) }
+    end
   end
 
   describe "#delete_recordings" do
@@ -673,6 +737,18 @@ describe BigBlueButton::BigBlueButtonApi do
         before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
         it { api.delete_recordings(recordIDs) }
       end
+    end
+
+    context "accepts non standard options" do
+      let(:recordIDs) { ["id-1"] }
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :recordID => "id-1", :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:deleteRecordings, params_out) }
+      it { api.delete_recordings(recordIDs, params_in) }
     end
   end
 

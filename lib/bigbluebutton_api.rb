@@ -179,6 +179,9 @@ module BigBlueButton
     # Ends an existing meeting. Throws BigBlueButtonException on failure.
     # meeting_id (string)::          Unique identifier for the meeting
     # moderator_password (string)::  Moderator password
+    # options (Hash)::               Hash with additional parameters. This method doesn't accept additional
+    #                                parameters, but if you have a custom API with more parameters, you
+    #                                can simply pass them in this hash and they will be added to the API call.
     #
     # === Return examples (for 0.81)
     #
@@ -190,15 +193,20 @@ module BigBlueButton
     #     :message => "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended."
     #   }
     #
-    def end_meeting(meeting_id, moderator_password)
-      send_api_request(:end, { :meetingID => meeting_id, :password => moderator_password } )
+    def end_meeting(meeting_id, moderator_password, options={})
+      params = { :meetingID => meeting_id, :password => moderator_password }.merge(options)
+      send_api_request(:end, params)
     end
 
     # Returns whether the meeting is running or not. A meeting is only running after at least
     # one participant has joined. Returns true or false.
-    # meeting_id (string)::          Unique identifier for the meeting
-    def is_meeting_running?(meeting_id)
-      hash = send_api_request(:isMeetingRunning, { :meetingID => meeting_id } )
+    # meeting_id (string)::    Unique identifier for the meeting
+    # options (Hash)::         Hash with additional parameters. This method doesn't accept additional
+    #                          parameters, but if you have a custom API with more parameters, you
+    #                          can simply pass them in this hash and they will be added to the API call.
+    def is_meeting_running?(meeting_id, options={})
+      params = { :meetingID => meeting_id }.merge(options)
+      hash = send_api_request(:isMeetingRunning, params)
       BigBlueButtonFormatter.new(hash).to_boolean(:running)
     end
 
@@ -240,6 +248,9 @@ module BigBlueButton
     #
     # meeting_id (string)::  Unique identifier for the meeting
     # password (string)::    Moderator password for this meeting
+    # options (Hash)::       Hash with additional parameters. This method doesn't accept additional
+    #                        parameters, but if you have a custom API with more parameters, you
+    #                        can simply pass them in this hash and they will be added to the API call.
     #
     # === Example responses for 0.81
     #
@@ -300,8 +311,9 @@ module BigBlueButton
     #     :message => ""
     #   }
     #
-    def get_meeting_info(meeting_id, password)
-      response = send_api_request(:getMeetingInfo, { :meetingID => meeting_id, :password => password } )
+    def get_meeting_info(meeting_id, password, options={})
+      params = { :meetingID => meeting_id, :password => password }.merge(options)
+      response = send_api_request(:getMeetingInfo, params)
 
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:attendees, :attendee)
@@ -327,6 +339,10 @@ module BigBlueButton
 
     # Returns a hash object with information about all the meetings currently created in the
     # server, either they are running or not.
+    #
+    # options (Hash)::       Hash with additional parameters. This method doesn't accept additional
+    #                        parameters, but if you have a custom API with more parameters, you
+    #                        can simply pass them in this hash and they will be added to the API call.
     #
     # === Example responses for 0.81
     #
@@ -373,8 +389,8 @@ module BigBlueButton
     #     :message => "no meetings were found on this server"
     #   }
     #
-    def get_meetings
-      response = send_api_request(:getMeetings)
+    def get_meetings(options={})
+      response = send_api_request(:getMeetings, options)
 
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:meetings, :meeting)
@@ -474,15 +490,19 @@ module BigBlueButton
     #                                "id1,id2,id3"
     #                                ["id1"]
     #                                ["id1", "id2", "id3"]
-    # publish (boolean)::          Whether to publish or unpublish the recording(s)
+    # publish (boolean)::     Whether to publish or unpublish the recording(s)
+    # options (Hash)::        Hash with additional parameters. This method doesn't accept additional
+    #                         parameters, but if you have a custom API with more parameters, you
+    #                         can simply pass them in this hash and they will be added to the API call.
     #
     # === Example responses
     #
     #   { :returncode => true, :published => true }
     #
-    def publish_recordings(recordIDs, publish)
+    def publish_recordings(recordIDs, publish, options={})
       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
-      send_api_request(:publishRecordings, { :recordID => recordIDs, :publish => publish.to_s })
+      params = { :recordID => recordIDs, :publish => publish.to_s }.merge(options)
+      send_api_request(:publishRecordings, params)
     end
 
     # Delete one or more recordings for a given recordID (or set of record IDs).
@@ -492,14 +512,18 @@ module BigBlueButton
     #                                "id1,id2,id3"
     #                                ["id1"]
     #                                ["id1", "id2", "id3"]
+    # options (Hash)::        Hash with additional parameters. This method doesn't accept additional
+    #                         parameters, but if you have a custom API with more parameters, you
+    #                         can simply pass them in this hash and they will be added to the API call.
     #
     # === Example responses
     #
     #   { :returncode => true, :deleted => true }
     #
-    def delete_recordings(recordIDs)
+    def delete_recordings(recordIDs, options={})
       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
-      send_api_request(:deleteRecordings, { :recordID => recordIDs })
+      params = { :recordID => recordIDs }.merge(options)
+      send_api_request(:deleteRecordings, params)
     end
 
 

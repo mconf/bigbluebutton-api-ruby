@@ -169,7 +169,7 @@ module BigBlueButton
     #   { :name => "Test", :attendees => [ { :name => "attendee1" } ] }
     #
     def flatten_objects(first, second)
-      if @hash[first].empty?
+      if !@hash[first] or @hash[first].empty?
         collection = []
       else
         node = @hash[first][second]

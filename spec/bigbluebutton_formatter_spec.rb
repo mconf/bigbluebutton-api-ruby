@@ -297,6 +297,13 @@ describe BigBlueButton::BigBlueButtonFormatter do
         it { subject.should == { :objects => [] } }
       end
 
+      context "when the target key doesn't exist in the hash" do
+        let(:hash) { { } }
+        before { formatter.hash = hash }
+        subject { formatter.flatten_objects(:objects, :object) }
+        it { subject.should == { :objects => [] } } # adds the one the doesn't exist
+      end
+
       context "when there's only one object in the list" do
         let(:object_hash) { { :id => 1 } }
         let(:hash) { { :objects => { :object => object_hash } } }
