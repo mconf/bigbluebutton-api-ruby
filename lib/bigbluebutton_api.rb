@@ -287,7 +287,7 @@ module BigBlueButton
     #   {:returncode=>true, :meetings=>[], :messageKey=>"noMeetings", :message=>"no meetings were found on this server"}
     #
     def get_meetings
-      response = send_api_request(:getMeetings, { :random => rand(9999999999) } )
+      response = send_api_request(:getMeetings)
 
       formatter = BigBlueButtonFormatter.new(response)
       formatter.flatten_objects(:meetings, :meeting)
