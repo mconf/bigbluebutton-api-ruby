@@ -19,19 +19,23 @@ module BigBlueButton
   # 4. To force meeting to end, call end_meeting .
   #
   # Important info about the data returned by the methods:
-  # * The XML returned by BBB is converted to a Hash. See individual method's documentation for examples.
+  # * The XML returned by BigBlueButton is converted to a Hash. See each method's documentation
+  #   for examples.
   # * Three values will *always* exist in the hash:
   #   * :returncode (boolean)
   #   * :messageKey (string)
   #   * :message (string)
-  # * Some of the values returned by BBB are converted to better represent the data. Some of these are listed
-  #   bellow. They will *always* have the type informed:
+  # * Some of the values returned by BigBlueButton are converted to better represent the data.
+  #   Some of these are listed bellow. They will *always* have the type informed:
   #   * :meetingID (string)
   #   * :attendeePW (string)
   #   * :moderatorPW (string)
   #   * :running (boolean)
   #   * :hasBeenForciblyEnded (boolean)
   #   * :endTime and :startTime (DateTime or nil)
+  #
+  # For more information about the API, see the documentation at:
+  # * http://code.google.com/p/bigbluebutton/wiki/API
   #
   class BigBlueButtonApi
 
@@ -77,16 +81,18 @@ module BigBlueButton
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
     end
 
-    # Creates a new meeting. Returns the hash with the response or
-    # throws BigBlueButtonException on failure.
+    # Creates a new meeting. Returns the hash with the response or throws BigBlueButtonException
+    # on failure.
     # meeting_name (string)::           Name for the meeting
-    # meeting_id (string, integer)::    Unique identifier for the meeting
-    # options (Hash)::                  Hash with optional parameters. The accepted parameters are:
-    #                                   moderatorPW (string, int), attendeePW (string, int), welcome (string),
+    # meeting_id (string)::             Unique identifier for the meeting
+    # options (Hash)::                  Hash with additional parameters. The accepted parameters are:
+    #                                   moderatorPW (string), attendeePW (string), welcome (string),
     #                                   dialNumber (int), logoutURL (string), maxParticipants (int),
-    #                                   voiceBridge (int), record (boolean), duration (int) and "meta" parameters
-    #                                   (usually strings). If a parameter passed in the hash is not supported it will
-    #                                   simply be discarded. For details about each see BBB API docs.
+    #                                   voiceBridge (int), record (boolean), duration (int), redirectClient (string),
+    #                                   clientURL (string), and "meta" parameters (usually strings).
+    #                                   For details about each see BigBlueButton's API docs.
+    #                                   If you have a custom API with more parameters, you can simply pass them
+    #                                   in this hash and they will be added to the API call.
     # modules (BigBlueButtonModules)::  Configuration for the modules. The modules are sent as an xml and the
     #                                   request will use an HTTP POST instead of GET. Currently only the
     #                                   "presentation" module is available.
@@ -94,9 +100,18 @@ module BigBlueButton
     #
     # === Example
     #
-    #   options = { :moderatorPW => "123", :attendeePW => "321", :welcome => "Welcome here!",
-    #               :dialNumber => 5190909090, :logoutURL => "http://mconf.org", :maxParticipants => 25,
-    #               :voiceBridge => 76543, :record => true, :duration => 0, :meta_category => "Remote Class" }
+    #   options = {
+    #     :attendeePW => "321",
+    #     :moderatorPW => "123",
+    #     :welcome => "Welcome here!",
+    #     :dialNumber => 5190909090,
+    #     :voiceBridge => 76543,
+    #     :logoutURL => "http://mconf.org",
+    #     :record => true,
+    #     :duration => 0,
+    #     :maxParticipants => 25,
+    #     :meta_category => "Remote Class"
+    #   }
     #   create_meeting("My Meeting", "my-meeting", options)
     #
     # === Example with modules (see BigBlueButtonModules docs for more)
@@ -113,18 +128,27 @@ module BigBlueButton
     # On successful creation:
     #
     #   {
-    #    :returncode => true, :meetingID => "Test", :createTime => 1308591802,
-    #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => false,
-    #    :messageKey => "", :message => ""
+    #     :returncode => true,
+    #     :meetingID => "0c521f3d",
+    #     :attendeePW => "12345",
+    #     :moderatorPW => "54321",
+    #     :createTime => 1389464535956,
+    #     :hasBeenForciblyEnded => false,
+    #     :messageKey => "",
+    #     :message => ""
     #   }
     #
-    # Meeting that was forcibly ended:
+    # When creating a meeting that already exist:
     #
     #   {
-    #    :returncode => true, :meetingID => "test",
-    #    :attendeePW => "1234", :moderatorPW => "4321", :hasBeenForciblyEnded => true,
-    #    :messageKey => "duplicateWarning",
-    #    :message => "This conference was already in existence and may currently be in progress."
+    #     :returncode => true,
+    #     :meetingID => "7a1d614b",
+    #     :attendeePW => "12345",
+    #     :moderatorPW => "54321",
+    #     :createTime => 1389464682402,
+    #     :hasBeenForciblyEnded => false,
+    #     :messageKey => "duplicateWarning",
+    #     :message => "This conference was already in existence and may currently be in progress."
     #   }
     #
     def create_meeting(meeting_name, meeting_id, options={}, modules=nil)
@@ -153,38 +177,42 @@ module BigBlueButton
     end
 
     # Ends an existing meeting. Throws BigBlueButtonException on failure.
-    # meeting_id (string, int)::          Unique identifier for the meeting
-    # moderator_password (string, int)::  Moderator password
+    # meeting_id (string)::          Unique identifier for the meeting
+    # moderator_password (string)::  Moderator password
     #
     # === Return examples (for 0.81)
     #
     # On success:
     #
     #   {
-    #    :returncode => true, :messageKey => "sentEndMeetingRequest",
-    #    :message => "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo
-    #                 or isMeetingRunning API calls to verify that it was ended."
+    #     :returncode=>true,
+    #     :messageKey => "sentEndMeetingRequest",
+    #     :message => "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended."
     #   }
     #
     def end_meeting(meeting_id, moderator_password)
       send_api_request(:end, { :meetingID => meeting_id, :password => moderator_password } )
     end
 
-    # Returns true or false as to whether meeting is open.  A meeting is
-    # only open after at least one participant has joined.
-    # meeting_id (string, int)::          Unique identifier for the meeting
+    # Returns whether the meeting is running or not. A meeting is only running after at least
+    # one participant has joined. Returns true or false.
+    # meeting_id (string)::          Unique identifier for the meeting
     def is_meeting_running?(meeting_id)
       hash = send_api_request(:isMeetingRunning, { :meetingID => meeting_id } )
       BigBlueButtonFormatter.new(hash).to_boolean(:running)
     end
 
-    # Returns the url used to join the meeting
-    # meeting_id (string, int)::   Unique identifier for the meeting
-    # user_name (string)::         Name of the user
-    # password (string)::          Password for this meeting - used to set the user as moderator or attendee
-    # options (Hash)::             Hash with optional parameters. The accepted parameters are:
-    #                              userID (string, int), webVoiceConf (string, int) and createTime (int).
-    #                              For details about each see BBB API docs.
+    # Returns a string with the url used to join the meeting
+    # meeting_id (string)::   Unique identifier for the meeting
+    # user_name (string)::    Name of the user
+    # password (string)::     Password for this meeting - will be used to decide if the user is a
+    #                         moderator or attendee
+    # options (Hash)::        Hash with additional parameters. The accepted parameters are:
+    #                         userID (string), webVoiceConf (string), createTime (int),
+    #                         configToken (string), and avatarURL (string).
+    #                         For details about each see BigBlueButton's API docs.
+    #                         If you have a custom API with more parameters, you can simply pass them
+    #                         in this hash and they will be added to the API call.
     def join_meeting_url(meeting_id, user_name, password, options={})
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
       get_url(:join, params)
@@ -197,49 +225,79 @@ module BigBlueButton
     # directing the user's browser to moderator_url or attendee_url
     # (note: this will still be required however to actually use bbb).
     # Returns the URL a user can use to enter this meeting.
-    # meeting_id (string, int)::  Unique identifier for the meeting
-    # user_name (string)::        Name of the user
-    # password (string, int)::    Moderator or attendee password for this meeting
-    # options (Hash)::             Hash with optional parameters. The accepted parameters are:
-    #                              userID (string, int), webVoiceConf (string, int) and createTime (int).
-    #                              For details about each see BBB API docs.
+    # meeting_id (string)::    Unique identifier for the meeting
+    # user_name (string)::     Name of the user
+    # password (string)::      Moderator or attendee password for this meeting
+    # options (Hash)::         Hash with additional parameters. The accepted parameters are:
+    #                          userID (string), webVoiceConf (string) and createTime (int).
+    #                          For details about each see BigBlueButton's API docs.
     def join_meeting(meeting_id, user_name, password, options={})
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
       send_api_request(:join, params)
     end
 
-    # Returns a hash object containing the meeting information.
-    # See the API documentation for details on the return XML
-    # (http://code.google.com/p/bigbluebutton/wiki/API).
+    # Returns a hash object containing the information of a meeting.
     #
-    # meeting_id (string, int)::  Unique identifier for the meeting
-    # password (string, int)::    Moderator password for this meeting
+    # meeting_id (string)::  Unique identifier for the meeting
+    # password (string)::    Moderator password for this meeting
     #
     # === Example responses for 0.81
     #
-    # With attendees:
+    # Running with attendees and metadata:
+    #
     #
     #   {
-    #     :returncode => true, :meetingName => "test", :meetingID => "test", :createTime => 1321906390524,
-    #     :voiceBridge => 72194, :attendeePW => "1234", :moderatorPW => "4321", :running => false,
-    #     :recording => false, :hasBeenForciblyEnded => false, :startTime => nil, :endTime => nil,
-    #     :participantCount => 0, :maxUsers => 9, :moderatorCount => 0,
+    #     :returncode => true,
+    #     :meetingName => "e56ef2c5",
+    #     :meetingID => "e56ef2c5",
+    #     :createTime => 1389465592542,
+    #     :voiceBridge => 72519,
+    #     :dialNumber => "1-800-000-0000x00000#",
+    #     :attendeePW => "12345",
+    #     :moderatorPW => "54321",
+    #     :running => true,
+    #     :recording => false,
+    #     :hasBeenForciblyEnded => false,
+    #     :startTime => #<DateTime: 2014-01-11T16:39:58-02:00 ((2456669j,67198s,0n),-7200s,2299161j)>,
+    #     :endTime => nil,
+    #     :participantCount => 2,
+    #     :maxUsers => 25,
+    #     :moderatorCount => 1,
     #     :attendees => [
-    #       {:userID=>"ndw1fnaev0rj", :fullName=>"House M.D.", :role=>:moderator},
-    #       {:userID=>"gn9e22b7ynna", :fullName=>"Dexter Morgan", :role=>:moderator},
-    #       {:userID=>"llzihbndryc3", :fullName=>"Cameron Palmer", :role=>:viewer},
-    #       {:userID=>"rbepbovolsxt", :fullName=>"Trinity", :role=>:viewer}
+    #       { :userID => "wsfoiqtnugul", :fullName => "Cameron", :role => :viewer, :customdata => {} },
+    #       { :userID => "qsaogaoqifjk", :fullName => "House", :role => :moderator, :customdata => {} }
     #     ],
-    #     :metadata => { :two => "TWO", :one => "one" },
-    #     :messageKey => "", :message => ""
+    #     :metadata => {
+    #       :category => "Testing",
+    #       :anything => "Just trying it out"
+    #     },
+    #     :messageKey => "",
+    #     :message => ""
     #   }
     #
-    # Without attendees (not started):
+    # Created but not started yet:
     #
     #   {
-    #    :returncode=>true, :meetingID=>"bigbluebutton-api-ruby-test", :attendeePW=>"1234", :moderatorPW=>"4321", :running=>false,
-    #    :hasBeenForciblyEnded=>false, :startTime=>nil, :endTime=>nil, :participantCount=>0, :moderatorCount=>0,
-    #    :attendees=>[], :messageKey=>"", :message=>""
+    #     :returncode => true,
+    #     :meetingName => "fe3ea879",
+    #     :meetingID => "fe3ea879",
+    #     :createTime => 1389465320050,
+    #     :voiceBridge => 79666,
+    #     :dialNumber => "1-800-000-0000x00000#",
+    #     :attendeePW => "12345",
+    #     :moderatorPW => "54321",
+    #     :running => false,
+    #     :recording => false,
+    #     :hasBeenForciblyEnded => false,
+    #     :startTime => nil,
+    #     :endTime => nil,
+    #     :participantCount => 0,
+    #     :maxUsers => 25,
+    #     :moderatorCount => 0,
+    #     :attendees => [],
+    #     :metadata => {},
+    #     :messageKey => "",
+    #     :message => ""
     #   }
     #
     def get_meeting_info(meeting_id, password)
@@ -267,24 +325,53 @@ module BigBlueButton
       response
     end
 
-    # Returns a hash object containing information about the meetings currently existent in the BBB
+    # Returns a hash object with information about all the meetings currently created in the
     # server, either they are running or not.
     #
     # === Example responses for 0.81
     #
     # Server with one or more meetings:
     #
-    #   { :returncode => true,
+    #   {
+    #     :returncode => true,
     #     :meetings => [
-    #       {:meetingID=>"Demo Meeting", :attendeePW=>"ap", :moderatorPW=>"mp", :hasBeenForciblyEnded=>false, :running=>true},
-    #       {:meetingID=>"I was ended Meeting", :attendeePW=>"pass", :moderatorPW=>"pass", :hasBeenForciblyEnded=>true, :running=>false}
+    #       { :meetingID => "e66e88a3",
+    #         :meetingName => "e66e88a3",
+    #         :createTime => 1389466124414,
+    #         :voiceBridge => 78730,
+    #         :dialNumber=>"1-800-000-0000x00000#",
+    #         :attendeePW => "12345",
+    #         :moderatorPW => "54321",
+    #         :hasBeenForciblyEnded => false,
+    #         :running => false,
+    #         :participantCount => 0,
+    #         :listenerCount => 0,
+    #         :videoCount => 0 }
+    #       { :meetingID => "8f21cc63",
+    #         :meetingName => "8f21cc63",
+    #         :createTime => 1389466073245,
+    #         :voiceBridge => 78992,
+    #         :dialNumber => "1-800-000-0000x00000#",
+    #         :attendeePW => "12345",
+    #         :moderatorPW => "54321",
+    #         :hasBeenForciblyEnded => false,
+    #         :running => true,
+    #         :participantCount => 2,
+    #         :listenerCount => 0,
+    #         :videoCount => 0 }
     #     ],
-    #    :messageKey=>"", :message=>""
+    #     :messageKey => "",
+    #     :message => ""
     #   }
     #
     # Server with no meetings:
     #
-    #   {:returncode=>true, :meetings=>[], :messageKey=>"noMeetings", :message=>"no meetings were found on this server"}
+    #   {
+    #     :returncode => true,
+    #     :meetings => [],
+    #     :messageKey => "noMeetings",
+    #     :message => "no meetings were found on this server"
+    #   }
     #
     def get_meetings
       response = send_api_request(:getMeetings)
@@ -295,9 +382,9 @@ module BigBlueButton
       response
     end
 
-    # Returns the API version (as string) of the associated server. This actually returns
-    # the version returned by the BBB server, and not the version set by the user in
-    # the initialization of this object.
+    # Returns the API version of the server as a string. Will return the version in the response
+    # given by the BigBlueButton server, and not the version set by the user in the initialization
+    # of this object!
     def get_api_version
       response = send_api_request(:index)
       response[:returncode] ? response[:version].to_s : ""
@@ -309,13 +396,16 @@ module BigBlueButton
     #
 
     # Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs).
-    # options (Hash)::                Hash with optional parameters. The accepted parameters are:
-    #                                 :meetingID (string, Array). For details about each see BBB API docs.
-    #                                 Any of the following values are accepted for :meetingID :
-    #                                   :meetingID => "id1"
-    #                                   :meetingID => "id1,id2,id3"
-    #                                   :meetingID => ["id1"]
-    #                                   :meetingID => ["id1", "id2", "id3"]
+    # options (Hash)::       Hash with additional parameters. The accepted parameters are:
+    #                        :meetingID (string, Array). For details about each see BigBlueButton's
+    #                        API docs.
+    #                        Any of the following values are accepted for :meetingID :
+    #                          :meetingID => "id1"
+    #                          :meetingID => "id1,id2,id3"
+    #                          :meetingID => ["id1"]
+    #                          :meetingID => ["id1", "id2", "id3"]
+    #                        If you have a custom API with more parameters, you can simply pass them
+    #                        in this hash and they will be added to the API call.
     #
     # === Example responses
     #
@@ -323,7 +413,7 @@ module BigBlueButton
     #     :recordings => [
     #       {
     #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
-    #         :meetingID=>"bd1811beecd20f24314819a52ec202bf446ab94b",
+    #         :meetingID => "bd1811beecd20f24314819a52ec202bf446ab94b",
     #         :name => "Evening Class1",
     #         :published => true,
     #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
@@ -344,9 +434,21 @@ module BigBlueButton
     #           ]
     #         }
     #       },
-    #       { :recordID => "183f0bf3a0982a127bdb8161-13085974450", :meetingID => "CS102",
-    #         ...
-    #         ...
+    #       { :recordID => "1254kakap98sd09jk2lk2-1329872486234",
+    #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
+    #         :meetingID => "bklajsdoiajs9d8jo23id90",
+    #         :name => "Evening Class2",
+    #         :published => false,
+    #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
+    #         :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #         :metadata => {},
+    #         :playback => {
+    #           :format => { # notice that this is now a hash, not an array
+    #             :type => "slides",
+    #             :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=1254kakap98sd09jk2lk2-1329872486234",
+    #             :length => 64
+    #           }
+    #         }
     #       }
     #     ]
     #   }
@@ -372,7 +474,7 @@ module BigBlueButton
     #                                "id1,id2,id3"
     #                                ["id1"]
     #                                ["id1", "id2", "id3"]
-    # publish (boolean)::          Publish or unpublish the recordings?
+    # publish (boolean)::          Whether to publish or unpublish the recording(s)
     #
     # === Example responses
     #

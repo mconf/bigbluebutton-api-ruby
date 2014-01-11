@@ -208,17 +208,25 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe ".format_meeting" do
     let(:hash) {
-      { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222,
-        :hasBeenForciblyEnded => "FALSE", :running => "TRUE", :createTime => "123456789" }
+      { :meetingID => 123, :meetingName => 123, :moderatorPW => 111, :attendeePW => 222,
+        :hasBeenForciblyEnded => "FALSE", :running => "TRUE", :createTime => "123456789",
+        :dialNumber => 1234567890, :voiceBridge => "12345",
+        :participantCount => "10", :listenerCount => "3", :videoCount => "5" }
     }
 
     subject { BigBlueButton::BigBlueButtonFormatter.format_meeting(hash) }
     it { subject[:meetingID].should == "123" }
+    it { subject[:meetingName].should == "123" }
     it { subject[:moderatorPW].should == "111" }
     it { subject[:attendeePW].should == "222" }
     it { subject[:hasBeenForciblyEnded].should == false }
     it { subject[:running].should == true }
     it { subject[:createTime].should == 123456789 }
+    it { subject[:voiceBridge].should == 12345 }
+    it { subject[:dialNumber].should == "1234567890" }
+    it { subject[:participantCount].should == 10 }
+    it { subject[:listenerCount].should == 3 }
+    it { subject[:videoCount].should == 5 }
   end
 
   describe ".format_attendee" do

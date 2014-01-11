@@ -92,11 +92,17 @@ module BigBlueButton
     def self.format_meeting(meeting)
       f = BigBlueButtonFormatter.new(meeting)
       f.to_string(:meetingID)
+      f.to_string(:meetingName)
       f.to_string(:moderatorPW)
       f.to_string(:attendeePW)
       f.to_boolean(:hasBeenForciblyEnded)
       f.to_boolean(:running)
       f.to_int(:createTime) if meeting.has_key?(:createTime)
+      f.to_string(:dialNumber)
+      f.to_int(:voiceBridge)
+      f.to_int(:participantCount)
+      f.to_int(:listenerCount)
+      f.to_int(:videoCount)
       meeting
     end
 
