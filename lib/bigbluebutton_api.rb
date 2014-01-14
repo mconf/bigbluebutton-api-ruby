@@ -510,6 +510,31 @@ module BigBlueButton
 
 
     #
+    # API calls since 0.81
+    #
+
+    # Retrieves the default config.xml file from the server.
+    # Returns the XML as a string by default, but if `asObject` is set to true, returns the XML
+    # parsed as an XmlSimple object ().
+    # asObject (Hash)::       If true, returns the XML parsed as an XmlSimple object, using:
+    #                           data = XmlSimple.xml_in(response, { 'KeepRoot' => true })
+    #                         You can then parse it back into an XML string using:
+    #                           XmlSimple.xml_out(data, { 'RootName' => nil, 'XmlDeclaration' => true })
+    #                         If set to false, returns the XML as a string.
+    # options (Hash)::        Hash with additional parameters. This method doesn't accept additional
+    #                         parameters, but if you have a custom API with more parameters, you
+    #                         can simply pass them in this hash and they will be added to the API call.
+    def get_default_config_xml(asObject=false, options={})
+      response = send_api_request(:getDefaultConfigXML, options, nil, true)
+      if asObject
+        XmlSimple.xml_out(XmlSimple.xml_in(response, { 'KeepRoot' => true }), { 'RootName' => nil, 'XmlDeclaration' => true  })
+      else
+        response
+      end
+    end
+
+
+    #
     # Helper functions
     #
 
@@ -574,32 +599,39 @@ module BigBlueButton
     # params (Hash)::    The parameters to be passed in the URL
     # data (string)::    Data to be sent with the request. If set, the request will use an HTTP
     #                    POST instead of a GET and the data will be sent in the request body.
-    def send_api_request(method, params={}, data=nil)
+    # raw (boolean)::    If true, returns the data as it was received. Will not parse it into a Hash,
+    #                    check for errors or throw exceptions.
+    def send_api_request(method, params={}, data=nil, raw=false)
       url = get_url(method, params)
 
       @http_response = send_request(url, data)
-      return { } if @http_response.body.empty?
-
-      # 'Hashify' the XML
+      return {} if @http_response.body.empty?
       @xml_response = @http_response.body
-      hash = Hash.from_xml(@xml_response)
 
-      # simple validation of the xml body
-      unless hash.has_key?(:returncode)
-        raise BigBlueButtonException.new("Invalid response body. Is the API URL correct? \"#{@url}\", version #{@version}")
+      if raw
+        result = @xml_response
+      else
+
+        # 'Hashify' the XML
+        result = Hash.from_xml(@xml_response)
+
+        # simple validation of the xml body
+        unless result.has_key?(:returncode)
+          raise BigBlueButtonException.new("Invalid response body. Is the API URL correct? \"#{@url}\", version #{@version}")
+        end
+
+        # default cleanup in the response
+        result = BigBlueButtonFormatter.new(result).default_formatting
+
+        # if the return code is an error generates an exception
+        unless result[:returncode]
+          exception = BigBlueButtonException.new(result[:message])
+          exception.key = result.has_key?(:messageKey) ? result[:messageKey] : ""
+          raise exception
+        end
       end
 
-      # default cleanup in the response
-      hash = BigBlueButtonFormatter.new(hash).default_formatting
-
-      # if the return code is an error generates an exception
-      unless hash[:returncode]
-        exception = BigBlueButtonException.new(hash[:message])
-        exception.key = hash.has_key?(:messageKey) ? hash[:messageKey] : ""
-        raise exception
-      end
-
-      hash
+      result
     end
 
     protected
