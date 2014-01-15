@@ -2,8 +2,7 @@ require "base64"
 
 module BigBlueButton
 
-  # An object to store the modules configuration to be passed in
-  # BigBlueButtonApi#create_meeting().
+  # A class to store the modules configuration to be passed in BigBlueButtonApi#create_meeting().
   #
   # === Usage example:
   #

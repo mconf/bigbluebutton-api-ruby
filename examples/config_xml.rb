@@ -7,7 +7,8 @@ require 'prepare'
 begin
   prepare
 
-  configXml = @api.get_default_config_xml
+  config_xml = @api.get_default_config_xml
+  config_xml = BigBlueButton::BigBlueButtonConfigXml.new(config_xml)
   puts "---------------------------------------------------"
   puts "The default config.xml was taken from the server"
 
@@ -35,26 +36,30 @@ begin
   sleep(30)
 
   puts "---------------------------------------------------"
-  puts "Creating a new config.xml without the toolbar"
-  newConfig = configXml.gsub(/showToolbar=[^ ]*/, 'showToolbar="false"')
+  puts "Creating a new config.xml"
+  # config_xml.set_attribute("layout", "showToolbar", "false", false)
+  config_xml.set_attribute("skinning", "enabled", "false", false)
+  config_xml.set_attribute("layout", "defaultLayout", "Webinar", false)
+  config_xml.set_attribute("layout", "showLayoutTools", "false", false)
+  config_xml.set_attribute("ChatModule", "privateEnabled", "false")
+  config_xml.set_attribute("VideoconfModule", "resolutions", "320x240")
+  config_xml.set_attribute("VideoconfModule", "presenterShareOnly", "true")
 
-  token = @api.set_config_xml(meeting_id, newConfig)
+  token = @api.set_config_xml(meeting_id, config_xml)
   puts "---------------------------------------------------"
   puts "Setting the new config.xml returned the token: #{token}"
 
   puts "---------------------------------------------------"
   url = @api.join_meeting_url(meeting_id, username2, options[:moderatorPW], { :configToken => token })
   puts "Please join the meeting again using the link: #{url}"
-  puts "*** You will be using the MODIFIED config.xml ***"
+  puts "*** You will be using the MODIFIED config.xml, with the following modifications: ***"
+  puts "***  - Disabled layout (will show the default layout, as was used in BBB < 0.8)"
+  puts "***  - Default layout to Webinar"
+  puts "***  - Hidden layout tools"
+  puts "***  - Disabled private chat"
+  puts "***  - Restricted video resolutions to 320x240 only"
+  puts "***  - Disabled video sharing except for the presenter"
   puts
-
-  # create a meeting
-
-  # give a link to join with the default config.xml
-
-  # set a custom config.xml
-
-  # give a link to join with the custom config.xml
 
 rescue Exception => ex
   puts "Failed with error #{ex.message}"

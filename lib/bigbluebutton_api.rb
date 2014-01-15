@@ -7,6 +7,7 @@ require 'hash_to_xml'
 require 'bigbluebutton_exception'
 require 'bigbluebutton_formatter'
 require 'bigbluebutton_modules'
+require 'bigbluebutton_config_xml'
 
 module BigBlueButton
 
@@ -517,7 +518,7 @@ module BigBlueButton
     # Returns the XML as a string by default, but if `asObject` is set to true, returns the XML
     # parsed as an XmlSimple object ().
     # asObject (Hash)::       If true, returns the XML parsed as an XmlSimple object, using:
-    #                           data = XmlSimple.xml_in(response, { 'KeepRoot' => true })
+    #                           data = XmlSimple.xml_in(response, { 'ForceArray' => false, 'KeepRoot' => true })
     #                         You can then parse it back into an XML string using:
     #                           XmlSimple.xml_out(data, { 'RootName' => nil, 'XmlDeclaration' => true })
     #                         If set to false, returns the XML as a string.
@@ -527,7 +528,7 @@ module BigBlueButton
     def get_default_config_xml(asObject=false, options={})
       response = send_api_request(:getDefaultConfigXML, options, nil, true)
       if asObject
-        XmlSimple.xml_out(XmlSimple.xml_in(response, { 'KeepRoot' => true }), { 'RootName' => nil, 'XmlDeclaration' => true  })
+        XmlSimple.xml_in(response, { 'ForceArray' => false, 'KeepRoot' => true })
       else
         response
       end
@@ -536,19 +537,26 @@ module BigBlueButton
     # Sets a config.xml file in the server.
     # Returns the token returned by the server (that can be later used in a 'join' call) in case
     # of success.
-    # meeting_id (string)::   The ID of the meeting where this config.xml will be used.
-    # xml (string)::          The XML that should be sent as a config.xml.
-    #                         It will usually be an edited output of the default config.xml:
-    #                           api.get_default_config_xml
-    # options (Hash)::        Hash with additional parameters. This method doesn't accept additional
-    #                         parameters, but if you have a custom API with more parameters, you
-    #                         can simply pass them in this hash and they will be added to the API call.
+    # meeting_id (string)::                   The ID of the meeting where this config.xml will be used.
+    # xml (string|BigBlueButtonConfigXml)::   The XML that should be sent as a config.xml.
+    #                                         It will usually be an edited output of the default config.xml:
+    #                                           xml = api.get_default_config_xml
+    #                                         Or you can use directly a BigBlueButtonConfigXml object:
+    #                                           BigBlueButtonConfigXml.new(xml)
+    # options (Hash)::                        Hash with additional parameters. This method doesn't accept additional
+    #                                         parameters, but if you have a custom API with more parameters, you
+    #                                         can simply pass them in this hash and they will be added to the API call.
     # TODO: Right now we are sending the configXML parameters in the URL and in the body of the POST
     #   request. It works if left only in the URL, but the documentation of the API claims that it has
     #   to be in the body of the request. So it's no clear yet and this might change in the future.
     def set_config_xml(meeting_id, xml, options={})
-      params = { :meetingID => meeting_id, :configXML => xml }.merge(options)
-      response = send_api_request(:setConfigXML, params, xml)
+      if xml.instance_of?(BigBlueButton::BigBlueButtonConfigXml)
+        data = xml.as_string
+      else
+        data = xml
+      end
+      params = { :meetingID => meeting_id, :configXML => data }.merge(options)
+      response = send_api_request(:setConfigXML, params, data)
       response[:configToken]
     end
 
