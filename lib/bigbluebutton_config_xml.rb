@@ -25,8 +25,6 @@ module BigBlueButton
     attr_accessor :xml
 
     def initialize(xml)
-      @xml = xml
-      #opts = { 'ForceArray' => false, 'ForceContent' => false }
       opts = { 'ForceArray' => false, 'KeepRoot' => true }
       @xml = XmlSimple.xml_in(xml, opts)
     end

@@ -8,6 +8,7 @@ require 'bigbluebutton_exception'
 require 'bigbluebutton_formatter'
 require 'bigbluebutton_modules'
 require 'bigbluebutton_config_xml'
+require 'bigbluebutton_config_layout'
 
 module BigBlueButton
 
@@ -564,6 +565,32 @@ module BigBlueButton
     #
     # Helper functions
     #
+
+    # Returns an array with the name of all layouts available in the server.
+    # Will fetch the config.xml file (unless passed in the arguments), fetch the
+    # layout definition file, and return the layouts.
+    # If something goes wrong, returns nil. Otherwise returns the list of layout
+    # names or an empty array if there's no layout defined.
+    def get_available_layouts(config_xml=nil)
+      config_xml = get_default_config_xml if config_xml.nil?
+      config_xml = BigBlueButton::BigBlueButtonConfigXml.new(config_xml)
+      layout_config = config_xml.get_attribute("LayoutModule", "layoutConfig", true)
+      unless layout_config.nil?
+        response = send_request(layout_config)
+        layout_config = BigBlueButton::BigBlueButtonConfigLayout.new(response.body)
+        layout_config.get_available_layouts
+      else
+        nil
+      end
+    end
+
+    # Returns an array with the layouts that exist by default in a BigBlueButton
+    # server. If you want to query the server to get a real list of layouts, use
+    # <tt>get_available_layouts</tt>.
+    def get_default_layouts
+      # this is the list for BigBlueButton 0.81
+      ["Default", "Video Chat", "Meeting", "Webinar", "Lecture assistant", "Lecture"]
+    end
 
     # Make a simple request to the server to test the connection.
     def test_connection
