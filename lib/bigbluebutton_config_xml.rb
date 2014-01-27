@@ -63,7 +63,7 @@ module BigBlueButton
     end
 
     def as_string
-      XmlSimple.xml_out(@xml, { 'RootName' => nil, 'XmlDeclaration' => true })
+      XmlSimple.xml_out(@xml, { 'RootName' => nil, 'XmlDeclaration' => false, 'NoIndent' => true })
     end
 
     protected
