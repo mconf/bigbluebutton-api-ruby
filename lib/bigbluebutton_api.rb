@@ -603,6 +603,8 @@ module BigBlueButton
       # stringify and escape all params
       params.delete_if { |k, v| v.nil? } unless params.nil?
       # some API calls require the params to be sorted
+      # first make all keys symbols, so the comparison works
+      params = params.inject({}){ |memo,(k,v)| memo[k.to_sym] = v; memo }
       params = Hash[params.sort]
       params_string = ""
       params_string = params.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
