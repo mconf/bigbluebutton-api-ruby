@@ -25,8 +25,13 @@ module BigBlueButton
     attr_accessor :xml
 
     def initialize(xml)
-      opts = { 'ForceArray' => false, 'KeepRoot' => true }
-      @xml = XmlSimple.xml_in(xml, opts)
+      @original_xml = nil
+      @xml = nil
+      unless xml.nil?
+        opts = { 'ForceArray' => false, 'KeepRoot' => true }
+        @xml = XmlSimple.xml_in(xml, opts)
+        @original_xml = @xml.dup
+      end
     end
 
     def get_attribute(finder, attr_name, is_module=true)
@@ -62,6 +67,11 @@ module BigBlueButton
 
     def as_string
       XmlSimple.xml_out(@xml, { 'RootName' => nil, 'XmlDeclaration' => false, 'NoIndent' => true })
+    end
+
+    def is_modified?
+      @xml and
+        @xml != @original_xml
     end
 
     protected
