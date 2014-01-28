@@ -30,7 +30,7 @@ module BigBlueButton
       unless xml.nil?
         opts = { 'ForceArray' => false, 'KeepRoot' => true }
         @xml = XmlSimple.xml_in(xml, opts)
-        @original_xml = @xml.dup
+        @original_xml = Marshal.load(Marshal.dump(@xml))
       end
     end
 
