@@ -37,7 +37,7 @@ module BigBlueButton
           else
             server = self.cfg['servers'].first[1]
           end
-          server['version'] = '0.7' unless server.has_key?('version')
+          server['version'] = '0.81' unless server.has_key?('version')
           server
         end
 

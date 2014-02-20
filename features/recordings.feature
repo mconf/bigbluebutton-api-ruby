@@ -1,4 +1,4 @@
-@version-08
+@version-all
 Feature: Record a meeting and manage recordings
   To record a meeting or manage the recorded meeting
   One needs be able to list the recordings, publish and unpublish them

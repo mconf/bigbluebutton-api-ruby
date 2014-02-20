@@ -52,7 +52,7 @@ module BigBlueButton
           if value.downcase == "null"
             result = nil
           else
-            # note: BBB 0.7 uses strings in the format: "Thu Sep 01 17:51:42 UTC 2011"
+            # note: just in case the value comes as a string in the format: "Thu Sep 01 17:51:42 UTC 2011"
             result = DateTime.parse(value)
           end
         end
@@ -92,11 +92,17 @@ module BigBlueButton
     def self.format_meeting(meeting)
       f = BigBlueButtonFormatter.new(meeting)
       f.to_string(:meetingID)
+      f.to_string(:meetingName)
       f.to_string(:moderatorPW)
       f.to_string(:attendeePW)
       f.to_boolean(:hasBeenForciblyEnded)
       f.to_boolean(:running)
       f.to_int(:createTime) if meeting.has_key?(:createTime)
+      f.to_string(:dialNumber)
+      f.to_int(:voiceBridge)
+      f.to_int(:participantCount)
+      f.to_int(:listenerCount)
+      f.to_int(:videoCount)
       meeting
     end
 
@@ -152,18 +158,18 @@ module BigBlueButton
     #
     # Other examples:
     #
-    # Hash:
+    #   # Hash:
     #   { :name => "Test", :attendees => {} }
-    # Result:
+    #   # Result:
     #   { :name => "Test", :attendees => [] }
     #
-    # Hash:
+    #   # Hash:
     #   { :name => "Test", :attendees => { :attendee => { :name => "attendee1" } } }
-    # Result:
+    #   # Result:
     #   { :name => "Test", :attendees => [ { :name => "attendee1" } ] }
     #
     def flatten_objects(first, second)
-      if @hash[first].empty?
+      if !@hash[first] or @hash[first].empty?
         collection = []
       else
         node = @hash[first][second]

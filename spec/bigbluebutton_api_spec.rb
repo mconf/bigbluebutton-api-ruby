@@ -1,12 +1,13 @@
 require 'spec_helper'
 
-# Note: this file tests the functioning of the API object using BBB API version 0.7 as a basis
+# Note: Uses version 0.8 by default. For things that only exist in newer versions,
+#   there are separate files with more tests.
 describe BigBlueButton::BigBlueButtonApi do
 
   # default variables and API object for all tests
   let(:url) { "http://server.com" }
   let(:salt) { "1234567890abcdefghijkl" }
-  let(:version) { "0.7" }
+  let(:version) { "0.8" }
   let(:debug) { false }
   let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
 
@@ -18,15 +19,15 @@ describe BigBlueButton::BigBlueButtonApi do
       it { subject.version.should == version }
       it { subject.debug.should == debug }
       it { subject.timeout.should == 10 }
-      it { subject.supported_versions.should include("0.7") }
       it { subject.supported_versions.should include("0.8") }
+      it { subject.supported_versions.should include("0.81") }
       it { subject.request_headers.should == {} }
     end
 
     context "when the version is not informed, get it from the BBB server" do
-      before { BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.7") }
+      before { BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.8") }
       subject { BigBlueButton::BigBlueButtonApi.new(url, salt, nil) }
-      it { subject.version.should == "0.7" }
+      it { subject.version.should == "0.8" }
     end
 
     it "when the version is not supported raise an error" do
@@ -37,7 +38,7 @@ describe BigBlueButton::BigBlueButtonApi do
 
     context "current supported versions" do
       subject { BigBlueButton::BigBlueButtonApi.new(url, salt) }
-      it { subject.supported_versions.should == ["0.7", "0.8"] }
+      it { subject.supported_versions.should == ["0.8", "0.81"] }
     end
   end
 
@@ -87,16 +88,84 @@ describe BigBlueButton::BigBlueButtonApi do
         api.create_meeting("name", "meeting-id", params)
       }
     end
+
+    context "with modules" do
+      let(:req_params) {
+        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap" }
+      }
+      let(:req_response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE", :createTime => "123123123" }
+      }
+      let(:final_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false, :createTime => 123123123 }
+      }
+      let(:modules) {
+        m = BigBlueButton::BigBlueButtonModules.new
+        m.add_presentation(:url, "http://www.samplepdf.com/sample.pdf")
+        m.add_presentation(:url, "http://www.samplepdf.com/sample2.pdf")
+        m.add_presentation(:base64, "JVBERi0xLjQKJ....[clipped here]....0CiUlRU9GCg==", "first-class.pdf")
+        m
+      }
+
+      before {
+        api.should_receive(:send_api_request).with(:create, req_params, modules.to_xml).
+          and_return(req_response)
+      }
+      subject {
+        options = { :moderatorPW => "mp", :attendeePW => "ap" }
+        api.create_meeting("name", "meeting-id", options, modules)
+      }
+      it { subject.should == final_response }
+    end
+
+    context "without modules" do
+      let(:req_params) {
+        { :name => "name", :meetingID => "meeting-id", :moderatorPW => "mp", :attendeePW => "ap",
+          :welcome => "Welcome!", :dialNumber => 12345678, :logoutURL => "http://example.com",
+          :maxParticipants => 25, :voiceBridge => 12345, :record => "true", :duration => 20,
+          :meta_1 => "meta1", :meta_2 => "meta2" }
+      }
+      let(:req_response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE", :createTime => "123123123" }
+      }
+      let(:final_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false, :createTime => 123123123 }
+      }
+
+      before { api.should_receive(:send_api_request).with(:create, req_params).and_return(req_response) }
+      subject {
+        options = { :moderatorPW => "mp", :attendeePW => "ap", :welcome => "Welcome!", :dialNumber => 12345678,
+          :logoutURL => "http://example.com", :maxParticipants => 25, :voiceBridge => 12345, :record => true,
+          :duration => 20, :meta_1 => "meta1", :meta_2 => "meta2" }
+        api.create_meeting("name", "meeting-id", options)
+      }
+      it { subject.should == final_response }
+    end
   end
 
   describe "#end_meeting" do
     let(:meeting_id) { "meeting-id" }
     let(:moderator_password) { "password" }
-    let(:params) { { :meetingID => meeting_id, :password => moderator_password } }
-    let(:response) { "anything" }
 
-    before { api.should_receive(:send_api_request).with(:end, params).and_return(response) }
-    it { api.end_meeting(meeting_id, moderator_password).should == response }
+    context "standard case" do
+      let(:params) { { :meetingID => meeting_id, :password => moderator_password } }
+      let(:response) { "anything" }
+
+      before { api.should_receive(:send_api_request).with(:end, params).and_return(response) }
+      it { api.end_meeting(meeting_id, moderator_password).should == response }
+    end
+
+    context "accepts non standard options" do
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :meetingID => meeting_id, :password => moderator_password,
+          :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:end, params_out) }
+      it { api.end_meeting(meeting_id, moderator_password, params_in) }
+    end
   end
 
   describe "#is_meeting_running?" do
@@ -114,18 +183,29 @@ describe BigBlueButton::BigBlueButtonApi do
       before { api.should_receive(:send_api_request).with(:isMeetingRunning, params).and_return(response) }
       it { api.is_meeting_running?(meeting_id).should == false }
     end
+
+    context "accepts non standard options" do
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :meetingID => meeting_id, :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:isMeetingRunning, params_out) }
+      it { api.is_meeting_running?(meeting_id, params_in) }
+    end
   end
 
   describe "#join_meeting_url" do
     context "standard case" do
       let(:params) {
         { :meetingID => "meeting-id", :password => "pw", :fullName => "Name",
-          :userID => "id123", :webVoiceConf => 12345678 }
+          :userID => "id123", :webVoiceConf => 12345678, :createTime => 9876543 }
       }
 
       before { api.should_receive(:get_url).with(:join, params).and_return("test-url") }
       it {
-        options = { :userID => "id123", :webVoiceConf => 12345678 }
+        options = { :userID => "id123", :webVoiceConf => 12345678, :createTime => 9876543 }
         api.join_meeting_url("meeting-id", "Name", "pw", options).should == "test-url"
       }
     end
@@ -140,82 +220,87 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
-  describe "#join_meeting" do
-    context "standard case" do
-      let(:params) {
-        { :meetingID => "meeting-id", :password => "pw", :fullName => "Name",
-          :userID => "id123", :webVoiceConf => 12345678 }
-      }
+  describe "#get_meeting_info" do
+    let(:meeting_id) { "meeting-id" }
+    let(:password) { "password" }
 
-      before { api.should_receive(:send_api_request).with(:join, params).and_return("join-return") }
-      it {
-        options = { :userID => "id123", :webVoiceConf => 12345678 }
-        api.join_meeting("meeting-id", "Name", "pw", options).should == "join-return"
+    context "standard case" do
+      let(:params) { { :meetingID => meeting_id, :password => password } }
+
+      let(:attendee1) { { :userID => 123, :fullName => "Dexter Morgan", :role => "MODERATOR" } }
+      let(:attendee2) { { :userID => "id2", :fullName => "Cameron", :role => "VIEWER" } }
+      let(:response) {
+        { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
+          :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
+          :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] },
+          :messageKey => "mkey", :message => "m", :participantCount => "50", :moderatorCount => "3",
+          :meetingName => "meeting-name", :maxUsers => "100", :voiceBridge => "12341234", :createTime => "123123123",
+          :recording => "false", :meta_1 => "abc", :meta_2 => "2" }
+      } # hash after the send_api_request call, before the formatting
+
+      let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
+      let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
+      let(:final_response) {
+        { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
+          :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
+          :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ],
+          :messageKey => "mkey", :message => "m", :participantCount => 50, :moderatorCount => 3,
+          :meetingName => "meeting-name", :maxUsers => 100, :voiceBridge => 12341234, :createTime => 123123123,
+          :recording => false, :meta_1 => "abc", :meta_2 => "2" }
+      } # expected return hash after all the formatting
+
+      # ps: not mocking the formatter here because it's easier to just check the results (final_response)
+      before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
+      it { api.get_meeting_info(meeting_id, password).should == final_response }
+    end
+
+    context "accepts non standard options" do
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
       }
+      let(:params_out) {
+        { :meetingID => meeting_id, :password => password,
+          :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:getMeetingInfo, params_out).and_return({}) }
+      it { api.get_meeting_info(meeting_id, password, params_in) }
+    end
+  end
+
+  describe "#get_meetings" do
+    context "standard case" do
+      let(:meeting_hash1) { { :meetingID => "Demo Meeting", :attendeePW => "ap", :moderatorPW => "mp", :hasBeenForciblyEnded => false, :running => true } }
+      let(:meeting_hash2) { { :meetingID => "Ended Meeting", :attendeePW => "pass", :moderatorPW => "pass", :hasBeenForciblyEnded => true, :running => false } }
+      let(:flattened_response) {
+        { :returncode => true, :meetings => [ meeting_hash1, meeting_hash2 ], :messageKey => "mkey", :message => "m" }
+      } # hash *after* the flatten_objects call
+
+      before {
+        api.should_receive(:send_api_request).with(:getMeetings, {}).
+        and_return(flattened_response)
+        formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+        formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
+      }
+      it { api.get_meetings }
     end
 
     context "accepts non standard options" do
       let(:params) {
-        { :meetingID => "meeting-id", :password => "pw",
-          :fullName => "Name", :userID => "id123", :nonStandard => 1 }
+        { :anything1 => "anything-1", :anything2 => 2 }
       }
-      before { api.should_receive(:send_api_request).with(:join, params) }
-      it { api.join_meeting("meeting-id", "Name", "pw", params) }
+      before { api.should_receive(:send_api_request).with(:getMeetings, params).and_return({}) }
+      it { api.get_meetings(params) }
     end
-  end
-
-  describe "#get_meeting_info" do
-    let(:meeting_id) { "meeting-id" }
-    let(:password) { "password" }
-    let(:params) { { :meetingID => meeting_id, :password => password } }
-
-    let(:attendee1) { { :userID => 123, :fullName => "Dexter Morgan", :role => "MODERATOR" } }
-    let(:attendee2) { { :userID => "id2", :fullName => "Cameron", :role => "VIEWER" } }
-    let(:response) {
-      { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222, :hasBeenForciblyEnded => "FALSE",
-        :running => "TRUE", :startTime => "Thu Sep 01 17:51:42 UTC 2011", :endTime => "null",
-        :returncode => true, :attendees => { :attendee => [ attendee1, attendee2 ] },
-        :messageKey => "mkey", :message => "m", :participantCount => "50", :moderatorCount => "3" }
-    } # hash after the send_api_request call, before the formatting
-
-    let(:expected_attendee1) { { :userID => "123", :fullName => "Dexter Morgan", :role => :moderator } }
-    let(:expected_attendee2) { { :userID => "id2", :fullName => "Cameron", :role => :viewer } }
-    let(:final_response) {
-      { :meetingID => "123", :moderatorPW => "111", :attendeePW => "222", :hasBeenForciblyEnded => false,
-        :running => true, :startTime => DateTime.parse("Thu Sep 01 17:51:42 UTC 2011"), :endTime => nil,
-        :returncode => true, :attendees => [ expected_attendee1, expected_attendee2 ],
-        :messageKey => "mkey", :message => "m", :participantCount => 50, :moderatorCount => 3 }
-    } # expected return hash after all the formatting
-
-    # ps: not mocking the formatter here because it's easier to just check the results (final_response)
-    before { api.should_receive(:send_api_request).with(:getMeetingInfo, params).and_return(response) }
-    it { api.get_meeting_info(meeting_id, password).should == final_response }
-  end
-
-  describe "#get_meetings" do
-    let(:meeting_hash1) { { :meetingID => "Demo Meeting", :attendeePW => "ap", :moderatorPW => "mp", :hasBeenForciblyEnded => false, :running => true } }
-    let(:meeting_hash2) { { :meetingID => "Ended Meeting", :attendeePW => "pass", :moderatorPW => "pass", :hasBeenForciblyEnded => true, :running => false } }
-    let(:flattened_response) {
-      { :returncode => true, :meetings => [ meeting_hash1, meeting_hash2 ], :messageKey => "mkey", :message => "m" }
-    } # hash *after* the flatten_objects call
-
-    before {
-      api.should_receive(:send_api_request).with(:getMeetings, hash_including(:random => kind_of(Integer))).
-        and_return(flattened_response)
-      formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-      formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
-      BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
-      BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
-      BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
-    }
-    it { api.get_meetings }
   end
 
   describe "#get_api_version" do
     context "returns the version returned by the server" do
-      let(:hash) { { :returncode => true, :version => "0.7" } }
+      let(:hash) { { :returncode => true, :version => "0.8" } }
       before { api.should_receive(:send_api_request).with(:index).and_return(hash) }
-      it { api.get_api_version.should == "0.7" }
+      it { api.get_api_version.should == "0.8" }
     end
 
     context "returns an empty string when the server responds with an empty hash" do
@@ -473,7 +558,174 @@ describe BigBlueButton::BigBlueButtonApi do
         api.send(:send_request, url, data).should == "ok"
       }
     end
+  end
 
+  describe "#get_recordings" do
+    let(:recording1) { { :recordID => "id1", :meetindID => "meeting-id" } } # simplified "recording" node in the response
+    let(:recording2) { { :recordID => "id2", :meetindID => "meeting-id" } }
+    let(:response) {
+      { :returncode => true, :recordings => { :recording => [ recording1, recording2 ] }, :messageKey => "mkey", :message => "m" }
+    }
+    let(:flattened_response) {
+      { :returncode => true, :recordings => [ recording1, recording2 ], :messageKey => "mkey", :message => "m" }
+    } # hash *after* the flatten_objects call
+
+    context "accepts non standard options" do
+      let(:params) { { :meetingID => "meeting-id", :nonStandard => 1 } }
+      before { api.should_receive(:send_api_request).with(:getRecordings, params).and_return(response) }
+      it { api.get_recordings(params) }
+    end
+
+    context "without meeting ID" do
+      before { api.should_receive(:send_api_request).with(:getRecordings, {}).and_return(response) }
+      it { api.get_recordings.should == response }
+    end
+
+    context "with one meeting ID" do
+      context "in an array" do
+        let(:options) { { :meetingID => ["meeting-id"] } }
+        let(:req_params) { { :meetingID => "meeting-id" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+
+      context "in a string" do
+        let(:options) { { :meetingID => "meeting-id" } }
+        let(:req_params) { { :meetingID => "meeting-id" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+    end
+
+    context "with several meeting IDs" do
+      context "in an array" do
+        let(:options) { { :meetingID => ["meeting-id-1", "meeting-id-2"] } }
+        let(:req_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+
+      context "in a string" do
+        let(:options) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        let(:req_params) { { :meetingID => "meeting-id-1,meeting-id-2" } }
+        before { api.should_receive(:send_api_request).with(:getRecordings, req_params).and_return(response) }
+        it { api.get_recordings(options).should == response }
+      end
+    end
+
+    context "formats the response" do
+      before {
+        api.should_receive(:send_api_request).with(:getRecordings, anything).and_return(flattened_response)
+        formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+        formatter_mock.should_receive(:flatten_objects).with(:recordings, :recording)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording1)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording2)
+        BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+      }
+      it { api.get_recordings }
+    end
+  end
+
+  describe "#publish_recordings" do
+
+    context "publish is converted to string" do
+      let(:recordIDs) { "any" }
+      let(:req_params) { { :publish => "false", :recordID => "any" } }
+      before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
+      it { api.publish_recordings(recordIDs, false) }
+    end
+
+    context "with one recording ID" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1"] }
+        let(:req_params) { { :publish => "true", :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1" }
+        let(:req_params) { { :publish => "true", :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+    end
+
+    context "with several recording IDs" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1", "id-2"] }
+        let(:req_params) { { :publish => "true", :recordID => "id-1,id-2" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1,id-2,id-3" }
+        let(:req_params) { { :publish => "true", :recordID => "id-1,id-2,id-3" } }
+        before { api.should_receive(:send_api_request).with(:publishRecordings, req_params) }
+        it { api.publish_recordings(recordIDs, true) }
+      end
+    end
+
+    context "accepts non standard options" do
+      let(:recordIDs) { ["id-1"] }
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :publish => "true", :recordID => "id-1",
+          :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:publishRecordings, params_out) }
+      it { api.publish_recordings(recordIDs, true, params_in) }
+    end
+  end
+
+  describe "#delete_recordings" do
+
+    context "with one recording ID" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1"] }
+        let(:req_params) { { :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1" }
+        let(:req_params) { { :recordID => "id-1" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+    end
+
+    context "with several recording IDs" do
+      context "in an array" do
+        let(:recordIDs) { ["id-1", "id-2"] }
+        let(:req_params) { { :recordID => "id-1,id-2" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+
+      context "in a string" do
+        let(:recordIDs) { "id-1,id-2,id-3" }
+        let(:req_params) { { :recordID => "id-1,id-2,id-3" } }
+        before { api.should_receive(:send_api_request).with(:deleteRecordings, req_params) }
+        it { api.delete_recordings(recordIDs) }
+      end
+    end
+
+    context "accepts non standard options" do
+      let(:recordIDs) { ["id-1"] }
+      let(:params_in) {
+        { :anything1 => "anything-1", :anything2 => 2 }
+      }
+      let(:params_out) {
+        { :recordID => "id-1", :anything1 => "anything-1", :anything2 => 2 }
+      }
+      before { api.should_receive(:send_api_request).with(:deleteRecordings, params_out) }
+      it { api.delete_recordings(recordIDs, params_in) }
+    end
   end
 
 end

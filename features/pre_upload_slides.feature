@@ -1,4 +1,4 @@
-@version-08
+@version-all
 Feature: Pre-upload slides
   To have presentations ready in the meeting when the users join
   One needs to pre-upload these presentations when the meeting is created

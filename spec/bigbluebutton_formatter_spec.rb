@@ -70,10 +70,17 @@ describe BigBlueButton::BigBlueButtonFormatter do
   end
 
   describe "#to_datetime" do
-    let(:hash) { { :param1 => "Thu Sep 01 17:51:42 UTC 2011", :param2 => "Thu Sep 08",
-                   :param3 => 1315254777880, :param4 => "1315254777880",
-                   :param5 => "0", :param6 => 0,
-                   :param7 => "NULL", :param8 => nil } }
+    let(:hash) {
+      { :param1 => "Thu Sep 01 17:51:42 UTC 2011",
+        :param2 => "Thu Sep 08",
+        :param3 => 1315254777880,
+        :param4 => "1315254777880",
+        :param5 => "0",
+        :param6 => 0,
+        :param7 => "NULL",
+        :param8 => nil
+      }
+    }
     let(:formatter) { BigBlueButton::BigBlueButtonFormatter.new(hash) }
     before {
       formatter.to_datetime(:param1)
@@ -201,17 +208,25 @@ describe BigBlueButton::BigBlueButtonFormatter do
 
   describe ".format_meeting" do
     let(:hash) {
-      { :meetingID => 123, :moderatorPW => 111, :attendeePW => 222,
-        :hasBeenForciblyEnded => "FALSE", :running => "TRUE", :createTime => "123456789" }
+      { :meetingID => 123, :meetingName => 123, :moderatorPW => 111, :attendeePW => 222,
+        :hasBeenForciblyEnded => "FALSE", :running => "TRUE", :createTime => "123456789",
+        :dialNumber => 1234567890, :voiceBridge => "12345",
+        :participantCount => "10", :listenerCount => "3", :videoCount => "5" }
     }
 
     subject { BigBlueButton::BigBlueButtonFormatter.format_meeting(hash) }
     it { subject[:meetingID].should == "123" }
+    it { subject[:meetingName].should == "123" }
     it { subject[:moderatorPW].should == "111" }
     it { subject[:attendeePW].should == "222" }
     it { subject[:hasBeenForciblyEnded].should == false }
     it { subject[:running].should == true }
     it { subject[:createTime].should == 123456789 }
+    it { subject[:voiceBridge].should == 12345 }
+    it { subject[:dialNumber].should == "1234567890" }
+    it { subject[:participantCount].should == 10 }
+    it { subject[:listenerCount].should == 3 }
+    it { subject[:videoCount].should == 5 }
   end
 
   describe ".format_attendee" do
@@ -280,6 +295,13 @@ describe BigBlueButton::BigBlueButtonFormatter do
         before { formatter.hash = hash }
         subject { formatter.flatten_objects(:objects, :object) }
         it { subject.should == { :objects => [] } }
+      end
+
+      context "when the target key doesn't exist in the hash" do
+        let(:hash) { { } }
+        before { formatter.hash = hash }
+        subject { formatter.flatten_objects(:objects, :object) }
+        it { subject.should == { :objects => [] } } # adds the one the doesn't exist
       end
 
       context "when there's only one object in the list" do
