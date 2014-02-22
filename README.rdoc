@@ -35,9 +35,8 @@ Older versions:
 Tested in rubies:
 
 * ruby-2.0.0 (p353)
-* ruby-1.9.3 (p484) *recomended*
+* ruby-1.9.3 (p484) *recommended*
 * ruby-1.9.2 (p290)
-* jruby 1.6.7
 
 Use these versions to be sure it will work. Other patches of these rubies (e.g. ruby 1.9.3-p194) should work as well.
 
