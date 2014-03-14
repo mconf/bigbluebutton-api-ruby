@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Hash do
+describe BigBlueButton::BigBlueButtonHash do
 
   describe ".from_xml" do
     it "simple example" do
       xml = "<response><returncode>1</returncode></response>"
       hash = { :returncode => "1" }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
 
     it "maintains all values as strings" do
@@ -16,7 +16,7 @@ describe Hash do
             "  <node3>true</node3>" \
             "</parent>"
       hash = { :node1 => "1", :node2 => "string", :node3 => "true" }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
 
     it "works for xmls with multiple levels" do
@@ -28,7 +28,7 @@ describe Hash do
             "  </node1>" \
             "</parent>"
       hash = { :node1 => { :node2 => { :node3 => "true" } } }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
 
     it "transforms CDATA fields to string" do
@@ -37,7 +37,7 @@ describe Hash do
             "  <course><![CDATA[Advanced Ruby]]></course>" \
             "</parent>"
       hash = { :name => "Evening Class", :course => "Advanced Ruby" }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
 
     it "transforms duplicated keys in arrays" do
@@ -51,7 +51,7 @@ describe Hash do
             "</parent>"
       hash = { :meetings => { :meeting => [ "1", "2", { :details => "3" } ],
                               :other => "4" } }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
 
     it "works with attributes" do
@@ -59,7 +59,7 @@ describe Hash do
             "  <meeting attr1=\"v1\">1</meeting>" \
             "</parent>"
       hash = { :meeting => { :attr1 => "v1", :content => "1" } }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
 
     it "complex real example" do
@@ -104,7 +104,7 @@ describe Hash do
                    } ]
                  }
       }
-      Hash.from_xml(xml).should == hash
+      BigBlueButton::BigBlueButtonHash.from_xml(xml).should == hash
     end
   end
 
@@ -112,31 +112,31 @@ describe Hash do
     it "converts string-keys to symbols" do
       before = { "one" => 1, "two" => 2, "three" => 3 }
       after = { :one => 1, :two => 2, :three => 3 }
-      Hash.symbolize_keys(before).should == after
+      BigBlueButton::BigBlueButtonHash.symbolize_keys(before).should == after
     end
 
     it "maintains case" do
       before = { "One" => 1, "tWo" => 2, "thrEE" => 3 }
       after = { :One => 1, :tWo => 2, :thrEE => 3 }
-      Hash.symbolize_keys(before).should == after
+      BigBlueButton::BigBlueButtonHash.symbolize_keys(before).should == after
     end
 
     it "works with multilevel hashes" do
       before = { "l1" => { "l2" => { "l3" => 1 } }, "l1b" => 2 }
       after = { :l1 => { :l2 => { :l3 => 1 } }, :l1b => 2 }
-      Hash.symbolize_keys(before).should == after
+      BigBlueButton::BigBlueButtonHash.symbolize_keys(before).should == after
     end
 
     it "works with arrays" do
       before = { "a1" => [ "b1" => 1,  "b2" => 2 ], "b2" => 2 }
       after = { :a1 => [ :b1 => 1,  :b2 => 2 ], :b2 => 2 }
-      Hash.symbolize_keys(before).should == after
+      BigBlueButton::BigBlueButtonHash.symbolize_keys(before).should == after
     end
 
     it "doesn't convert values" do
       before = { "a" => "a", "b" => "b" }
       after = { :a => "a", :b => "b" }
-      Hash.symbolize_keys(before).should == after
+      BigBlueButton::BigBlueButtonHash.symbolize_keys(before).should == after
     end
   end
 

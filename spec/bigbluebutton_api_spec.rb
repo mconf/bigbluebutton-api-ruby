@@ -455,12 +455,12 @@ describe BigBlueButton::BigBlueButtonApi do
       end
 
       context "checking if it has a :response key" do
-        before { Hash.should_receive(:from_xml).with("response-body").and_return({ }) }
+        before { BigBlueButton::BigBlueButtonHash.should_receive(:from_xml).with("response-body").and_return({ }) }
         it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
       end
 
       context "checking if it the :response key has a :returncode key" do
-        before { Hash.should_receive(:from_xml).with("response-body").and_return({ :response => { } }) }
+        before { BigBlueButton::BigBlueButtonHash.should_receive(:from_xml).with("response-body").and_return({ :response => { } }) }
         it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
       end
     end
@@ -471,7 +471,7 @@ describe BigBlueButton::BigBlueButtonApi do
       before do
         api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
-        Hash.should_receive(:from_xml).with("response-body").and_return(response)
+        BigBlueButton::BigBlueButtonHash.should_receive(:from_xml).with("response-body").and_return(response)
 
         # here starts the validation
         # doesn't test the resulting format, only that the formatter was called
@@ -488,7 +488,7 @@ describe BigBlueButton::BigBlueButtonApi do
       before do
         api.should_receive(:send_request).with(url, data).and_return(response_mock)
         response_mock.should_receive(:body).twice.and_return("response-body")
-        Hash.should_receive(:from_xml).with("response-body").and_return(response)
+        BigBlueButton::BigBlueButtonHash.should_receive(:from_xml).with("response-body").and_return(response)
 
         formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
         BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_mock)

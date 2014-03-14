@@ -3,7 +3,7 @@ require 'cgi'
 require 'rexml/document'
 require 'digest/sha1'
 require 'rubygems'
-require 'hash_to_xml'
+require 'bigbluebutton_hash_to_xml'
 require 'bigbluebutton_exception'
 require 'bigbluebutton_formatter'
 require 'bigbluebutton_modules'
@@ -21,7 +21,7 @@ module BigBlueButton
   # 4. To force meeting to end, call end_meeting .
   #
   # Important info about the data returned by the methods:
-  # * The XML returned by BigBlueButton is converted to a Hash. See each method's documentation
+  # * The XML returned by BigBlueButton is converted to a BigBlueButton::BigBlueButtonHash. See each method's documentation
   #   for examples.
   # * Three values will *always* exist in the hash:
   #   * :returncode (boolean)
@@ -671,7 +671,7 @@ module BigBlueButton
       else
 
         # 'Hashify' the XML
-        result = Hash.from_xml(@xml_response)
+        result = BigBlueButtonHash.from_xml(@xml_response)
 
         # simple validation of the xml body
         unless result.has_key?(:returncode)
