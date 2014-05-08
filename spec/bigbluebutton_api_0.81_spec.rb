@@ -85,4 +85,70 @@ describe BigBlueButton::BigBlueButtonApi do
     end
   end
 
+  describe "#get_available_layouts" do
+    let(:config_xml) { # a simplified config.xml file
+      "<config>
+         <modules>
+           <module name=\"LayoutModule\" url=\"http://test-server.org/client/LayoutModule.swf?v=4357\"
+                   uri=\"rtmp://test-server.org/bigbluebutton\"
+                   layoutConfig=\"http://test-server.org/client/conf/layout.xml\"
+                   enableEdit=\"false\"/>
+         </modules>
+       </config>"
+    }
+    let(:layouts_xml) { # a simplified layouts.xml file
+      "<layouts>
+         <layout name=\"Default\" default=\"true\">
+           <window name=\"NotesWindow\" hidden=\"true\" width=\"0.7\" height=\"1\" x=\"0\" y=\"0\" draggable=\"false\" resizable=\"false\"/>
+         </layout>
+         <layout name=\"Video Chat\">
+           <window name=\"NotesWindow\" hidden=\"true\" width=\"0.7\" height=\"1\" x=\"0\" y=\"0\" draggable=\"false\" resizable=\"false\"/>
+         </layout>
+       </layouts>"
+    }
+
+    context "when an XML is passed" do
+      before {
+        response = double("Net::HTTPResponse")
+        response.stub(:body).and_return(layouts_xml)
+        api.should_receive(:send_request)
+          .with("http://test-server.org/client/conf/layout.xml")
+          .and_return(response)
+      }
+      subject { api.get_available_layouts(config_xml) }
+      it { should be_instance_of(Array) }
+      it { subject.count.should be(2) }
+      it { should include("Default") }
+      it { should include("Video Chat") }
+    end
+
+    context "when no XML is passed" do
+      before {
+        api.should_receive(:get_default_config_xml)
+          .and_return(config_xml)
+        response = double("Net::HTTPResponse")
+        response.stub(:body).and_return(layouts_xml)
+        api.should_receive(:send_request)
+          .with("http://test-server.org/client/conf/layout.xml")
+          .and_return(response)
+      }
+      subject { api.get_available_layouts }
+      it { should be_instance_of(Array) }
+      it { subject.count.should be(2) }
+      it { should include("Default") }
+      it { should include("Video Chat") }
+    end
+  end
+
+  describe "#get_default_layouts" do
+    subject { api.get_default_layouts }
+    it { should be_instance_of(Array) }
+    it { should include("Default") }
+    it { should include("Video Chat") }
+    it { should include("Meeting") }
+    it { should include("Webinar") }
+    it { should include("Lecture assistant") }
+    it { should include("Lecture") }
+  end
+
 end

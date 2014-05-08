@@ -24,8 +24,13 @@ module BigBlueButton
     # xml (string)::  The XML that has the definition of all layouts, usually fetched from
     #                 the web conference server.
     def initialize(xml)
+      @xml = nil
       opts = { 'ForceArray' => false, 'KeepRoot' => true }
-      @xml = XmlSimple.xml_in(xml, opts)
+      begin
+        @xml = XmlSimple.xml_in(xml, opts)
+      rescue Exception => e
+        raise BigBlueButton::BigBlueButtonException.new("Error parsing the layouts XML. Error: #{e.message}")
+      end
     end
 
     # Returns an array with the name of each layout available in the XML.
@@ -43,7 +48,7 @@ module BigBlueButton
     protected
 
     def xml_has_layouts
-      @xml["layouts"] and @xml["layouts"]["layout"]
+      @xml and @xml["layouts"] and @xml["layouts"]["layout"]
     end
 
   end

@@ -78,7 +78,9 @@ module BigBlueButton
 
     def find_module(module_name)
       if xml_has_modules
-        @xml["config"]["modules"]["module"].each do |mod|
+        modules = @xml["config"]["modules"]["module"]
+        modules = [modules] unless modules.is_a?(Array)
+        modules.each do |mod|
           if mod["name"] == module_name
             return mod
           end
