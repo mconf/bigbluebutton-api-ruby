@@ -29,8 +29,12 @@ module BigBlueButton
       @xml = nil
       unless xml.nil?
         opts = { 'ForceArray' => false, 'KeepRoot' => true }
-        @xml = XmlSimple.xml_in(xml, opts)
-        @original_xml = Marshal.load(Marshal.dump(@xml))
+        begin
+          @xml = XmlSimple.xml_in(xml, opts)
+          @original_xml = Marshal.load(Marshal.dump(@xml))
+        rescue Exception => e
+          raise BigBlueButton::BigBlueButtonException.new("Error parsing the config XML. Error: #{e.message}")
+        end
       end
     end
 
@@ -58,10 +62,10 @@ module BigBlueButton
         if attr
           tag[attr_name] = value
         else
-          false
+          nil
         end
       else
-        false
+        nil
       end
     end
 
@@ -86,6 +90,7 @@ module BigBlueButton
           end
         end
       end
+      nil
     end
 
     def find_tag(name)
