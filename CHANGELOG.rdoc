@@ -1,3 +1,11 @@
+=== 1.3.0
+
+* Drop support to BigBlueButton 0.7 and add BigBlueButton to 0.81. Includes support to the new API calls <tt>getDefaultConfigXML</tt> and <tt>setConfigXML</tt>.
+* Reviewed all methods responses (some changed a bit) and documentation.
+* Allow non standard options to be passed to *all* API calls.
+* Removed method <tt>join_meeting</tt> that was usually not used. Should always use <tt>join_meeting_url</tt>.
+* Moved the hash extension method <tt>from_xml</tt> to its own class to prevent conflicts with Rails. See https://github.com/mconf/bigbluebutton-api-ruby/pull/6.
+
 === 1.2.0
 
 * Allow non standard options to be passed to some API calls. These API calls are: create_meeting, join_meeting_url,
