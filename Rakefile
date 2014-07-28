@@ -11,6 +11,9 @@ RSpec::Core::RakeTask.new(:spec)
 
 Cucumber::Rake::Task.new do |t|
 
+  # Disable all features that need the bot. It isn't working since BigBlueButton 0.81.
+  prepend = "--tags ~@need-bot"
+
   # in jruby the class BigBlueButtonBot doesn't work (it uses fork)
   if defined?(RUBY_ENGINE) and RUBY_ENGINE == 'jruby'
     puts "Jruby detected, ignoring features with @need-bot"
