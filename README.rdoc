@@ -24,6 +24,7 @@ The current version of this gem supports <em>all</em> the following versions of 
 
 * 0.8
 * 0.81
+* (Should also support the still unreleased 0.9, since it's API will be backward compatible.)
 
 Older versions:
 
@@ -34,8 +35,9 @@ Older versions:
 
 Tested in rubies:
 
+* ruby-2.1.2 *recommended*
 * ruby-2.0.0 (p353)
-* ruby-1.9.3 (p484) *recommended*
+* ruby-1.9.3 (p484)
 * ruby-1.9.2 (p290)
 
 Use these versions to be sure it will work. Other patches of these rubies (e.g. ruby 1.9.3-p194) should work as well.
