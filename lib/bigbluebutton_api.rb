@@ -68,7 +68,8 @@ module BigBlueButton
     # salt::      Secret salt for this server
     # version::   API version e.g. 0.81
     def initialize(url, salt, version='0.81', debug=false)
-      @supported_versions = ['0.8', '0.81']
+      # TODO check the default version parameter.
+      @supported_versions = ['0.8', '0.81', '0.9']
       @url = url
       @salt = salt
       @debug = debug
