@@ -24,7 +24,7 @@ The current version of this gem supports <em>all</em> the following versions of 
 
 * 0.8
 * 0.81
-* (Should also support the still unreleased 0.9, since it's API will be backward compatible.)
+* 0.9
 
 Older versions:
 

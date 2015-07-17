@@ -10,7 +10,6 @@ begin
   meeting_name = "Test Meeting"
   meeting_id = "test-meeting"
   moderator_name = "House"
-  attendee_name = "Cameron"
   unless @api.is_meeting_running?(meeting_id)
     puts "---------------------------------------------------"
     options = { :moderatorPW => "54321",
