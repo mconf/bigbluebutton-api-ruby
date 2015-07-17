@@ -23,6 +23,8 @@ describe BigBlueButton::BigBlueButtonApi do
         it { subject.supported_versions.should include("0.8") }
         it { subject.supported_versions.should include("0.81") }
         it { subject.supported_versions.should include("0.9") }
+        it { subject.supported_versions.should include("0.9.0") }
+        it { subject.supported_versions.should include("0.9.1") }
         it { subject.request_headers.should == {} }
       end
 
@@ -40,7 +42,7 @@ describe BigBlueButton::BigBlueButtonApi do
 
       context "current supported versions" do
         subject { BigBlueButton::BigBlueButtonApi.new(url, salt) }
-        it { subject.supported_versions.should == ["0.8", "0.81", "0.9"] }
+        it { subject.supported_versions.should == ["0.8", "0.81", "0.9", "0.9.0", "0.9.1"] }
       end
     end
 
@@ -734,4 +736,6 @@ describe BigBlueButton::BigBlueButtonApi do
   it_should_behave_like "BigBlueButtonApi", "0.8"
   it_should_behave_like "BigBlueButtonApi", "0.81"
   it_should_behave_like "BigBlueButtonApi", "0.9"
+  it_should_behave_like "BigBlueButtonApi", "0.9.0"
+  it_should_behave_like "BigBlueButtonApi", "0.9.1"
 end
