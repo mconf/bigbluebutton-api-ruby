@@ -22,9 +22,9 @@ A few features it has:
 
 The current version of this gem supports <em>all</em> the following versions of BigBlueButton:
 
-* 0.8
-* 0.81
 * 0.9 (includes all 0.9.x)
+* 0.81
+* 0.8
 
 Older versions:
 

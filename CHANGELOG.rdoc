@@ -1,3 +1,10 @@
+=== 1.4.0
+
+* Updated default ruby version to 2.2.0.
+* Add support for BigBlueButton 0.9 (includes all 0.9.x). Consists only in accepting the version
+  "0.9", since this new API version doesn't break compatibility with the previous version and
+  also doesn't add new API calls.
+
 === 1.3.0
 
 * Drop support to BigBlueButton 0.7 and add BigBlueButton to 0.81. Includes support to the new API calls <tt>getDefaultConfigXML</tt> and <tt>setConfigXML</tt>.
