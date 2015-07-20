@@ -67,8 +67,8 @@ module BigBlueButton
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # salt::      Secret salt for this server
     # version::   API version e.g. 0.81
-    def initialize(url, salt, version='0.9.1', debug=false)
-      @supported_versions = ['0.8', '0.81', '0.9', '0.9.0', '0.9.1']
+    def initialize(url, salt, version='0.9', debug=false)
+      @supported_versions = ['0.8', '0.81', '0.9']
       @url = url
       @salt = salt
       @debug = debug
