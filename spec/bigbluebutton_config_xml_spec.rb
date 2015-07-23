@@ -168,10 +168,28 @@ describe BigBlueButton::BigBlueButtonConfigXml do
       end
 
       context "if the module and attribute are found" do
-        before(:each) {
-          target.set_attribute("LayoutModule", "layoutConfig", "value").should eql("value")
-        }
-        it { target.get_attribute("LayoutModule", "layoutConfig").should eql("value") }
+        context "setting an attribute as string" do
+          before(:each) {
+            target.set_attribute("LayoutModule", "layoutConfig", "value").should eql("value")
+          }
+          it { target.get_attribute("LayoutModule", "layoutConfig").should eql("value") }
+        end
+
+        context "sets values always as string" do
+          context "boolean" do
+            before(:each) {
+              target.set_attribute("LayoutModule", "layoutConfig", true).should eql("true")
+            }
+            it { target.get_attribute("LayoutModule", "layoutConfig").should eql("true") }
+          end
+
+          context "Hash" do
+            before(:each) {
+              target.set_attribute("LayoutModule", "layoutConfig", {}).should eql("{}")
+            }
+            it { target.get_attribute("LayoutModule", "layoutConfig").should eql("{}") }
+          end
+        end
       end
 
       context "if the module is not found" do
@@ -268,6 +286,14 @@ describe BigBlueButton::BigBlueButtonConfigXml do
       before(:each) {
         value = target.get_attribute("LayoutModule", "layoutConfig")
         target.set_attribute("LayoutModule", "layoutConfig", value)
+      }
+      it { target.is_modified?.should be_false }
+    end
+
+    context "if an attribute is set to the same value it already had, but with a different type" do
+      before(:each) {
+        # it's already false in the original XML, but as a string, not boolean
+        target.set_attribute("LayoutModule", "enableEdit", false)
       }
       it { target.is_modified?.should be_false }
     end

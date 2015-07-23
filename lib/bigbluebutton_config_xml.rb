@@ -25,13 +25,13 @@ module BigBlueButton
     attr_accessor :xml
 
     def initialize(xml)
-      @original_xml = nil
+      @original_string = nil
       @xml = nil
       unless xml.nil?
         opts = { 'ForceArray' => false, 'KeepRoot' => true }
         begin
           @xml = XmlSimple.xml_in(xml, opts)
-          @original_xml = Marshal.load(Marshal.dump(@xml))
+          @original_string = self.as_string.clone
         rescue Exception => e
           raise BigBlueButton::BigBlueButtonException.new("Error parsing the config XML. Error: #{e.message}")
         end
@@ -60,7 +60,8 @@ module BigBlueButton
       if tag
         attr = find_attribute(tag, attr_name)
         if attr
-          tag[attr_name] = value
+          # saves always as string
+          tag[attr_name] = value.is_a?(String) ? value : value.to_s
         else
           nil
         end
@@ -75,7 +76,7 @@ module BigBlueButton
 
     def is_modified?
       @xml and
-        @xml != @original_xml
+        self.as_string != @original_string
     end
 
     protected
