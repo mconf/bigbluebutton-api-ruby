@@ -704,6 +704,8 @@ module BigBlueButton
         http = Net::HTTP.new(url_parsed.host, url_parsed.port)
         http.open_timeout = @timeout
         http.read_timeout = @timeout
+        http.use_ssl = true if url_parsed.scheme.downcase == 'https'
+
         if data.nil?
           response = http.get(url_parsed.request_uri, @request_headers)
         else
