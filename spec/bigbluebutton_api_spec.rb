@@ -32,9 +32,27 @@ describe BigBlueButton::BigBlueButtonApi do
         it { subject.version.should == "0.8" }
       end
 
-      it "when the version is not supported raise an error" do
+      context "when the version informed is empty, get it from the BBB server" do
+        before { BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.8") }
+        subject { BigBlueButton::BigBlueButtonApi.new(url, salt, "  ") }
+        it { subject.version.should == "0.8" }
+      end
+
+      it "when the version is lower than the lowest supported, raise exception" do
         expect {
-          BigBlueButton::BigBlueButtonApi.new(url, salt, "0.not-supported", nil)
+          BigBlueButton::BigBlueButtonApi.new(url, salt, "0.1", nil)
+        }.to raise_error(BigBlueButton::BigBlueButtonException)
+      end
+
+      it "when the version is higher than thew highest supported, use the highest supported" do
+        BigBlueButton::BigBlueButtonApi.new(url, salt, "5.0", nil).version.should eql('0.9')
+      end
+
+      it "compares versions in the format 'x.xx' properly" do
+        expect {
+          # if not comparing properly, 0.61 would be bigger than 0.9, for example
+          # comparing the way BBB does, it is lower, so will raise an exception
+          BigBlueButton::BigBlueButtonApi.new(url, salt, "0.61", nil)
         }.to raise_error(BigBlueButton::BigBlueButtonException)
       end
 

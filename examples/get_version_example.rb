@@ -7,11 +7,9 @@ require 'prepare'
 begin
   prepare
 
-  @api = BigBlueButton::BigBlueButtonApi.new(@config['bbb_url'], @config['bbb_salt'], nil, true)
-
   puts
   puts "---------------------------------------------------"
-  puts "The version of your BBB server is: #{@api.version}"
+  puts "The version of your BBB server is: #{@api.get_api_version}"
 rescue Exception => ex
   puts "Failed with error #{ex.message}"
   puts ex.backtrace

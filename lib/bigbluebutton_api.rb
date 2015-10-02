@@ -75,9 +75,10 @@ module BigBlueButton
       @timeout = 10         # default timeout for api requests
       @request_headers = {} # http headers sent in all requests
 
-      @version = version || get_api_version
+      version = nil if version && version.strip.empty?
+      @version = nearest_version(version || get_api_version)
       unless @supported_versions.include?(@version)
-        raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+        puts "BigBlueButtonAPI: detected unsupported version, using the closest one that is supported (#{@version})"
       end
 
       puts "BigBlueButtonAPI: Using version #{@version}" if @debug
@@ -723,6 +724,27 @@ module BigBlueButton
       end
 
       response
+    end
+
+    def nearest_version(target)
+      version = target
+
+      # 0.81 in BBB is actually < than 0.9, but not when comparing here
+      # so normalize x.xx versions to x.x.x
+      match = version.match(/(\d)\.(\d)(\d)/)
+      version = "#{match[1]}.#{match[2]}.#{match[3]}" if match
+
+      # we don't allow older versions than the one supported, use an old version of the gem for that
+      if Gem::Version.new(version) < Gem::Version.new(@supported_versions[0])
+        raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+
+      # allow newer versions by using the newest one we support
+      elsif Gem::Version.new(version) > Gem::Version.new(@supported_versions.last)
+        @supported_versions.last
+
+      else
+        target
+      end
     end
 
   end

@@ -10,11 +10,9 @@ timeout_ending: 30
 timeout_bot_start: 60
 
 servers:
-  test-install-091:
+  test-install:
     salt: '8cd8ef52e8e101574e400365b55e11a6'
     url: 'http://test-install.blindsidenetworks.com/bigbluebutton/api'
-    version: '0.9'
-  bbb-08:
+  bbb-other:
     salt: 'lka98f52e8akdlsoie400365b55e98s7'
     url: 'http://yourserver.com/bigbluebutton/api'
-    version: '0.8'
