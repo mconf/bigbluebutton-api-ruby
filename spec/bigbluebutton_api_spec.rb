@@ -39,6 +39,9 @@ describe BigBlueButton::BigBlueButtonApi do
       end
 
       context "current supported versions" do
+        before {
+          BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.9")
+        }
         subject { BigBlueButton::BigBlueButtonApi.new(url, salt) }
         it { subject.supported_versions.should == ["0.8", "0.81", "0.9"] }
       end
