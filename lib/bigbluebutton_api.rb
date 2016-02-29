@@ -12,7 +12,7 @@ require 'bigbluebutton_config_layout'
 
 module BigBlueButton
 
-  # This class provides access to the BigBlueButton API. For more details see README.rdoc.
+  # This class provides access to the BigBlueButton API. For more details see README.
   #
   # Sample usage of the API is as follows:
   # 1. Create a meeting with create_meeting;

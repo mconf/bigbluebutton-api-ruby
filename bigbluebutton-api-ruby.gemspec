@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name             = "bigbluebutton-api-ruby"
   s.version          = "1.4.0"
   s.licenses         = ["MIT"]
-  s.extra_rdoc_files = ["README.rdoc", "LICENSE", "LICENSE_003", "CHANGELOG.rdoc"]
+  s.extra_rdoc_files = ["README.md", "LICENSE", "LICENSE_003", "CHANGELOG.md"]
   s.summary          = "BigBlueButton integration for ruby"
   s.description      = "Provides methods to access BigBlueButton in a ruby application through its API"
   s.authors          = ["Mconf", "Leonardo Crauss Daronco"]
