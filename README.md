@@ -15,17 +15,19 @@ A few features it has:
 * Provides methods to perform all API calls and get the responses;
 * Converts the XML responses to ruby hashes, that are easier to work with;
 * Converts the string values returned to native ruby types. For instance:
-  * Dates are converted DateTime objects (e.g. "Thu Sep 01 17:51:42 UTC
-    2011");
-  * Response codes are converted to boolean (e.g. "SUCCESS" becomes
-    `true`);
-
-* Deals with errors (e.g. timeouts) throwing `BigBlueButtonException`
-  exceptions;
+  * Dates are converted DateTime objects (e.g. "Thu Sep 01 17:51:42 UTC 2011");
+  * Response codes are converted to boolean (e.g. "SUCCESS" becomes `true`);
+* Deals with errors (e.g. timeouts) throwing `BigBlueButtonException` exceptions;
 * Support to multiple BigBlueButton API versions (see below).
 
+## Supported versions
 
-## Supported BigBlueButton versions
+This gem is mainly used with [Mconf-Web](https://github.com/mconf/mconf-web) through
+[BigbluebuttonRails](https://github.com/mconf/bigbluebutton_rails).
+You can always use it as a reference for verions of dependencies and examples of how
+to use the gem.
+
+### BigBlueButton
 
 The current version of this gem supports *all* the following versions of
 BigBlueButton:
@@ -33,7 +35,6 @@ BigBlueButton:
 * 0.9 (includes all 0.9.x)
 * 0.81
 * 0.8
-
 
 Older versions:
 
@@ -46,26 +47,23 @@ Older versions:
   0.0.10](https://github.com/mconf/bigbluebutton-api-ruby/tree/v0.0.10). It
   supports versions 0.64 and 0.7.
 
-
-## Supported ruby versions
+### Ruby
 
 Tested in rubies:
 
-* ruby-2.2.0 **recommended**
-* ruby-2.1.2
-* ruby-2.0.0 (p353)
+* ruby-2.2 **recommended**
+* ruby-2.1
+* ruby-2.0 (p353)
 * ruby-1.9.3 (p484)
 * ruby-1.9.2 (p290)
 
-
-Use these versions to be sure it will work. Other patches of these rubies
-(e.g. ruby 1.9.3-p194) should work as well.
+Use these versions to be sure it will work. Other patches and patch versions of these
+rubies (e.g. ruby 1.9.3-p194 or 2.1.2) should work as well.
 
 ## Releases
 
 For a list of releases and release notes see
-[CHANGELOG.md](https://github.com/mconf/bigbluebutton-api-ruby/blob/master/C
-HANGELOG.md).
+[CHANGELOG.md](https://github.com/mconf/bigbluebutton-api-ruby/blob/master/CHANGELOG.md).
 
 ## Development
 
@@ -81,16 +79,18 @@ wiki](https://github.com/mconf/wiki/wiki).
 Distributed under The MIT License (MIT). See
 [LICENSE](https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE)
 for the latest license, valid for all versions after 0.0.4 (including it), and
-[LICENSE_003](https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICE
-NSE_003) for version 0.0.3 and all the previous versions.
+[LICENSE_003](https://github.com/mconf/bigbluebutton-api-ruby/blob/master/LICENSE_003)
+for version 0.0.3 and all the previous versions.
 
 ## Contact
 
-**Version 0.0.4+**: This project is developed as part of Mconf
-(http://mconf.org). Contact: Leonardo Crauss Daronco
-(leonardodaronco@gmail.com), Mconf: A scalable opensource multiconference
-system for web and mobile devices @ PRAV Labs - UFRGS. Home page:
-http://www.inf.ufrgs.br/prav/gtmconf
+This project is developed as part of Mconf (http://mconf.org).
 
-**Version 0.0.3 and below**: Joe Kinsella (joe.kinsella@gmail.com), Home page:
-http://www.brownbaglunch.com/bigbluebutton
+Mailing list:
+* mconf-dev@googlegroups.com
+
+Contact:
+* Mconf: A scalable opensource multiconference system for web and mobile devices
+* PRAV Labs - UFRGS - Porto Alegre - Brazil
+* http://www.inf.ufrgs.br/prav/gtmconf
+
