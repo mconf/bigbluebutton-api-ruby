@@ -1,5 +1,7 @@
+sudo: false
 language: ruby
 script: "bundle exec rake spec"
+cache: bundler
 rvm:
   - 2.2.0
   - 2.1.2
