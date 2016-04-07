@@ -45,7 +45,7 @@ describe BigBlueButton::BigBlueButtonApi do
       end
 
       it "when the version is higher than thew highest supported, use the highest supported" do
-        BigBlueButton::BigBlueButtonApi.new(url, salt, "5.0", nil).version.should eql('0.9')
+        BigBlueButton::BigBlueButtonApi.new(url, salt, "5.0", nil).version.should eql('1.0')
       end
 
       it "compares versions in the format 'x.xx' properly" do
@@ -61,7 +61,7 @@ describe BigBlueButton::BigBlueButtonApi do
           BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.9")
         }
         subject { BigBlueButton::BigBlueButtonApi.new(url, salt) }
-        it { subject.supported_versions.should == ["0.8", "0.81", "0.9"] }
+        it { subject.supported_versions.should == ["0.8", "0.81", "0.9", "1.0"] }
       end
     end
 

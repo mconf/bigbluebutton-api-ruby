@@ -32,6 +32,7 @@ to use the gem.
 The current version of this gem supports *all* the following versions of
 BigBlueButton:
 
+* 1.0
 * 0.9 (includes all 0.9.x)
 * 0.81
 * 0.8
@@ -93,4 +94,3 @@ Contact:
 * Mconf: A scalable opensource multiconference system for web and mobile devices
 * PRAV Labs - UFRGS - Porto Alegre - Brazil
 * http://www.inf.ufrgs.br/prav/gtmconf
-
