@@ -2,8 +2,9 @@
 
 You can find the list of issues [here](http://dev.mconf.org/redmine/projects/bigbluebutton-api-ruby).
 
-## [Unreleased]
+## [1.5.0] - 2016-04-07
 
+* Add 1.0 as a supported version of BigBlueButton.
 * [#1686] Automatically set the version number of a server by fetching it from
 its API.
 * [#1686] Fix comparison of config.xml strings that would sometimes thing XMLs
@@ -133,7 +134,7 @@ were different in cases when they were not.
     (instead of browser URL). This call currently does not work as
     documented.
 
-[Unreleased]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.4.0...master
+[1.5.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.1.1...v1.2.0
