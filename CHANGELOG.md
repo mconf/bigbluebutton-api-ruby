@@ -1,6 +1,13 @@
 # Change Log
 
-You can find the list of issues [here](http://dev.mconf.org/redmine/projects/bigbluebutton-api-ruby).
+
+------------------------------------
+
+All tickets below use references to IDs in our old issue tracking system.
+To find them, search for their description or ID in the new issue tracker.
+
+------------------------------------
+
 
 ## [1.5.0] - 2016-04-07
 
