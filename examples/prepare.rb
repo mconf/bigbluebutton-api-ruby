@@ -34,5 +34,5 @@ def prepare
   puts server.inspect
   puts
 
-  @api = BigBlueButton::BigBlueButtonApi.new(server['url'], server['salt'], server['version'].to_s, true)
+  @api = BigBlueButton::BigBlueButtonApi.new(server['url'], server['secret'], server['version'].to_s, true)
 end

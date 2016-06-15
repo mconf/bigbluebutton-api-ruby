@@ -2,7 +2,7 @@
 
 When /^the default BigBlueButton server$/ do
   @api = BigBlueButton::BigBlueButtonApi.new(@config_server['url'],
-                                             @config_server['salt'],
+                                             @config_server['secret'],
                                              @config_server['version'].to_s,
                                              @config['debug'])
   @api.timeout = @config['timeout_req']
@@ -48,8 +48,7 @@ When /^the meeting is running$/ do
 end
 
 When /^the meeting is running with (\d+) attendees$/ do |count|
-  mobile_salt = @config_server.has_key?('mobile_salt') ? @config_server['mobile_salt'] : ""
-  BigBlueButtonBot.new(@api, @req.id, mobile_salt, count.to_i, @config['timeout_bot_start'])
+  BigBlueButtonBot.new(@api, @req.id, nil, count.to_i, @config['timeout_bot_start'])
 end
 
 When /^the response is an error with the key "(.*)"$/ do |key|

@@ -44,8 +44,8 @@ module BigBlueButton
     # URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     attr_accessor :url
 
-    # Secret salt for this server
-    attr_accessor :salt
+    # Shared secret for this server
+    attr_accessor :secret
 
     # API version e.g. 0.81
     attr_accessor :version
@@ -65,12 +65,12 @@ module BigBlueButton
 
     # Initializes an instance
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
-    # salt::      Secret salt for this server
+    # secret::    Shared secret for this server
     # version::   API version e.g. 0.81
-    def initialize(url, salt, version=nil, debug=false)
+    def initialize(url, secret, version=nil, debug=false)
       @supported_versions = ['0.8', '0.81', '0.9', '1.0']
       @url = url
-      @salt = salt
+      @secret = secret
       @debug = debug
       @timeout = 10         # default timeout for api requests
       @request_headers = {} # http headers sent in all requests
@@ -602,7 +602,7 @@ module BigBlueButton
     # API's are equal if all the following attributes are equal.
     def ==(other)
       r = true
-      [:url, :supported_versions, :salt, :version, :debug].each do |param|
+      [:url, :supported_versions, :secret, :version, :debug].each do |param|
         r = r && self.send(param) == other.send(param)
       end
       r
@@ -638,7 +638,7 @@ module BigBlueButton
       params_string = params.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
 
       # checksum calc
-      checksum_param = params_string + @salt
+      checksum_param = params_string + @secret
       checksum_param = method.to_s + checksum_param
       checksum = Digest::SHA1.hexdigest(checksum_param)
 

@@ -8,15 +8,15 @@ describe BigBlueButton::BigBlueButtonApi do
 
     # default variables and API object for all tests
     let(:url) { "http://server.com" }
-    let(:salt) { "1234567890abcdefghijkl" }
+    let(:secret) { "1234567890abcdefghijkl" }
     let(:debug) { false }
-    let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
+    let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
 
     describe "#initialize" do
       context "standard initialization" do
-        subject { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
+        subject { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
         it { subject.url.should == url }
-        it { subject.salt.should == salt }
+        it { subject.secret.should == secret }
         it { subject.version.should == version }
         it { subject.debug.should == debug }
         it { subject.timeout.should == 10 }
@@ -28,31 +28,31 @@ describe BigBlueButton::BigBlueButtonApi do
 
       context "when the version is not informed, get it from the BBB server" do
         before { BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.8") }
-        subject { BigBlueButton::BigBlueButtonApi.new(url, salt, nil) }
+        subject { BigBlueButton::BigBlueButtonApi.new(url, secret, nil) }
         it { subject.version.should == "0.8" }
       end
 
       context "when the version informed is empty, get it from the BBB server" do
         before { BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.8") }
-        subject { BigBlueButton::BigBlueButtonApi.new(url, salt, "  ") }
+        subject { BigBlueButton::BigBlueButtonApi.new(url, secret, "  ") }
         it { subject.version.should == "0.8" }
       end
 
       it "when the version is lower than the lowest supported, raise exception" do
         expect {
-          BigBlueButton::BigBlueButtonApi.new(url, salt, "0.1", nil)
+          BigBlueButton::BigBlueButtonApi.new(url, secret, "0.1", nil)
         }.to raise_error(BigBlueButton::BigBlueButtonException)
       end
 
       it "when the version is higher than thew highest supported, use the highest supported" do
-        BigBlueButton::BigBlueButtonApi.new(url, salt, "5.0", nil).version.should eql('1.0')
+        BigBlueButton::BigBlueButtonApi.new(url, secret, "5.0", nil).version.should eql('1.0')
       end
 
       it "compares versions in the format 'x.xx' properly" do
         expect {
           # if not comparing properly, 0.61 would be bigger than 0.9, for example
           # comparing the way BBB does, it is lower, so will raise an exception
-          BigBlueButton::BigBlueButtonApi.new(url, salt, "0.61", nil)
+          BigBlueButton::BigBlueButtonApi.new(url, secret, "0.61", nil)
         }.to raise_error(BigBlueButton::BigBlueButtonException)
       end
 
@@ -60,7 +60,7 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           BigBlueButton::BigBlueButtonApi.any_instance.should_receive(:get_api_version).and_return("0.9")
         }
-        subject { BigBlueButton::BigBlueButtonApi.new(url, salt) }
+        subject { BigBlueButton::BigBlueButtonApi.new(url, secret) }
         it { subject.supported_versions.should == ["0.8", "0.81", "0.9", "1.0"] }
       end
     end
@@ -341,7 +341,7 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     describe "#==" do
-      let(:api2) { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
+      let(:api2) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
 
       context "compares attributes" do
         it { api.should == api2 }
@@ -352,8 +352,8 @@ describe BigBlueButton::BigBlueButtonApi do
         it { api.should_not == api2 }
       end
 
-      context "differs #salt" do
-        before { api2.salt = api.salt + "x" }
+      context "differs #secret" do
+        before { api2.secret = api.secret + "x" }
         it { api.should_not == api2 }
       end
 

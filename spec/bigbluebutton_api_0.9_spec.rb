@@ -5,10 +5,10 @@ describe BigBlueButton::BigBlueButtonApi do
 
   # default variables and API object for all tests
   let(:url) { "http://server.com" }
-  let(:salt) { "1234567890abcdefghijkl" }
+  let(:secret) { "1234567890abcdefghijkl" }
   let(:version) { "0.9" }
   let(:debug) { false }
-  let(:api) { BigBlueButton::BigBlueButtonApi.new(url, salt, version, debug) }
+  let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
 
   describe "#create_meeting" do
     context "accepts the new parameters" do
