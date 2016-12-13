@@ -5,7 +5,8 @@ require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
 desc 'Default: run tests.'
-task :default => [:spec, :cucumber]
+# task :default => [:spec, :cucumber]
+task :default => :spec
 
 RSpec::Core::RakeTask.new(:spec)
 
