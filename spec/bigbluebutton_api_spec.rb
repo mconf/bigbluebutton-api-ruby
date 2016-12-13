@@ -340,6 +340,15 @@ describe BigBlueButton::BigBlueButtonApi do
       end
     end
 
+    describe "#check_url" do
+      context "when method = :check" do
+        it {
+          api.url = 'http://my-test-server.com/bigbluebutton/api'
+          api.check_url.should == 'http://my-test-server.com/check'
+        }
+      end
+    end
+
     describe "#==" do
       let(:api2) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
 
@@ -401,6 +410,13 @@ describe BigBlueButton::BigBlueButtonApi do
 
       context "when method = :index" do
         it { api.get_url(:index).should == api.url }
+      end
+
+      context "when method = :check" do
+        it {
+          api.url = 'http://my-test-server.com/bigbluebutton/api'
+          api.get_url(:check).should == 'http://my-test-server.com/check'
+        }
       end
 
       context "when method != :index" do
@@ -755,4 +771,5 @@ describe BigBlueButton::BigBlueButtonApi do
   it_should_behave_like "BigBlueButtonApi", "0.8"
   it_should_behave_like "BigBlueButtonApi", "0.81"
   it_should_behave_like "BigBlueButtonApi", "0.9"
+  it_should_behave_like "BigBlueButtonApi", "1.0"
 end

@@ -599,6 +599,10 @@ module BigBlueButton
       response[:returncode]
     end
 
+    def check_url
+      get_url(:check)
+    end
+
     # API's are equal if all the following attributes are equal.
     def ==(other)
       r = true
@@ -624,6 +628,9 @@ module BigBlueButton
     def get_url(method, params={})
       if method == :index
         return @url
+      elsif method == :check
+        baseurl = URI.join(@url, "/").to_s
+        return "#{baseurl}check"
       end
 
       url = "#{@url}/#{method}?"
