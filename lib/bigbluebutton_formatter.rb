@@ -1,3 +1,5 @@
+require 'date'
+
 module BigBlueButton
 
   # Helper class to format the response hash received when the BigBlueButtonApi makes API calls
