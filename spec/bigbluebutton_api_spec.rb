@@ -226,7 +226,7 @@ describe BigBlueButton::BigBlueButtonApi do
             :userID => "id123", :webVoiceConf => 12345678, :createTime => 9876543 }
         }
 
-        before { api.should_receive(:get_url).with(:join, params).and_return("test-url") }
+        before { api.should_receive(:get_url).with(:join, params).and_return(["test-url", nil]) }
         it {
           options = { :userID => "id123", :webVoiceConf => 12345678, :createTime => 9876543 }
           api.join_meeting_url("meeting-id", "Name", "pw", options).should == "test-url"
@@ -409,13 +409,13 @@ describe BigBlueButton::BigBlueButtonApi do
     describe "#get_url" do
 
       context "when method = :index" do
-        it { api.get_url(:index).should == api.url }
+        it { api.get_url(:index).should == [api.url, nil] }
       end
 
       context "when method = :check" do
         it {
           api.url = 'http://my-test-server.com/bigbluebutton/api'
-          api.get_url(:check).should == 'http://my-test-server.com/check'
+          api.get_url(:check).should == ['http://my-test-server.com/check', nil]
         }
       end
 
@@ -423,7 +423,7 @@ describe BigBlueButton::BigBlueButtonApi do
         context "validates the entire url" do
           context "with params" do
             let(:params) { { :param1 => "value1", :param2 => "value2" } }
-            subject { api.get_url(:join, params) }
+            subject { api.get_url(:join, params)[0] }
             it {
               # the hash can be sorted differently depending on the ruby version
               if params.map{ |k,v| "#{k}" }.join =~ /^param1/
@@ -435,35 +435,54 @@ describe BigBlueButton::BigBlueButtonApi do
           end
 
           context "without params" do
-            subject { api.get_url(:join) }
+            subject { api.get_url(:join)[0] }
             it { subject.should match(/#{url}\/join\?[^&]/) }
           end
         end
 
+        context "when method = :setConfigXML" do
+          it {
+            api.url = 'http://my-test-server.com/bigbluebutton/api'
+            response = api.get_url(:setConfigXML, { param1: 1, param2: 2 })
+            response[0].should eql('http://my-test-server.com/bigbluebutton/api/setConfigXML')
+            response[1].should match(/checksum=.*&param1=1&param2=2/)
+          }
+        end
+
         context "discards params with nil value" do
           let(:params) { { :param1 => "value1", :param2 => nil } }
-          subject { api.get_url(:join, params) }
+          subject { api.get_url(:join, params)[0] }
           it { subject.should_not match(/param2=/) }
         end
 
         context "escapes all params" do
           let(:params) { { :param1 => "value with spaces", :param2 => "@$" } }
-          subject { api.get_url(:join, params) }
+          subject { api.get_url(:join, params)[0] }
           it { subject.should match(/param1=value\+with\+spaces/) }
           it { subject.should match(/param2=%40%24/) }
+        end
+
+        [ [' ', '+'],
+          ['*', '*']
+        ].each do |values|
+          context "escapes #{values[0].inspect} as #{values[1].inspect}" do
+            let(:params) { { param1: "before#{values[0]}after" } }
+            subject { api.get_url(:join, params)[0] }
+            it { subject.should match(/param1=before#{Regexp.quote(values[1])}after/) }
+          end
         end
 
         context "includes the checksum" do
           let(:params) { { :param1 => "value1", :param2 => "value2" } }
           let(:checksum) {
             # the hash can be sorted differently depending on the ruby version
-            if params.map{ |k,v| "#{k}" }.join =~ /^param1/
+            if params.map{ |k,v| k }.join =~ /^param1/
               "67882ae54f49600f56f358c10d24697ef7d8c6b2"
             else
               "85a54e28e4ec18bfdcb214a73f74d35b09a84176"
             end
           }
-          subject { api.get_url(:join, params) }
+          subject { api.get_url(:join, params)[0] }
           it { subject.should match(/checksum=#{checksum}$/) }
         end
       end
@@ -477,7 +496,7 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:make_request) { api.send_api_request(method, params, data) }
       let(:response_mock) { mock() } # mock of what send_request() would return
 
-      before { api.should_receive(:get_url).with(method, params).and_return(url) }
+      before { api.should_receive(:get_url).with(method, params).and_return([url, nil]) }
 
       context "returns an empty hash if the response body is empty" do
         before do
@@ -567,7 +586,7 @@ describe BigBlueButton::BigBlueButtonApi do
         let(:data) { "any data" }
         before {
           path = "/res?param1=value1&checksum=12345"
-          opts = { 'Content-Type' => 'text/xml' }
+          opts = { 'Content-Type' => 'application/x-www-form-urlencoded' }
           @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
         }
         it {
@@ -589,7 +608,7 @@ describe BigBlueButton::BigBlueButtonApi do
         let(:data) { "any data" }
         before {
           path = "/res?param1=value1&checksum=12345"
-          opts = { 'Content-Type' => 'text/xml', :anything => "anything" }
+          opts = { 'Content-Type' => 'application/x-www-form-urlencoded', :anything => "anything" }
           @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
         }
         it {

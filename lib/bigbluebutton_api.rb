@@ -226,7 +226,8 @@ module BigBlueButton
     #                         in this hash and they will be added to the API call.
     def join_meeting_url(meeting_id, user_name, password, options={})
       params = { :meetingID => meeting_id, :password => password, :fullName => user_name }.merge(options)
-      get_url(:join, params)
+      url, data = get_url(:join, params)
+      url
     end
 
     # Returns a hash object containing the information of a meeting.
@@ -600,7 +601,8 @@ module BigBlueButton
     end
 
     def check_url
-      get_url(:check)
+      url, data = get_url(:check)
+      url
     end
 
     # API's are equal if all the following attributes are equal.
@@ -627,13 +629,11 @@ module BigBlueButton
     # params (Hash)::    The parameters to be passed in the URL
     def get_url(method, params={})
       if method == :index
-        return @url
+        return @url, nil
       elsif method == :check
         baseurl = URI.join(@url, "/").to_s
-        return "#{baseurl}check"
+        return "#{baseurl}check", nil
       end
-
-      url = "#{@url}/#{method}?"
 
       # stringify and escape all params
       params.delete_if { |k, v| v.nil? } unless params.nil?
@@ -642,16 +642,22 @@ module BigBlueButton
       params = params.inject({}){ |memo,(k,v)| memo[k.to_sym] = v; memo }
       params = Hash[params.sort]
       params_string = ""
-      params_string = params.map{ |k,v| "#{k}=" + CGI::escape(v.to_s) unless k.nil? || v.nil? }.join("&")
+      params_string = params.map{ |k,v| "#{k}=" + URI.encode_www_form_component(v.to_s) unless k.nil? || v.nil? }.join("&")
 
       # checksum calc
       checksum_param = params_string + @secret
       checksum_param = method.to_s + checksum_param
       checksum = Digest::SHA1.hexdigest(checksum_param)
 
-      # final url
-      url += "#{params_string}&" unless params_string.empty?
-      url += "checksum=#{checksum}"
+      if method == :setConfigXML
+        params_string = "checksum=#{checksum}&#{params_string}"
+        return "#{@url}/#{method}", params_string
+      else
+        url = "#{@url}/#{method}?"
+        url += "#{params_string}&" unless params_string.empty?
+        url += "checksum=#{checksum}"
+        return url, nil
+      end
     end
 
     # Performs an API call.
@@ -668,7 +674,9 @@ module BigBlueButton
     # raw (boolean)::    If true, returns the data as it was received. Will not parse it into a Hash,
     #                    check for errors or throw exceptions.
     def send_api_request(method, params={}, data=nil, raw=false)
-      url = get_url(method, params)
+      # if the method returns a body, use it as the data in the post request
+      url, body = get_url(method, params)
+      data = body if body
 
       @http_response = send_request(url, data)
       return {} if @http_response.body.empty?
@@ -718,7 +726,7 @@ module BigBlueButton
           response = http.get(url_parsed.request_uri, @request_headers)
         else
           puts "BigBlueButtonAPI: Sending as a POST request with data.size = #{data.size}" if @debug
-          opts = { 'Content-Type' => 'text/xml' }.merge @request_headers
+          opts = { 'Content-Type' => 'application/x-www-form-urlencoded' }.merge @request_headers
           response = http.post(url_parsed.request_uri, data, opts)
         end
         puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
