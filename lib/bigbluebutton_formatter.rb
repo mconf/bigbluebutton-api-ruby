@@ -22,7 +22,7 @@ module BigBlueButton
       unless @hash.has_key?(key)
         0
       else
-        @hash[key] = @hash[key].to_i
+        @hash[key] = @hash[key].to_i rescue 0
       end
     end
 
