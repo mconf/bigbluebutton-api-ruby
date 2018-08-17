@@ -469,6 +469,30 @@ module BigBlueButton
       response
     end
 
+    # Available since BBB v1.1
+    # Update metadata (or other attributes depending on the API implementation) for a given recordID (or set of record IDs).
+    # recordIDs (string, Array)::  ID or IDs of the target recordings.
+    #                              Any of the following values are accepted:
+    #                                "id1"
+    #                                "id1,id2,id3"
+    #                                ["id1"]
+    #                                ["id1", "id2", "id3"]
+    # meta (String)::         Pass one or more metadata values to be update (format is the same as in create call)
+    # options (Hash)::        Hash with additional parameters. This method doesn't accept additional
+    #                         parameters, but if you have a custom API with more parameters, you
+    #                         can simply pass them in this hash and they will be added to the API call.
+    #
+    # === Example responses
+    #
+    #   { :returncode => success, :updated => true }      
+    #
+    def update_recordings(recordIDs, meta=nil, options={})
+       recordIDs = recordIDs.join(",") if recordIDs.instance_of?(Array) # ["id1", "id2"] becomes "id1,id2"
+       params = { :recordID => recordIDs, :meta => meta }.merge(options)
+       send_api_request(:updateRecordings, params)
+    end
+
+
     # Publish and unpublish recordings for a given recordID (or set of record IDs).
     # recordIDs (string, Array)::  ID or IDs of the target recordings.
     #                              Any of the following values are accepted:
