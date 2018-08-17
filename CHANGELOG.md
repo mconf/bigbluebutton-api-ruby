@@ -9,6 +9,18 @@ To find them, search for their description or ID in the new issue tracker.
 ------------------------------------
 
 
+## [1.7.0] - 2018-08-17
+
+* [#29] Add support to the API call `updateRecordings` introduced in BigBlueButton 1.1.
+* [#31] Fixed issue with length=nil breaking multiple recording formats.
+* Call `setConfigXML` via POST and change encoding method. Fixes issues with special
+  characters (such as `*`) in the config.xml.
+* Add method to return the URL to `/check`.
+
+## [1.6.0] - 2016-06-15
+
+* Rename BigBlueButtonApi#salt to #secret
+
 ## [1.5.0] - 2016-04-07
 
 * Add 1.0 as a supported version of BigBlueButton.
@@ -141,6 +153,8 @@ were different in cases when they were not.
     (instead of browser URL). This call currently does not work as
     documented.
 
+[1.7.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.2.0...v1.3.0
