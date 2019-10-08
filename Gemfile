@@ -7,6 +7,7 @@ gem 'childprocess', '1.0.1'
 gem 'nokogiri', '1.10.4'
 gem 'json', '1.8.6'
 gem 'rubyzip', '1.2.2'
+gem 'rack', '1.6.11'
 
 group :developement do
   gem 'rake', '>= 0.9'
