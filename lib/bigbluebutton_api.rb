@@ -461,6 +461,10 @@ module BigBlueButton
         options[:meetingID] = options[:meetingID].join(",") if options[:meetingID].instance_of?(Array)
       end
 
+      if options.has_key?(:state)
+        options[:state] = options[:state].join(",") if options[:state].instance_of?(Array)
+      end
+
       response = send_api_request(:getRecordings, options)
 
       formatter = BigBlueButtonFormatter.new(response)
