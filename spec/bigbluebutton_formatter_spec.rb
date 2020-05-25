@@ -100,14 +100,43 @@ describe BigBlueButton::BigBlueButtonFormatter do
     it { hash[:param7].should == nil }
     it { hash[:param8].should == nil }
 
-    context "returns nil if the param doesn't exists" do
-      subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
-      it { subject.to_datetime(:inexistent).should == nil }
-    end
+    context "returns nil if" do
+      context "the param doesn't exists" do
+        subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
+        it { subject.to_datetime(:inexistent).should == nil }
+      end
 
-    context "returns nil if the hash is nil" do
-      subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
-      it { subject.to_datetime(:inexistent).should == nil }
+      context "the hash is nil" do
+        subject { BigBlueButton::BigBlueButtonFormatter.new(nil) }
+        it { subject.to_datetime(:inexistent).should == nil }
+      end
+
+      context "the value is an empty string" do
+        subject { BigBlueButton::BigBlueButtonFormatter.new({ param1: '' }) }
+        it { subject.to_datetime(:param1).should == nil }
+      end
+
+      context "the value is nil" do
+        subject { BigBlueButton::BigBlueButtonFormatter.new({ param1: nil }) }
+        it { subject.to_datetime(:param1).should == nil }
+      end
+
+      context "the value is an empty hash" do
+        subject { BigBlueButton::BigBlueButtonFormatter.new({ param1: {} }) }
+        it { subject.to_datetime(:param1).should == nil }
+      end
+
+      context "the value is an empty array" do
+        subject { BigBlueButton::BigBlueButtonFormatter.new({ param1: [] }) }
+        it { subject.to_datetime(:param1).should == nil }
+      end
+
+      ['null', 'NULL'].each do |v|
+        context "the value is '#{v}'" do
+          subject { BigBlueButton::BigBlueButtonFormatter.new({ param1: v }) }
+          it { subject.to_datetime(:param1).should == nil }
+        end
+      end
     end
   end
 
