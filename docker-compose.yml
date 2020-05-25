@@ -1,0 +1,10 @@
+version: '2'
+services:
+
+  test:
+    build: .
+    tty: true
+    volumes:
+      - $PWD:/usr/src/app
+      - .volumes/bundle/:/usr/local/bundle
+    command: bundle exec rake
