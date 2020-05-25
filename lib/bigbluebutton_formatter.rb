@@ -49,7 +49,9 @@ module BigBlueButton
         if value.is_a?(Numeric)
           result = value == 0 ? nil : DateTime.parse(Time.at(value/1000.0).to_s)
         else
-          if value.downcase == "null"
+          if (value.is_a?(Hash) || value.is_a?(Array)) && value.empty?
+            result = nil
+          elsif value.is_a?(String) && (value.empty? || value.downcase == 'null')
             result = nil
           else
             # note: just in case the value comes as a string in the format: "Thu Sep 01 17:51:42 UTC 2011"
