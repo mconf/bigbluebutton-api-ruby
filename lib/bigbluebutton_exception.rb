@@ -1,6 +1,6 @@
 module BigBlueButton
 
-  class BigBlueButtonException < Exception
+  class BigBlueButtonException < StandardError
     attr_accessor :key
 
     def to_s
