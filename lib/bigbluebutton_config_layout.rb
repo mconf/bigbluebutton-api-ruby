@@ -29,7 +29,9 @@ module BigBlueButton
       begin
         @xml = XmlSimple.xml_in(xml, opts)
       rescue Exception => e
-        raise BigBlueButton::BigBlueButtonException.new("Error parsing the layouts XML. Error: #{e.message}")
+        exception = BigBlueButton::BigBlueButtonException.new("Error parsing the layouts XML. Error: #{e.message}")
+        exception.key = 'XMLParsingError'
+        raise exception
       end
     end
 

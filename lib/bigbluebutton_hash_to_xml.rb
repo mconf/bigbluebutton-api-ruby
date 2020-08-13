@@ -10,7 +10,9 @@ module BigBlueButton
           hash = XmlSimple.xml_in(xml_io, opts)
           return symbolize_keys(hash)
         rescue Exception => e
-          raise BigBlueButtonException.new("Impossible to convert XML to hash. Error: #{e.message}")
+          exception = BigBlueButtonException.new("Impossible to convert XML to hash. Error: #{e.message}")
+          exception.key = 'XMLConversionError'  
+          raise exception
         end
       end
 
