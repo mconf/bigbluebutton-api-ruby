@@ -760,10 +760,14 @@ module BigBlueButton
         puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
 
       rescue TimeoutError => error
-        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\". Error: #{error}")
+        exception = BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\". Error: #{error}")
+        exception.key = 'TimeoutError'
+        raise exception
 
       rescue Exception => error
-        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\". Error: #{error}")
+        exception = BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\". Error: #{error}")
+        exception.key = 'IncorrectUrlError'
+        raise exception
       end
 
       response
@@ -779,7 +783,9 @@ module BigBlueButton
 
       # we don't allow older versions than the one supported, use an old version of the gem for that
       if Gem::Version.new(version) < Gem::Version.new(@supported_versions[0])
-        raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+        exception = BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+        exception.key = 'APIVersionError'
+        raise exception
 
       # allow newer versions by using the newest one we support
       elsif Gem::Version.new(version) > Gem::Version.new(@supported_versions.last)
