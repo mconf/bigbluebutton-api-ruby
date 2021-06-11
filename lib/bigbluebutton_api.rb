@@ -759,7 +759,7 @@ module BigBlueButton
         end
         puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
 
-      rescue TimeoutError => error
+      rescue Timeout::Error => error
         exception = BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\". Error: #{error}")
         exception.key = 'TimeoutError'
         raise exception
