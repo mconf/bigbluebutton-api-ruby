@@ -4,7 +4,7 @@ gemspec
 
 group :developement do
   gem 'rake', '>= 0.9'
-  gem 'rdoc', '3.12.1'
+  gem 'rdoc', '6.3.1'
 end
 
 group :development, :test do
