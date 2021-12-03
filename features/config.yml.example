@@ -1,4 +1,4 @@
-debug: false
+logger: nil
 
 # maximum wait for a response to any API request (secs)
 timeout_req: 60

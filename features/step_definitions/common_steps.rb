@@ -4,7 +4,7 @@ When /^the default BigBlueButton server$/ do
   @api = BigBlueButton::BigBlueButtonApi.new(@config_server['url'],
                                              @config_server['secret'],
                                              @config_server['version'].to_s,
-                                             @config['debug'])
+                                             @config['logger'])
   @api.timeout = @config['timeout_req']
 end
 
