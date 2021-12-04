@@ -33,7 +33,9 @@ module BigBlueButton
           @xml = XmlSimple.xml_in(xml, opts)
           @original_string = self.as_string.clone
         rescue Exception => e
-          raise BigBlueButton::BigBlueButtonException.new("Error parsing the config XML. Error: #{e.message}")
+          exception = BigBlueButton::BigBlueButtonException.new("Error parsing the config XML. Error: #{e.message}")
+          exception.key = 'XMLParsingError'
+          raise exception
         end
       end
     end
