@@ -1,13 +1,26 @@
 # Change Log
 
-
-------------------------------------
-
-All tickets below use references to IDs in our old issue tracking system.
-To find them, search for their description or ID in the new issue tracker.
-
-------------------------------------
-
+## [1.8.0] - 2021-12-06
+* [#43] Add keys to every `BigBlueButtonException`, to better identify them.
+* [#42] Change `BigBlueButtonException` to inherit from `StandardError` instead of `Exception`.
+* [#50] [BREAKING-CHANGE] Replace `debug` flag with a optional Logger. The application using the
+  gem can pass its own logger as argument for the `BigBlueButtonApi` initialization.
+  If none is passed, the gem will use its own default logger on `STDOUT` with `INFO` level.
+* [#40] Fix issue preventing documents from being preuploaded using the create call.
+* Fix parse of recordings with invalid times. It would break at `getRecordings` if one
+  of them had an empty `startTime` or `endTime`.
+* Add a Dockerfile and compose to help run tests.
+* Fix deprecated `TimeoutError` constant.
+* [#35] Make `get_recordings` accept multiple `state` params.
+* [#34] Update `rubyzip` gem to the newest version with no vulnerability, from 1.2.2 to 1.3.0
+* [#33] Upgrade dependencies:
+  - `childprocess` from 0.3.2 to 1.0.1
+  - `ffi` from 1.0.11 to 1.9.24
+  - `json` from 1.8.3 to 1.8.6
+  - `nokogiri` from 1.6.6.2 to 1.10.4
+  - `rack` from 1.4.1 to 1.6.11
+  - `rdoc` from 3.12 to 3.12.1
+  - `rubyzip` from 0.9.8 to 1.2.2
 
 ## [1.7.0] - 2018-08-17
 
@@ -153,6 +166,19 @@ were different in cases when they were not.
     (instead of browser URL). This call currently does not work as
     documented.
 
+<!-- PRs -->
+[#50]: https://github.com/mconf/bigbluebutton-api-ruby/pull/50
+[#43]: https://github.com/mconf/bigbluebutton-api-ruby/pull/43
+[#42]: https://github.com/mconf/bigbluebutton-api-ruby/pull/42
+[#40]: https://github.com/mconf/bigbluebutton-api-ruby/pull/40
+[#35]: https://github.com/mconf/bigbluebutton-api-ruby/pull/35
+[#34]: https://github.com/mconf/bigbluebutton-api-ruby/pull/34
+[#33]: https://github.com/mconf/bigbluebutton-api-ruby/pull/33
+[#31]: https://github.com/mconf/bigbluebutton-api-ruby/pull/31
+[#29]: https://github.com/mconf/bigbluebutton-api-ruby/pull/29
+
+<!-- Versions -->
+[1.8.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.4.0...v1.5.0
