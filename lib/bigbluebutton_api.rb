@@ -384,6 +384,172 @@ module BigBlueButton
       response
     end
 
+    # Returns a hash object with information about all the meetings currently created in the
+    # server, either they are running or not.
+    #
+    # options (Hash)::       Hash with additional parameters. This method doesn't accept additional
+    #                        parameters, but if you have a custom API with more parameters, you
+    #                        can simply pass them in this hash and they will be added to the API call.
+    #
+    # === Example responses for 0.81
+    #
+    # Server with one or more meetings:
+    #
+    #   {
+    #     :returncode => true,
+    #     :meetings => [
+    #       { :meetingID => "e66e88a3",
+    #         :meetingName => "e66e88a3",
+    #         :createTime => 1389466124414,
+    #         :voiceBridge => 78730,
+    #         :dialNumber=>"1-800-000-0000x00000#",
+    #         :attendeePW => "12345",
+    #         :moderatorPW => "54321",
+    #         :hasBeenForciblyEnded => false,
+    #         :running => false,
+    #         :participantCount => 0,
+    #         :listenerCount => 0,
+    #         :videoCount => 0 }
+    #       { :meetingID => "8f21cc63",
+    #         :meetingName => "8f21cc63",
+    #         :createTime => 1389466073245,
+    #         :voiceBridge => 78992,
+    #         :dialNumber => "1-800-000-0000x00000#",
+    #         :attendeePW => "12345",
+    #         :moderatorPW => "54321",
+    #         :hasBeenForciblyEnded => false,
+    #         :running => true,
+    #         :participantCount => 2,
+    #         :listenerCount => 0,
+    #         :videoCount => 0 }
+    #     ],
+    #     :messageKey => "",
+    #     :message => ""
+    #   }
+    # 
+    # Or server with recordings from meetings:
+    #
+    #   {
+    #     :returncode => true,
+    #     :meetings => [
+    #       { :meeting => {
+    #           :meetingID => "e66e88a3",
+    #           :meetingName => "e66e88a3",
+    #           :createTime => 1389466124414,
+    #           :voiceBridge => 78730,
+    #           :dialNumber=>"1-800-000-0000x00000#",
+    #           :attendeePW => "12345",
+    #           :moderatorPW => "54321",
+    #           :hasBeenForciblyEnded => false,
+    #           :running => false,
+    #           :participantCount => 0,
+    #           :listenerCount => 0,
+    #           :videoCount => 0 
+    #         }
+    #         :recording => {
+    #           :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
+    #           :meetingID => "e66e88a3",
+    #           :name => "e66e88a3",
+    #           :published => true,
+    #           :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
+    #           :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #           :metadata => { :course => "Fundamentals of JAVA",
+    #                          :description => "List of recordings",
+    #                          :activity => "e66e88a3" },
+    #           :playback => {
+    #             :format => [
+    #               { :type => "slides",
+    #                 :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=125468758b24fa27551e7a065849dda3ce65dd32-1329872486268",
+    #                 :length => 64
+    #               },
+    #               { :type => "presentation",
+    #                 :url => "http://test-install.blindsidenetworks.com/presentation/slides/playback.html?meetingId=125468758b24fa27551e7a065849dda3ce65dd32-1329872486268",
+    #                 :length => 64
+    #               }
+    #             ]
+    #           } 
+    #         } 
+    #       }
+    #       { :meeting => {
+    #          :meetingID => "8f21cc63",
+    #          :meetingName => "8f21cc63",
+    #          :createTime => 1389466073245,
+    #          :voiceBridge => 78992,
+    #          :dialNumber => "1-800-000-0000x00000#",
+    #          :attendeePW => "12345",
+    #          :moderatorPW => "54321",
+    #          :hasBeenForciblyEnded => false,
+    #          :running => true,
+    #          :participantCount => 2,
+    #          :listenerCount => 0,
+    #          :videoCount => 0 
+    #         }
+    #         :recording => {
+    #           :recordID => "1254kakap98sd09jk2lk2-1329872486234",
+    #           :meetingID => "8f21cc63",
+    #           :name => "8f21cc63",
+    #           :published => false,
+    #           :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
+    #           :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #           :metadata => {},
+    #           :playback => {
+    #             :format => { # notice that this is now a hash, not an array
+    #               :type => "slides",
+    #               :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=1254kakap98sd09jk2lk2-1329872486234",
+    #               :length => 64
+    #             }
+    #           }
+    #         }
+    #       }
+    #     ],
+    #     :messageKey => "",
+    #     :message => ""
+    #   }
+    #
+    # Server with no meetings:
+    #
+    #   {
+    #     :returncode => true,
+    #     :meetings => [],
+    #     :messageKey => "noMeetings",
+    #     :message => "no meetings were found on this server"
+    #   }
+    #
+    def get_all_meetings(options={})
+      if options.empty?
+        response = send_api_request(:getAllMeetings, options)
+        
+        formatter = BigBlueButtonFormatter.new(response)
+        formatter.flatten_objects(:meetings, :meeting)
+        response[:meetings].each { |m| BigBlueButtonFormatter.format_meeting(m) }
+      else
+        if options.has_key?(:meetingID)
+          options[:meetingID] = options[:meetingID].join(",") if options[:meetingID].instance_of?(Array)
+        end
+    
+        if options.has_key?(:state)
+          options[:state] = options[:state].join(",") if options[:state].instance_of?(Array)
+        end
+  
+        response = send_api_request(:getAllMeetings, options)
+        
+        if options.has_key?(:includeRecordings) && options[:includeRecordings]
+          formatter = BigBlueButtonFormatter.new(response)
+          formatter.flatten_objects(:meetings, :meetingData)
+          response[:meetings].each do |md|
+            BigBlueButtonFormatter.format_meeting(md[:meeting])
+            BigBlueButtonFormatter.format_recording(md[:recording])
+          end
+        else
+          formatter = BigBlueButtonFormatter.new(response)
+          formatter.flatten_objects(:meetings, :meeting)
+          response[:meetings].each { |m| BigBlueButtonFormatter.format_meeting(m) }
+        end
+      end
+
+      response
+    end
+
     # Returns the API version of the server as a string. Will return the version in the response
     # given by the BigBlueButton server, and not the version set by the user in the initialization
     # of this object!
@@ -437,7 +603,6 @@ module BigBlueButton
     #         }
     #       },
     #       { :recordID => "1254kakap98sd09jk2lk2-1329872486234",
-    #         :recordID => "7f5745a08b24fa27551e7a065849dda3ce65dd32-1321618219268",
     #         :meetingID => "bklajsdoiajs9d8jo23id90",
     #         :name => "Evening Class2",
     #         :published => false,

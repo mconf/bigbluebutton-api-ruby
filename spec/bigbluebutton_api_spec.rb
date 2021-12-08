@@ -319,6 +319,131 @@ describe BigBlueButton::BigBlueButtonApi do
       end
     end
 
+    describe "#get_all_meetings" do
+      let(:meeting_hash1) { 
+        { :meetingID => "Demo Meeting5564", :attendeePW => "ap", :moderatorPW => "mp", 
+          :hasBeenForciblyEnded => "false", :running => "true", :recording=>"true"  } 
+      }
+      let(:meeting_hash2) { 
+        { :meetingID => "Demo Meeting5565", :attendeePW => "pass", :moderatorPW => "pass", 
+          :hasBeenForciblyEnded => "true", :running => "false", :recording=>"false" } 
+      }
+      let(:meeting_hash3) { 
+        { :meetingID => "Ended Meeting", :attendeePW => "apt", :moderatorPW => "passt", 
+          :hasBeenForciblyEnded => "true", :running => "false", :recording=>"true"  } 
+      }
+        
+      context "standard case" do
+        let(:flattened_meet_res) {
+          { :returncode => true, :meetings => [ meeting_hash1, meeting_hash2, meeting_hash3 ], :messageKey => "mkey", :message => "m" }
+        } # hash *after* the flatten_objects call
+
+        before {
+          api.should_receive(:send_api_request).with(:getAllMeetings, {}).
+          and_return(flattened_meet_res)
+          formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+          formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash3)
+        }
+        it { api.get_all_meetings }
+      end
+
+      context "with recordings" do
+        let(:recording1) { { :recordID => "id1", :meetindID => "Demo Meeting5564" } } # simplified "recording" node in the response
+        let(:recording2) { { :recordID => "id2", :meetindID => "Ended Meeting" } }
+        let(:recording_nil) { { :recordID => {}, :meetindID => {} } }
+        let(:response_all) {
+          { :returncode => true, :meetings => { 
+            :meetingData => [
+              { :meeting => meeting_hash1, :recording => recording1 },
+              { :meeting => meeting_hash2, :recording => recording_nil },
+              { :meeting => meeting_hash3, :recording => recording2 }
+            ]
+          }, :messageKey => "mkey", :message => "m" }
+        }
+        let(:response_one) {
+          { :returncode => true, :meetings => { 
+            :meetingData => [
+              { :meeting => meeting_hash3, :recording => recording2 }
+            ]
+          }, :messageKey => "mkey", :message => "m" }
+        }
+        let(:flattened_response_all) {
+          { 
+            :returncode => true, :meetings => [ 
+            { :meeting => meeting_hash1, :recording => recording1 },
+            { :meeting => meeting_hash2, :recording => recording_nil },
+            { :meeting => meeting_hash3, :recording => recording2 }
+            ], :messageKey => "mkey", :message => "m" 
+          }
+        } # hash *after* the flatten_objects call
+  
+        context "without meeting ID" do
+          before { api.should_receive(:send_api_request).with(:getAllMeetings, { :includeRecordings=>true }).and_return(response_all) }
+          it { api.get_all_meetings( { :includeRecordings=>true } ).should == response_all }
+        end
+  
+        context "with one meeting ID" do
+          context "in an array" do
+            let(:options) { { :meetingID => ["Ended Meeting"], :includeRecordings=>true } }
+            let(:req_params) { { :meetingID => "Ended Meeting", :includeRecordings=>true } }
+            before { api.should_receive(:send_api_request).with(:getAllMeetings, req_params).and_return(response_one) }
+            it { api.get_all_meetings(options).should == response_one }
+          end
+  
+          context "in a string" do
+            let(:options) { { :meetingID => "Ended Meeting", :includeRecordings=>true } }
+            let(:req_params) { { :meetingID => "Ended Meeting", :includeRecordings=>true } }
+            before { api.should_receive(:send_api_request).with(:getAllMeetings, req_params).and_return(response_one) }
+            it { api.get_all_meetings(options).should == response_one }
+          end
+        end
+  
+        context "with several meeting IDs" do
+          context "in an array" do
+            let(:options) { { :meetingID => ["Demo Meeting", "Ended Meeting"], :includeRecordings=>true } }
+            let(:req_params) { { :meetingID => "Demo Meeting,Ended Meeting", :includeRecordings=>true } }
+            before { api.should_receive(:send_api_request).with(:getAllMeetings, req_params).and_return(response_all) }
+            it { api.get_all_meetings(options).should == response_all }
+          end
+  
+          context "in a string" do
+            let(:options) { { :meetingID => "Demo Meeting,Ended Meeting", :includeRecordings=>true } }
+            let(:req_params) { { :meetingID => "Demo Meeting,Ended Meeting", :includeRecordings=>true } }
+            before { api.should_receive(:send_api_request).with(:getAllMeetings, req_params).and_return(response_all) }
+            it { api.get_all_meetings(options).should == response_all }
+          end
+        end
+  
+        context "formats the response" do
+          before {
+            api.should_receive(:send_api_request).with(:getAllMeetings, { :includeRecordings=>true } ).and_return(flattened_response_all)
+            formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
+            formatter_mock.should_receive(:flatten_objects).with(:meetings, :meetingData)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording1)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording2)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording_nil)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash3)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+          }
+          it { api.get_all_meetings( { :includeRecordings=>true } ) }
+        end
+      end
+
+      context "accepts non standard options" do
+        let(:params) {
+          { :anything1 => "anything-1", :anything2 => 2 }
+        }
+        before { api.should_receive(:send_api_request).with(:getAllMeetings, params).and_return({}) }
+        it { api.get_all_meetings(params) }
+      end
+    end
+
     describe "#get_api_version" do
       context "returns the version returned by the server" do
         let(:hash) { { :returncode => true, :version => "0.8" } }
@@ -586,7 +711,7 @@ describe BigBlueButton::BigBlueButtonApi do
         let(:data) { "any data" }
         before {
           path = "/res?param1=value1&checksum=12345"
-          opts = { 'Content-Type' => 'application/x-www-form-urlencoded' }
+          opts = { 'Content-Type' => 'application/xml' }
           @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
         }
         it {
@@ -608,7 +733,7 @@ describe BigBlueButton::BigBlueButtonApi do
         let(:data) { "any data" }
         before {
           path = "/res?param1=value1&checksum=12345"
-          opts = { 'Content-Type' => 'application/x-www-form-urlencoded', :anything => "anything" }
+          opts = { 'Content-Type' => 'application/xml', :anything => "anything" }
           @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
         }
         it {
