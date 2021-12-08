@@ -9,16 +9,17 @@ describe BigBlueButton::BigBlueButtonApi do
     # default variables and API object for all tests
     let(:url) { "http://server.com" }
     let(:secret) { "1234567890abcdefghijkl" }
-    let(:debug) { false }
-    let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
+    let(:logger) { Logger.new(STDOUT) }
+    let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger) }
+    before { logger.level = Logger::INFO }
 
     describe "#initialize" do
       context "standard initialization" do
-        subject { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
+        subject { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger) }
         it { subject.url.should == url }
         it { subject.secret.should == secret }
         it { subject.version.should == version }
-        it { subject.debug.should == debug }
+        it { subject.logger.should == logger }
         it { subject.timeout.should == 10 }
         it { subject.supported_versions.should include("0.8") }
         it { subject.supported_versions.should include("0.81") }
@@ -475,14 +476,14 @@ describe BigBlueButton::BigBlueButtonApi do
     end
 
     describe "#==" do
-      let(:api2) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
+      let(:api2) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger) }
 
       context "compares attributes" do
         it { api.should == api2 }
       end
 
-      context "differs #debug" do
-        before { api2.debug = !api.debug }
+      context "differs #logger" do
+        before { api2.logger = !api.logger }
         it { api.should_not == api2 }
       end
 
@@ -684,17 +685,19 @@ describe BigBlueButton::BigBlueButtonApi do
     describe "#send_request" do
       let(:url) { "http://test-server:8080/res?param1=value1&checksum=12345" }
       let(:url_parsed) { URI.parse(url) }
+      let(:res) { Net::HTTPResponse.new(1.0, '200', 'OK') }
 
       before do
         @http_mock = mock(Net::HTTP)
         @http_mock.should_receive(:"open_timeout=").with(api.timeout)
         @http_mock.should_receive(:"read_timeout=").with(api.timeout)
         Net::HTTP.should_receive(:new).with("test-server", 8080).and_return(@http_mock)
+        res.stub(:body) { "ok" }
       end
 
       context "standard case" do
-        before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", {}).and_return("ok") }
-        it { api.send(:send_request, url).should == "ok" }
+        before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", {}).and_return(res) }
+        it { api.send(:send_request, url).should == res }
       end
 
       context "handles a TimeoutError" do
@@ -712,19 +715,19 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           path = "/res?param1=value1&checksum=12345"
           opts = { 'Content-Type' => 'application/xml' }
-          @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
+          @http_mock.should_receive(:post).with(path, data, opts).and_return(res)
         }
         it {
-          api.send(:send_request, url, data).should == "ok"
+          api.send(:send_request, url, data).should == res
         }
       end
 
       context "get with headers" do
         let(:headers_hash) { { :anything => "anything" } }
-        before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", headers_hash).and_return("ok") }
+        before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", headers_hash).and_return(res) }
         it {
           api.request_headers = headers_hash
-          api.send(:send_request, url).should == "ok"
+          api.send(:send_request, url).should == res
         }
       end
 
@@ -734,11 +737,11 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           path = "/res?param1=value1&checksum=12345"
           opts = { 'Content-Type' => 'application/xml', :anything => "anything" }
-          @http_mock.should_receive(:post).with(path, data, opts).and_return("ok")
+          @http_mock.should_receive(:post).with(path, data, opts).and_return(res)
         }
         it {
           api.request_headers = headers_hash
-          api.send(:send_request, url, data).should == "ok"
+          api.send(:send_request, url, data).should == res
         }
       end
     end

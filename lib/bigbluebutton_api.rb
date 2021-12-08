@@ -9,6 +9,7 @@ require 'bigbluebutton_formatter'
 require 'bigbluebutton_modules'
 require 'bigbluebutton_config_xml'
 require 'bigbluebutton_config_layout'
+require 'logger'
 
 module BigBlueButton
 
@@ -50,8 +51,8 @@ module BigBlueButton
     # API version e.g. 0.81
     attr_accessor :version
 
-    # Flag to turn on/off debug mode
-    attr_accessor :debug
+    # logger to log reponses and infos
+    attr_accessor :logger
 
     # Maximum wait time for HTTP requests (secs)
     attr_accessor :timeout
@@ -67,21 +68,25 @@ module BigBlueButton
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # secret::    Shared secret for this server
     # version::   API version e.g. 0.81
-    def initialize(url, secret, version=nil, debug=false)
+    def initialize(url, secret, version=nil, logger=nil)
       @supported_versions = ['0.8', '0.81', '0.9', '1.0']
       @url = url
       @secret = secret
-      @debug = debug
       @timeout = 10         # default timeout for api requests
       @request_headers = {} # http headers sent in all requests
-
+      @logger = logger
+      if logger.nil?
+        @logger = Logger.new(STDOUT)
+        @logger.level = Logger::INFO
+      end
+      
       version = nil if version && version.strip.empty?
       @version = nearest_version(version || get_api_version)
       unless @supported_versions.include?(@version)
-        puts "BigBlueButtonAPI: detected unsupported version, using the closest one that is supported (#{@version})"
+        @logger.warn("BigBlueButtonAPI: detected unsupported version, using the closest one that is supported (#{@version})")
       end
 
-      puts "BigBlueButtonAPI: Using version #{@version}" if @debug
+      @logger.debug("BigBlueButtonAPI: Using version #{@version}")
     end
 
     # Creates a new meeting. Returns the hash with the response or throws BigBlueButtonException
@@ -801,7 +806,7 @@ module BigBlueButton
     # API's are equal if all the following attributes are equal.
     def ==(other)
       r = true
-      [:url, :supported_versions, :secret, :version, :debug].each do |param|
+      [:url, :supported_versions, :secret, :version, :logger].each do |param|
         r = r && self.send(param) == other.send(param)
       end
       r
@@ -908,7 +913,7 @@ module BigBlueButton
     # Otherwise uses GET
     def send_request(url, data=nil)
       begin
-        puts "BigBlueButtonAPI: URL request = #{url}" if @debug
+        @logger.debug("BigBlueButtonAPI: URL request = #{url}")
         url_parsed = URI.parse(url)
         http = Net::HTTP.new(url_parsed.host, url_parsed.port)
         http.open_timeout = @timeout
@@ -918,17 +923,22 @@ module BigBlueButton
         if data.nil?
           response = http.get(url_parsed.request_uri, @request_headers)
         else
-          puts "BigBlueButtonAPI: Sending as a POST request with data.size = #{data.size}" if @debug
+          @logger.debug("BigBlueButtonAPI: Sending as a POST request with data.size = #{data.size}")
           opts = { 'Content-Type' => 'application/xml' }.merge @request_headers
           response = http.post(url_parsed.request_uri, data, opts)
         end
-        puts "BigBlueButtonAPI: URL response = #{response.body}" if @debug
+        @logger.info("BigBlueButtonAPI: request=#{url} response_status=#{response.class.name} response_code=#{response.code}  message_key=#{response.message}")
+        @logger.debug("BigBlueButtonAPI: URL response = #{response.body}")
 
       rescue Timeout::Error => error
-        raise BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\". Error: #{error}")
+        exception = BigBlueButtonException.new("Timeout error. Your server is probably down: \"#{@url}\". Error: #{error}")
+        exception.key = 'TimeoutError'
+        raise exception
 
       rescue Exception => error
-        raise BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\". Error: #{error}")
+        exception = BigBlueButtonException.new("Connection error. Your URL is probably incorrect: \"#{@url}\". Error: #{error}")
+        exception.key = 'IncorrectUrlError'
+        raise exception
       end
 
       response
@@ -944,7 +954,9 @@ module BigBlueButton
 
       # we don't allow older versions than the one supported, use an old version of the gem for that
       if Gem::Version.new(version) < Gem::Version.new(@supported_versions[0])
-        raise BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+        exception = BigBlueButtonException.new("BigBlueButton error: Invalid API version #{version}. Supported versions: #{@supported_versions.join(', ')}")
+        exception.key = 'APIVersionError'
+        raise exception
 
       # allow newer versions by using the newest one we support
       elsif Gem::Version.new(version) > Gem::Version.new(@supported_versions.last)

@@ -7,8 +7,7 @@ describe BigBlueButton::BigBlueButtonApi do
   let(:url) { "http://server.com" }
   let(:secret) { "1234567890abcdefghijkl" }
   let(:version) { "0.81" }
-  let(:debug) { false }
-  let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, debug) }
+  let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version) }
 
   describe "#get_default_config_xml" do
     let(:response) { "<response><returncode>1</returncode></response>" }
