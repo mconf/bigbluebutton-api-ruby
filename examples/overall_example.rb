@@ -32,6 +32,14 @@ begin
 
   puts
   puts "---------------------------------------------------"
+  response = @api.get_all_meetings
+  puts "Existent meetings in your server:"
+  response[:meetings].each do |m|
+    puts "  " + m[:meetingID] + ": " + m.inspect
+  end
+
+  puts
+  puts "---------------------------------------------------"
   response = @api.get_recordings
   puts "Existent recordings in your server:"
   response[:recordings].each do |m|

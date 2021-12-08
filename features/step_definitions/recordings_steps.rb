@@ -36,3 +36,8 @@ When /^the user calls the get_recordings method$/ do
   @req.method = :get_recordings
   @req.response = @api.get_recordings
 end
+
+When /^the user calls the get_all_meetings method and include recordings$/ do
+  @req.method = :get_all_meetings
+  @req.response = @api.get_all_meetings( { :includeRecordings=>true } )
+end
