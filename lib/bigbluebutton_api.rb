@@ -489,21 +489,14 @@ module BigBlueButton
     #          :listenerCount => 0,
     #          :videoCount => 0 
     #         }
-    #         :recording => {
-    #           :recordID => "1254kakap98sd09jk2lk2-1329872486234",
-    #           :meetingID => "8f21cc63",
-    #           :name => "8f21cc63",
+    #         :recording => { # meeting without recording
+    #           :recordID => "{}",
+    #           :meetingID => "{}",
+    #           :name => "{}",
     #           :published => false,
-    #           :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
-    #           :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #           :startTime => nil,
+    #           :endTime => nil,
     #           :metadata => {},
-    #           :playback => {
-    #             :format => { # notice that this is now a hash, not an array
-    #               :type => "slides",
-    #               :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=1254kakap98sd09jk2lk2-1329872486234",
-    #               :length => 64
-    #             }
-    #           }
     #         }
     #       }
     #     ],
