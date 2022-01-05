@@ -39,5 +39,5 @@ end
 
 When /^the user calls the get_all_meetings method and include recordings$/ do
   @req.method = :get_all_meetings
-  @req.response = @api.get_all_meetings( { :includeRecordings=>true } )
+  @req.response = @api.get_all_meetings( { includeRecordings: true } )
 end
