@@ -462,7 +462,7 @@ module BigBlueButton
     #                          :description => "List of recordings",
     #                          :activity => "e66e88a3" },
     #           :playback => {
-    #             :format => [
+    #             :format => [ # if there is only one format, this will be a hash instead
     #               { :type => "slides",
     #                 :url => "http://test-install.blindsidenetworks.com/playback/slides/playback.html?meetingId=125468758b24fa27551e7a065849dda3ce65dd32-1329872486268",
     #                 :length => 64
