@@ -12,6 +12,10 @@ When /^calling the method get_meetings$/ do
   @req.response = @api.get_meetings
 end
 
+When /^calling the method get_all_meetings$/ do
+  @req.response = @api.get_all_meetings
+end
+
 When /^calling the method get_meeting_info$/ do
   @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
 end
