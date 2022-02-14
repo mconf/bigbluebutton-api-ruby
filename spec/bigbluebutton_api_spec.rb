@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'active_support'
 
 # Note: Uses version 0.8 by default. For things that only exist in newer versions,
 #   there are separate files with more tests.
@@ -355,12 +356,11 @@ describe BigBlueButton::BigBlueButtonApi do
       context "with recordings" do
         let(:recording1) { { :recordID => "id1", :meetindID => "Demo Meeting5564" } } # simplified "recording" node in the response
         let(:recording2) { { :recordID => "id2", :meetindID => "Ended Meeting" } }
-        let(:recording_nil) { { :recordID => {}, :meetindID => {} } }
         let(:response_all) {
           { :returncode => true, :meetings => { 
             :meetingData => [
               { :meeting => meeting_hash1, :recording => recording1 },
-              { :meeting => meeting_hash2, :recording => recording_nil },
+              { :meeting => meeting_hash2 },
               { :meeting => meeting_hash3, :recording => recording2 }
             ]
           }, :messageKey => "mkey", :message => "m" }
@@ -376,7 +376,7 @@ describe BigBlueButton::BigBlueButtonApi do
           { 
             :returncode => true, :meetings => [ 
             { :meeting => meeting_hash1, :recording => recording1 },
-            { :meeting => meeting_hash2, :recording => recording_nil },
+            { :meeting => meeting_hash2 },
             { :meeting => meeting_hash3, :recording => recording2 }
             ], :messageKey => "mkey", :message => "m" 
           }
@@ -426,7 +426,6 @@ describe BigBlueButton::BigBlueButtonApi do
             formatter_mock.should_receive(:flatten_objects).with(:meetings, :meetingData)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording1)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording2)
-            BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording_nil)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash3)
