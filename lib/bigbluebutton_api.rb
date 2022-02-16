@@ -536,7 +536,7 @@ module BigBlueButton
           formatter.flatten_objects(:meetings, :meetingData)
           response[:meetings].each do |md|
             BigBlueButtonFormatter.format_meeting(md[:meeting])
-            BigBlueButtonFormatter.format_recording(md[:recording])
+            BigBlueButtonFormatter.format_recording(md[:recording]) unless md[:recording].blank?
           end
         else
           formatter = BigBlueButtonFormatter.new(response)

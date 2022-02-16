@@ -9,6 +9,7 @@ end
 
 group :development, :test do
   gem 'rspec', '~> 2.10'
+  gem 'activesupport'
   gem 'cucumber-rails'
   gem 'forgery'
   gem 'bbbot-ruby', :git => 'https://github.com/mconf/bbbot-ruby.git'
