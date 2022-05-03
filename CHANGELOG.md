@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.9.0] - 2022-05-03
+* [#56] Add support for checksum using SHA256
+
+[#56]: https://github.com/mconf/bigbluebutton-api-ruby/pull/56
+[1.9.0]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.8.0...v1.9.0
+
 ## [1.8.0] - 2021-12-06
 * [#43] Add keys to every `BigBlueButtonException`, to better identify them.
 * [#42] Change `BigBlueButtonException` to inherit from `StandardError` instead of `Exception`.
