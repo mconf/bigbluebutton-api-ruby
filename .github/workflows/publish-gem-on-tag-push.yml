@@ -1,9 +1,10 @@
 on:
   push:
-    branches:
-      - master
     tags:
-      - v*
+      - 'v*' 
+      - '!v**-mconf*'
+# Tags that will trigger: v1.9.0; v1.9.0-beta1
+# Tags excluded (with the '!'): v1.9.0-mconf; v1.9.0-mconf-beta1
 
 ---
 
