@@ -1,3 +1,4 @@
+name: Publish gem on tag push
 on:
   push:
     tags:
@@ -6,12 +7,16 @@ on:
 # Tags that will trigger: v1.9.0; v1.9.0-beta1
 # Tags excluded (with the '!'): v1.9.0-mconf; v1.9.0-mconf-beta1
 
----
-
-- name: Publish gem on tag push
-  uses: dawidd6/action-publish-gem@v1.2.0
-  with:
-    # Optional, will publish to RubyGems if specified
-    api_key: ${{secrets.RUBYGEMS_API_KEY}}
-    # Optional, will publish to GitHub Packages if specified
-    github_token: ${{secrets.GITHUB_TOKEN}}
+jobs:
+  publish-gem:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Publish
+        uses: dawidd6/action-publish-gem@v1.2.0
+        with:
+          # Optional, will publish to RubyGems if specified
+          api_key: ${{secrets.RUBYGEMS_API_KEY}}
+          # Optional, will publish to GitHub Packages if specified
+          github_token: ${{secrets.GITHUB_TOKEN}}
