@@ -69,7 +69,7 @@ module BigBlueButton
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # secret::    Shared secret for this server
     # version::   API version e.g. 0.81
-    # logger::
+    # logger::    Logger object to log actions (so apps can use their own loggers)
     # sha256::    Flag to use sha256 when hashing url contents for checksum
     def initialize(url, secret, version=nil, logger=nil, sha256=false)
       @supported_versions = ['0.8', '0.81', '0.9', '1.0']
@@ -79,6 +79,7 @@ module BigBlueButton
       @request_headers = {} # http headers sent in all requests
       @logger = logger
       @sha256 = sha256
+      # If logger is not informed, it defaults to STDOUT with INFO level
       if logger.nil?
         @logger = Logger.new(STDOUT)
         @logger.level = Logger::INFO
