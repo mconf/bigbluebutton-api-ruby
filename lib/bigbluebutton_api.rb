@@ -2,6 +2,7 @@ require 'net/http'
 require 'cgi'
 require 'rexml/document'
 require 'digest/sha1'
+require 'digest/sha2'
 require 'rubygems'
 require 'bigbluebutton_hash_to_xml'
 require 'bigbluebutton_exception'
@@ -68,13 +69,17 @@ module BigBlueButton
     # url::       URL to a BigBlueButton server (e.g. http://demo.bigbluebutton.org/bigbluebutton/api)
     # secret::    Shared secret for this server
     # version::   API version e.g. 0.81
-    def initialize(url, secret, version=nil, logger=nil)
+    # logger::    Logger object to log actions (so apps can use their own loggers)
+    # sha256::    Flag to use sha256 when hashing url contents for checksum
+    def initialize(url, secret, version=nil, logger=nil, sha256=false)
       @supported_versions = ['0.8', '0.81', '0.9', '1.0']
       @url = url
       @secret = secret
       @timeout = 10         # default timeout for api requests
       @request_headers = {} # http headers sent in all requests
       @logger = logger
+      @sha256 = sha256
+      # If logger is not informed, it defaults to STDOUT with INFO level
       if logger.nil?
         @logger = Logger.new(STDOUT)
         @logger.level = Logger::INFO
@@ -838,7 +843,7 @@ module BigBlueButton
       # checksum calc
       checksum_param = params_string + @secret
       checksum_param = method.to_s + checksum_param
-      checksum = Digest::SHA1.hexdigest(checksum_param)
+      checksum = @sha256 ? Digest::SHA256.hexdigest(checksum_param) : Digest::SHA1.hexdigest(checksum_param)
 
       if method == :setConfigXML
         params_string = "checksum=#{checksum}&#{params_string}"
