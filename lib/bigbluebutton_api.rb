@@ -693,8 +693,8 @@ module BigBlueButton
       else
         url = @url
         url += "/" unless url.end_with?("/")
-        url += method
-        url += "#{params_string}&" unless params_string.empty?
+        url += method.to_s
+        url += "?#{params_string}&" unless params_string.empty?
         url += "checksum=#{checksum}"
         return url, nil
       end
