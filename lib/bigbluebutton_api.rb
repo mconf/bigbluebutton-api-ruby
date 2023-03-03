@@ -691,7 +691,9 @@ module BigBlueButton
         params_string = "checksum=#{checksum}&#{params_string}"
         return "#{@url}/#{method}", params_string
       else
-        url = "#{@url}/#{method}?"
+        url = @url
+        url += "/" unless url.end_with?("/")
+        url += method
         url += "#{params_string}&" unless params_string.empty?
         url += "checksum=#{checksum}"
         return url, nil
