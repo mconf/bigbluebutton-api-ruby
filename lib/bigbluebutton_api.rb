@@ -73,7 +73,7 @@ module BigBlueButton
     # sha256::    Flag to use sha256 when hashing url contents for checksum
     def initialize(url, secret, version=nil, logger=nil, sha256=false)
       @supported_versions = ['0.8', '0.81', '0.9', '1.0']
-      @url = url
+      @url = url.chomp('/')
       @secret = secret
       @timeout = 10         # default timeout for api requests
       @request_headers = {} # http headers sent in all requests
@@ -691,10 +691,8 @@ module BigBlueButton
         params_string = "checksum=#{checksum}&#{params_string}"
         return "#{@url}/#{method}", params_string
       else
-        url = @url
-        url += "/" unless url.end_with?("/")
-        url += method.to_s
-        url += "?#{params_string}&" unless params_string.empty?
+        url = "#{@url}/#{method}?"
+        url += "#{params_string}&" unless params_string.empty?
         url += "checksum=#{checksum}"
         return url, nil
       end
