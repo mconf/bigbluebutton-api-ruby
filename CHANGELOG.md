@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.9.1] - 2023-03-31
+* [#60] Prevent problems with double slashes on API calls [thanks to [@farhatahmad](https://github.com/farhatahmad)]
+
+[#60]: https://github.com/mconf/bigbluebutton-api-ruby/pull/60
+[1.9.1]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.9.0...v1.9.1
+
 ## [1.9.0] - 2022-05-03
 * [#56] Add support for checksum using SHA256
 
