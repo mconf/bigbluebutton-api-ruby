@@ -74,6 +74,7 @@ describe BigBlueButton::BigBlueButtonHash do
                      :published => "true",
                      :startTime => "Fri Nov 18 12:10:23 UTC 2011",
                      :endTime => "Fri Nov 18 12:12:25 UTC 2011",
+                     :expirationDate => "Fri Nov 19 12:12:25 UTC 2011",
                      :metadata =>
                        { :course => "Fundamentals Of JAVA",
                          :description => "List of recordings",
@@ -91,6 +92,7 @@ describe BigBlueButton::BigBlueButtonHash do
                      :published => "false",
                      :startTime => "2011-09-22 18:47:55 UTC",
                      :endTime => "2011-09-22 19:08:35 UTC",
+                     :expirationDate => "2011-09-23 19:08:35 UTC",
                      :metadata =>
                        { :course => "Ressources technologiques",
                          :activity => "Test de fonctionnalit&#xe9;",

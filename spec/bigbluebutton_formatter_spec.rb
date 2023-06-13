@@ -272,6 +272,7 @@ describe BigBlueButton::BigBlueButtonFormatter do
       { :recordID => 123, :meetingID => 123, :name => 123, :published => "true",
         :startTime => "Thu Mar 04 14:05:56 UTC 2010",
         :endTime => "Thu Mar 04 15:01:01 UTC 2010",
+        :expirationDate => "Thu Mar 05 15:01:01 UTC 2010",
         :metadata => {
           :title => "Test Recording",
           :empty1 => nil,
@@ -300,6 +301,7 @@ describe BigBlueButton::BigBlueButtonFormatter do
       it { subject[:name].should == "123" }
       it { subject[:startTime].should == DateTime.parse("Thu Mar 04 14:05:56 UTC 2010") }
       it { subject[:endTime].should == DateTime.parse("Thu Mar 04 15:01:01 UTC 2010") }
+      it { subject[:expirationDate].should == DateTime.parse("Thu Mar 05 15:01:01 UTC 2010") }
       it { subject[:playback][:format][0][:length].should == 62 }
       it { subject[:metadata][:empty1].should == "" }
       it { subject[:metadata][:empty2].should == "" }
