@@ -463,6 +463,7 @@ module BigBlueButton
     #           :published => true,
     #           :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
     #           :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #           :expirationDate => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
     #           :metadata => { :course => "Fundamentals of JAVA",
     #                          :description => "List of recordings",
     #                          :activity => "e66e88a3" },
@@ -501,6 +502,7 @@ module BigBlueButton
     #           :published => false,
     #           :startTime => nil,
     #           :endTime => nil,
+    #           :expirationDate => nil,
     #           :metadata => {},
     #         }
     #       }
@@ -589,6 +591,7 @@ module BigBlueButton
     #         :published => true,
     #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
     #         :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #         :expirationDate => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
     #         :metadata => { :course => "Fundamentals of JAVA",
     #                        :description => "List of recordings",
     #                        :activity => "Evening Class1" },
@@ -611,6 +614,7 @@ module BigBlueButton
     #         :published => false,
     #         :startTime => #<DateTime: 2011-11-18T12:10:23+00:00 (212188378223/86400,0/1,2299161)>,
     #         :endTime => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
+    #         :expirationDate => #<DateTime: 2011-11-18T12:12:25+00:00 (42437675669/17280,0/1,2299161)>,
     #         :metadata => {},
     #         :playback => {
     #           :format => { # notice that this is now a hash, not an array
