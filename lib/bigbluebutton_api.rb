@@ -80,7 +80,7 @@ module BigBlueButton
       @logger = logger
       @sha256 = sha256
       # If logger is not informed, it defaults to STDOUT with INFO level
-      if logger.nil?
+      if logger.blank?
         @logger = Logger.new(STDOUT)
         @logger.level = Logger::INFO
       end
