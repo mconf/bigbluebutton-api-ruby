@@ -46,8 +46,12 @@ module BigBlueButton
           value = @hash[key]
         end
 
-        if value.is_a?(Numeric)
-          result = value == 0 ? nil : DateTime.parse(Time.at(value/1000.0).to_s)
+        if value.is_a?(Numeric) 
+          if value.to_s.length == 10
+            result = value == 0 ? nil : DateTime.parse(Time.at(value).to_s)
+          else
+            result = value == 0 ? nil : DateTime.parse(Time.at(value/1000.0).to_s)
+          end
         else
           if (value.is_a?(Hash) || value.is_a?(Array)) && value.empty?
             result = nil
