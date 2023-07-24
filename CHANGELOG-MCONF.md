@@ -1,6 +1,19 @@
 # Change Log
 This is a changelog of extensions made for the custom BigBlueButton's API built by Mconf.
 
+## [1.9.1-mconf] - 2023-07-24
+* [ELOSP-1079] Added `expiration_date` as new attribute to `BigbluebuttonRecording`, 
+  that attribute is a timestamp to expire the recording.
+  - PR: [#63]
+
+<!-- Cards -->
+[ELOSP-1079]: https://www.notion.so/mconf/Modifica-es-no-hist-rico-de-grava-es-ef514016e8a84237b637d5a3a0705e09
+
+<!-- PRs -->
+[#63]: https://github.com/mconf/bigbluebutton-api-ruby/pull/63
+
+[1.9.1-mconf]: https://github.com/mconf/bigbluebutton-api-ruby/compare/v1.9.0-mconf...v1.9.1-mconf
+
 ## [1.9.0-mconf] - 2023-01-12
 ### Added
 * [LTI-108] Add `get_all_meetings` method. Without additional parameters, returns the same as

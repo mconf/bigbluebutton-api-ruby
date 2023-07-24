@@ -7,7 +7,7 @@ GIT
 PATH
   remote: .
   specs:
-    bigbluebutton-api-ruby (1.9.0.pre.mconf)
+    bigbluebutton-api-ruby (1.9.1-mconf)
       childprocess (>= 1.0.1)
       ffi (>= 1.9.24)
       json (>= 1.8.6)
