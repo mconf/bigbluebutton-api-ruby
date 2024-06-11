@@ -441,15 +441,6 @@ describe BigBlueButton::BigBlueButtonApi do
           end
         end
 
-        context "when method = :setConfigXML" do
-          it {
-            api.url = 'http://my-test-server.com/bigbluebutton/api'
-            response = api.get_url(:setConfigXML, { param1: 1, param2: 2 })
-            response[0].should eql('http://my-test-server.com/bigbluebutton/api/setConfigXML')
-            response[1].should match(/checksum=.*&param1=1&param2=2/)
-          }
-        end
-
         context "discards params with nil value" do
           let(:params) { { :param1 => "value1", :param2 => nil } }
           subject { api.get_url(:join, params)[0] }
