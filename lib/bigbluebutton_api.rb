@@ -8,8 +8,6 @@ require 'bigbluebutton_hash_to_xml'
 require 'bigbluebutton_exception'
 require 'bigbluebutton_formatter'
 require 'bigbluebutton_modules'
-require 'bigbluebutton_config_xml'
-require 'bigbluebutton_config_layout'
 require 'logger'
 
 module BigBlueButton
@@ -550,87 +548,9 @@ module BigBlueButton
       send_api_request(:deleteRecordings, params)
     end
 
-
-    #
-    # API calls since 0.81
-    #
-
-    # Retrieves the default config.xml file from the server.
-    # Returns the XML as a string by default, but if `asObject` is set to true, returns the XML
-    # parsed as an XmlSimple object ().
-    # asObject (Hash)::       If true, returns the XML parsed as an XmlSimple object, using:
-    #                           data = XmlSimple.xml_in(response, { 'ForceArray' => false, 'KeepRoot' => true })
-    #                         You can then parse it back into an XML string using:
-    #                           XmlSimple.xml_out(data, { 'RootName' => nil, 'XmlDeclaration' => true })
-    #                         If set to false, returns the XML as a string.
-    # options (Hash)::        Hash with additional parameters. This method doesn't accept additional
-    #                         parameters, but if you have a custom API with more parameters, you
-    #                         can simply pass them in this hash and they will be added to the API call.
-    def get_default_config_xml(asObject=false, options={})
-      response = send_api_request(:getDefaultConfigXML, options, nil, true)
-      if asObject
-        XmlSimple.xml_in(response, { 'ForceArray' => false, 'KeepRoot' => true })
-      else
-        response
-      end
-    end
-
-    # Sets a config.xml file in the server.
-    # Returns the token returned by the server (that can be later used in a 'join' call) in case
-    # of success.
-    # meeting_id (string)::                   The ID of the meeting where this config.xml will be used.
-    # xml (string|BigBlueButtonConfigXml)::   The XML that should be sent as a config.xml.
-    #                                         It will usually be an edited output of the default config.xml:
-    #                                           xml = api.get_default_config_xml
-    #                                         Or you can use directly a BigBlueButtonConfigXml object:
-    #                                           BigBlueButtonConfigXml.new(xml)
-    # options (Hash)::                        Hash with additional parameters. This method doesn't accept additional
-    #                                         parameters, but if you have a custom API with more parameters, you
-    #                                         can simply pass them in this hash and they will be added to the API call.
-    # TODO: Right now we are sending the configXML parameters in the URL and in the body of the POST
-    #   request. It works if left only in the URL, but the documentation of the API claims that it has
-    #   to be in the body of the request. So it's no clear yet and this might change in the future.
-    def set_config_xml(meeting_id, xml, options={})
-      if xml.instance_of?(BigBlueButton::BigBlueButtonConfigXml)
-        data = xml.as_string
-      else
-        data = xml
-      end
-      params = { :meetingID => meeting_id, :configXML => data }.merge(options)
-      response = send_api_request(:setConfigXML, params, data)
-      response[:configToken]
-    end
-
-
     #
     # Helper functions
     #
-
-    # Returns an array with the name of all layouts available in the server.
-    # Will fetch the config.xml file (unless passed in the arguments), fetch the
-    # layout definition file, and return the layouts.
-    # If something goes wrong, returns nil. Otherwise returns the list of layout
-    # names or an empty array if there's no layout defined.
-    def get_available_layouts(config_xml=nil)
-      config_xml = get_default_config_xml if config_xml.nil?
-      config_xml = BigBlueButton::BigBlueButtonConfigXml.new(config_xml)
-      layout_config = config_xml.get_attribute("LayoutModule", "layoutConfig", true)
-      unless layout_config.nil?
-        response = send_request(layout_config)
-        layout_config = BigBlueButton::BigBlueButtonConfigLayout.new(response.body)
-        layout_config.get_available_layouts
-      else
-        nil
-      end
-    end
-
-    # Returns an array with the layouts that exist by default in a BigBlueButton
-    # server. If you want to query the server to get a real list of layouts, use
-    # <tt>get_available_layouts</tt>.
-    def get_default_layouts
-      # this is the list for BigBlueButton 0.81
-      ["Default", "Video Chat", "Meeting", "Webinar", "Lecture assistant", "Lecture"]
-    end
 
     # Make a simple request to the server to test the connection.
     def test_connection
@@ -687,15 +607,10 @@ module BigBlueButton
       checksum_param = method.to_s + checksum_param
       checksum = @sha256 ? Digest::SHA256.hexdigest(checksum_param) : Digest::SHA1.hexdigest(checksum_param)
 
-      if method == :setConfigXML
-        params_string = "checksum=#{checksum}&#{params_string}"
-        return "#{@url}/#{method}", params_string
-      else
-        url = "#{@url}/#{method}?"
-        url += "#{params_string}&" unless params_string.empty?
-        url += "checksum=#{checksum}"
-        return url, nil
-      end
+      url = "#{@url}/#{method}?"
+      url += "#{params_string}&" unless params_string.empty?
+      url += "checksum=#{checksum}"
+      return url, nil
     end
 
     # Performs an API call.
