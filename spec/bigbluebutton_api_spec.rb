@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'active_support'
+require 'active_support/core_ext/object/blank'
 
 # Note: Uses version 0.8 by default. For things that only exist in newer versions,
 #   there are separate files with more tests.
@@ -343,9 +343,9 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           api.should_receive(:send_api_request).with(:getAllMeetings, {}).
           and_return(flattened_meet_res)
-          formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-          formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
-          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+          formatter_double = double(BigBlueButton::BigBlueButtonFormatter)
+          formatter_double.should_receive(:flatten_objects).with(:meetings, :meeting)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_double)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash3)
@@ -422,14 +422,14 @@ describe BigBlueButton::BigBlueButtonApi do
         context "formats the response" do
           before {
             api.should_receive(:send_api_request).with(:getAllMeetings, { :includeRecordings=>true } ).and_return(flattened_response_all)
-            formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-            formatter_mock.should_receive(:flatten_objects).with(:meetings, :meetingData)
+            formatter_double = double(BigBlueButton::BigBlueButtonFormatter)
+            formatter_double.should_receive(:flatten_objects).with(:meetings, :meetingData)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording1)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording2)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
             BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash3)
-            BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+            BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_double)
           }
           it { api.get_all_meetings( { :includeRecordings=>true } ) }
         end
