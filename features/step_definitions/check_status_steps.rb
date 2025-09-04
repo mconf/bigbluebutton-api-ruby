@@ -1,11 +1,11 @@
 When /^the method isMeetingRunning informs that the meeting is running$/ do
   @req.response = @api.is_meeting_running?(@req.id)
-  @req.response.should be_true
+  @req.response.should be true
 end
 
 When /^the method isMeetingRunning informs that the meeting is not running$/i do
   @req.response = @api.is_meeting_running?(@req.id)
-  @req.response.should be_false
+  @req.response.should be false
 end
 
 When /^calling the method get_meetings$/ do
@@ -29,8 +29,8 @@ When /^the created meeting should be listed in the response with proper informat
   found[:attendeePW].should be_a(String)
   found[:attendeePW].should_not be_empty
   found[:moderatorPW].should == @req.mod_pass
-  found[:hasBeenForciblyEnded].should be_false
-  found[:running].should be_false
+  found[:hasBeenForciblyEnded].should be false
+  found[:running].should be false
   if @api.version >= "0.8"
     found[:meetingName].should == @req.id
     found[:createTime].should be_a(Numeric)
@@ -40,8 +40,8 @@ end
 When /^it shows all the information of the meeting that was created$/ do
   @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
   @req.response[:meetingID].should == @req.id
-  @req.response[:running].should be_false
-  @req.response[:hasBeenForciblyEnded].should be_false
+  @req.response[:running].should be false
+  @req.response[:hasBeenForciblyEnded].should be false
   @req.response[:startTime].should be_nil
   @req.response[:endTime].should be_nil
   @req.response[:participantCount].should == 0
@@ -70,7 +70,7 @@ When /^it shows all the information of the meeting that was created$/ do
 
     @req.opts.has_key?(:record) ?
       (@req.response[:recording].should == @req.opts[:record]) :
-      (@req.response[:recording].should be_false)
+      (@req.response[:recording].should be false)
     @req.opts.has_key?(:maxParticipants) ?
       (@req.response[:maxUsers].should == @req.opts[:maxParticipants]) :
       (@req.response[:maxUsers].should == 20)
@@ -98,9 +98,9 @@ Then /^it shows the (\d+) attendees in the list$/ do |count|
   @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
   participants = count.to_i
 
-  @req.response[:running].should be_true
+  @req.response[:running].should be true
   @req.response[:moderatorCount].should > 0
-  @req.response[:hasBeenForciblyEnded].should be_false
+  @req.response[:hasBeenForciblyEnded].should be false
   @req.response[:participantCount].should == participants
   @req.response[:attendees].size.should == 2
 

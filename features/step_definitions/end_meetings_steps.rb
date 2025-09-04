@@ -24,7 +24,7 @@ When /^the meeting should be ended$/ do
 end
 
 When /^the flag hasBeenForciblyEnded should be set$/ do
-  @req.response[:hasBeenForciblyEnded].should be_true
+  @req.response[:hasBeenForciblyEnded].should be true
 end
 
 When /^the information returned by get_meeting_info is correct$/ do
@@ -32,8 +32,8 @@ When /^the information returned by get_meeting_info is correct$/ do
   # the rest is checked in other scenarios
 
   @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
-  @req.response[:running].should be_false
-  @req.response[:hasBeenForciblyEnded].should be_true
+  @req.response[:running].should be false
+  @req.response[:hasBeenForciblyEnded].should be true
   @req.response[:participantCount].should == 0
   @req.response[:moderatorCount].should == 0
   @req.response[:attendees].should == []

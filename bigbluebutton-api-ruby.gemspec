@@ -14,11 +14,6 @@ Gem::Specification.new do |s|
   s.files            = `git ls-files`.split("\n")
   s.require_paths    = ["lib"]
 
-  s.add_runtime_dependency('childprocess', '>= 1.0.1')
-  s.add_runtime_dependency('ffi', '>= 1.9.24')
-  s.add_runtime_dependency('json', '>= 1.8.6')
-  s.add_runtime_dependency('nokogiri', '>= 1.10.4')
-  s.add_runtime_dependency('rack', '>= 1.6.11')
-  s.add_runtime_dependency('rubyzip', '>= 1.3.0')
   s.add_runtime_dependency('xml-simple', '~> 1.1')
+  s.add_runtime_dependency('base64', '>= 0.1.0')
 end

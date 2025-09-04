@@ -1,5 +1,4 @@
 require 'net/http'
-require 'cgi'
 require 'rexml/document'
 require 'digest/sha1'
 require 'digest/sha2'
