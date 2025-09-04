@@ -21,4 +21,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('rack', '>= 1.6.11')
   s.add_runtime_dependency('rubyzip', '>= 1.3.0')
   s.add_runtime_dependency('xml-simple', '~> 1.1')
+  s.add_runtime_dependency('base64', '>= 0.1.0')
 end
