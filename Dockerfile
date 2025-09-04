@@ -13,4 +13,5 @@ COPY . $app
 RUN git config --global --add safe.directory ${app}
 
 # Install app dependencies
+RUN gem install bundler -v 2.6.9
 RUN bundle install
