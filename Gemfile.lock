@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bigbluebutton-api-ruby (1.9.1)
+    bigbluebutton-api-ruby (2.0.0.pre.rc.1)
       base64 (>= 0.1.0)
       xml-simple (~> 1.1)
 

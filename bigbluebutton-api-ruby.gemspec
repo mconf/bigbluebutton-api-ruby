@@ -2,7 +2,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name             = "bigbluebutton-api-ruby"
-  s.version          = "1.9.1"
+  s.version          = "2.0.0-rc.1"
   s.licenses         = ["MIT"]
   s.extra_rdoc_files = ["README.md", "LICENSE", "LICENSE_003", "CHANGELOG.md"]
   s.summary          = "BigBlueButton integration for ruby"
