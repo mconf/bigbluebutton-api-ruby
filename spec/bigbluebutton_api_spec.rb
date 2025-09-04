@@ -302,9 +302,9 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           api.should_receive(:send_api_request).with(:getMeetings, {}).
           and_return(flattened_response)
-          formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-          formatter_mock.should_receive(:flatten_objects).with(:meetings, :meeting)
-          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+          formatter_double = double(BigBlueButton::BigBlueButtonFormatter)
+          formatter_double.should_receive(:flatten_objects).with(:meetings, :meeting)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_double)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash1)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_meeting).with(meeting_hash2)
         }
@@ -381,27 +381,27 @@ describe BigBlueButton::BigBlueButtonApi do
     describe "#last_http_response" do
       # we test this through a #test_connection call
 
-      let(:request_mock) { mock }
+      let(:request_double) { double }
       before {
         api.should_receive(:get_url)
         # this return value will be stored in @http_response
-        api.should_receive(:send_request).and_return(request_mock)
+        api.should_receive(:send_request).and_return(request_double)
         # to return fast from #send_api_request
-        request_mock.should_receive(:body).and_return("")
+        request_double.should_receive(:body).and_return("")
         api.test_connection
       }
-      it { api.last_http_response.should == request_mock }
+      it { api.last_http_response.should == request_double }
     end
 
     describe "#last_xml_response" do
       # we test this through a #test_connection call
 
-      let(:request_mock) { mock }
+      let(:request_double) { double }
       let(:expected_xml) { "<response><returncode>SUCCESS</returncode></response>" }
       before {
         api.should_receive(:get_url)
-        api.should_receive(:send_request).and_return(request_mock)
-        request_mock.should_receive(:body).at_least(1).and_return(expected_xml)
+        api.should_receive(:send_request).and_return(request_double)
+        request_double.should_receive(:body).at_least(1).and_return(expected_xml)
         api.test_connection
       }
       it { api.last_xml_response.should == expected_xml }
@@ -503,22 +503,22 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:data) { "any data" }
       let(:url) { "http://test-server:8080?param1=value1&checksum=12345" }
       let(:make_request) { api.send_api_request(method, params, data) }
-      let(:response_mock) { mock() } # mock of what send_request() would return
+      let(:response_double) { double() } # mock of what send_request() would return
 
       before { api.should_receive(:get_url).with(method, params).and_return([url, nil]) }
 
       context "returns an empty hash if the response body is empty" do
         before do
-          api.should_receive(:send_request).with(url, data).and_return(response_mock)
-          response_mock.should_receive(:body).and_return("")
+          api.should_receive(:send_request).with(url, data).and_return(response_double)
+          response_double.should_receive(:body).and_return("")
         end
         it { make_request.should == { } }
       end
 
       context "hashfies and validates the response body" do
         before do
-          api.should_receive(:send_request).with(url, data).and_return(response_mock)
-          response_mock.should_receive(:body).twice.and_return("response-body")
+          api.should_receive(:send_request).with(url, data).and_return(response_double)
+          response_double.should_receive(:body).twice.and_return("response-body")
         end
 
         context "checking if it has a :response key" do
@@ -536,15 +536,15 @@ describe BigBlueButton::BigBlueButtonApi do
         let(:response) { { :returncode => "SUCCESS" } }
         let(:formatted_response) { { :returncode => true, :messageKey => "", :message => "" } }
         before do
-          api.should_receive(:send_request).with(url, data).and_return(response_mock)
-          response_mock.should_receive(:body).twice.and_return("response-body")
+          api.should_receive(:send_request).with(url, data).and_return(response_double)
+          response_double.should_receive(:body).twice.and_return("response-body")
           BigBlueButton::BigBlueButtonHash.should_receive(:from_xml).with("response-body").and_return(response)
 
           # here starts the validation
           # doesn't test the resulting format, only that the formatter was called
-          formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_mock)
-          formatter_mock.should_receive(:default_formatting).and_return(formatted_response)
+          formatter_double = double(BigBlueButton::BigBlueButtonFormatter)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_double)
+          formatter_double.should_receive(:default_formatting).and_return(formatted_response)
         end
         it { make_request }
       end
@@ -553,13 +553,13 @@ describe BigBlueButton::BigBlueButtonApi do
         let(:response) { { :returncode => true } }
         let(:formatted_response) { { } }
         before do
-          api.should_receive(:send_request).with(url, data).and_return(response_mock)
-          response_mock.should_receive(:body).twice.and_return("response-body")
+          api.should_receive(:send_request).with(url, data).and_return(response_double)
+          response_double.should_receive(:body).twice.and_return("response-body")
           BigBlueButton::BigBlueButtonHash.should_receive(:from_xml).with("response-body").and_return(response)
 
-          formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_mock)
-          formatter_mock.should_receive(:default_formatting).and_return(formatted_response)
+          formatter_double = double(BigBlueButton::BigBlueButtonFormatter)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).with(response).and_return(formatter_double)
+          formatter_double.should_receive(:default_formatting).and_return(formatted_response)
         end
         it { expect { make_request }.to raise_error(BigBlueButton::BigBlueButtonException) }
       end
@@ -571,25 +571,25 @@ describe BigBlueButton::BigBlueButtonApi do
       let(:res) { Net::HTTPResponse.new(1.0, '200', 'OK') }
 
       before do
-        @http_mock = mock(Net::HTTP)
-        @http_mock.should_receive(:"open_timeout=").with(api.timeout)
-        @http_mock.should_receive(:"read_timeout=").with(api.timeout)
-        Net::HTTP.should_receive(:new).with("test-server", 8080).and_return(@http_mock)
+        @http_double = double(Net::HTTP)
+        @http_double.should_receive(:"open_timeout=").with(api.timeout)
+        @http_double.should_receive(:"read_timeout=").with(api.timeout)
+        Net::HTTP.should_receive(:new).with("test-server", 8080).and_return(@http_double)
         res.stub(:body) { "ok" }
       end
 
       context "standard case" do
-        before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", {}).and_return(res) }
+        before { @http_double.should_receive(:get).with("/res?param1=value1&checksum=12345", {}).and_return(res) }
         it { api.send(:send_request, url).should == res }
       end
 
       context "handles a TimeoutError" do
-        before { @http_mock.should_receive(:get) { raise TimeoutError } }
+        before { @http_double.should_receive(:get) { raise TimeoutError } }
         it { expect { api.send(:send_request, url) }.to raise_error(BigBlueButton::BigBlueButtonException) }
       end
 
       context "handles general Exceptions" do
-        before { @http_mock.should_receive(:get) { raise Exception } }
+        before { @http_double.should_receive(:get) { raise Exception } }
         it { expect { api.send(:send_request, url) }.to raise_error(BigBlueButton::BigBlueButtonException) }
       end
 
@@ -598,7 +598,7 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           path = "/res?param1=value1&checksum=12345"
           opts = { 'Content-Type' => 'application/xml' }
-          @http_mock.should_receive(:post).with(path, data, opts).and_return(res)
+          @http_double.should_receive(:post).with(path, data, opts).and_return(res)
         }
         it {
           api.send(:send_request, url, data).should == res
@@ -607,7 +607,7 @@ describe BigBlueButton::BigBlueButtonApi do
 
       context "get with headers" do
         let(:headers_hash) { { :anything => "anything" } }
-        before { @http_mock.should_receive(:get).with("/res?param1=value1&checksum=12345", headers_hash).and_return(res) }
+        before { @http_double.should_receive(:get).with("/res?param1=value1&checksum=12345", headers_hash).and_return(res) }
         it {
           api.request_headers = headers_hash
           api.send(:send_request, url).should == res
@@ -620,7 +620,7 @@ describe BigBlueButton::BigBlueButtonApi do
         before {
           path = "/res?param1=value1&checksum=12345"
           opts = { 'Content-Type' => 'application/xml', :anything => "anything" }
-          @http_mock.should_receive(:post).with(path, data, opts).and_return(res)
+          @http_double.should_receive(:post).with(path, data, opts).and_return(res)
         }
         it {
           api.request_headers = headers_hash
@@ -685,11 +685,11 @@ describe BigBlueButton::BigBlueButtonApi do
       context "formats the response" do
         before {
           api.should_receive(:send_api_request).with(:getRecordings, anything).and_return(flattened_response)
-          formatter_mock = mock(BigBlueButton::BigBlueButtonFormatter)
-          formatter_mock.should_receive(:flatten_objects).with(:recordings, :recording)
+          formatter_double = double(BigBlueButton::BigBlueButtonFormatter)
+          formatter_double.should_receive(:flatten_objects).with(:recordings, :recording)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording1)
           BigBlueButton::BigBlueButtonFormatter.should_receive(:format_recording).with(recording2)
-          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_mock)
+          BigBlueButton::BigBlueButtonFormatter.should_receive(:new).and_return(formatter_double)
         }
         it { api.get_recordings }
       end

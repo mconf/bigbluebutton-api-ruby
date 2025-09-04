@@ -53,10 +53,10 @@ describe BigBlueButton::BigBlueButtonFormatter do
       formatter.to_boolean(:false1)
       formatter.to_boolean(:false2)
     }
-    it { hash[:true1].should be_true }
-    it { hash[:true2].should be_true }
-    it { hash[:false1].should be_false }
-    it { hash[:false2].should be_false }
+    it { hash[:true1].should be true }
+    it { hash[:true2].should be true }
+    it { hash[:false1].should be false }
+    it { hash[:false2].should be false }
 
     context "returns false if the param doesn't exists" do
       subject { BigBlueButton::BigBlueButtonFormatter.new({ :param => 1}) }
@@ -207,7 +207,7 @@ describe BigBlueButton::BigBlueButtonFormatter do
     context "when :returncode should be false" do
       before { input[:returncode] = "ERROR" }
       subject { formatter.default_formatting }
-      it { subject[:returncode].should be_false }
+      it { subject[:returncode].should be false }
     end
 
     context "when :messageKey is empty" do

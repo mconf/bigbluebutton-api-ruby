@@ -11,8 +11,8 @@ end
 
 When /^the meeting is set to be recorded$/ do
   @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
-  @req.response[:returncode].should be_true
-  @req.response[:recording].should be_true
+  @req.response[:returncode].should be true
+  @req.response[:recording].should be true
 end
 
 When /^the user creates a meeting without the record flag$/ do
@@ -28,8 +28,8 @@ end
 
 When /^the meeting is not set to be recorded$/i do
   @req.response = @api.get_meeting_info(@req.id, @req.mod_pass)
-  @req.response[:returncode].should be_true
-  @req.response[:recording].should be_false
+  @req.response[:returncode].should be true
+  @req.response[:recording].should be false
 end
 
 When /^the user calls the get_recordings method$/ do
