@@ -6,7 +6,7 @@ PATH
       xml-simple (~> 1.1)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     base64 (0.3.0)
     diff-lcs (1.6.2)
@@ -37,6 +37,9 @@ DEPENDENCIES
   forgery
   rake
   rspec
+
+RUBY VERSION
+   ruby 3.4.5p51
 
 BUNDLED WITH
    2.6.9

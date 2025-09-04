@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.bindir           = "bin"
   s.files            = `git ls-files`.split("\n")
   s.require_paths    = ["lib"]
+  s.required_ruby_version = '>= 3.2.0'
 
   s.add_runtime_dependency('xml-simple', '~> 1.1')
   s.add_runtime_dependency('base64', '>= 0.1.0')
