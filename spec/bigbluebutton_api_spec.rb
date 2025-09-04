@@ -441,15 +441,6 @@ describe BigBlueButton::BigBlueButtonApi do
           end
         end
 
-        context "when method = :setConfigXML" do
-          it {
-            api.url = 'http://my-test-server.com/bigbluebutton/api'
-            response = api.get_url(:setConfigXML, { param1: 1, param2: 2 })
-            response[0].should eql('http://my-test-server.com/bigbluebutton/api/setConfigXML')
-            response[1].should match(/checksum=.*&param1=1&param2=2/)
-          }
-        end
-
         context "discards params with nil value" do
           let(:params) { { :param1 => "value1", :param2 => nil } }
           subject { api.get_url(:join, params)[0] }
@@ -474,17 +465,34 @@ describe BigBlueButton::BigBlueButtonApi do
         end
 
         context "includes the checksum" do
-          let(:params) { { :param1 => "value1", :param2 => "value2" } }
-          let(:checksum) {
-            # the hash can be sorted differently depending on the ruby version
-            if params.map{ |k,v| k }.join =~ /^param1/
-              "67882ae54f49600f56f358c10d24697ef7d8c6b2"
-            else
-              "85a54e28e4ec18bfdcb214a73f74d35b09a84176"
-            end
-          }
-          subject { api.get_url(:join, params)[0] }
-          it { subject.should match(/checksum=#{checksum}$/) }
+          context "when @sha256 is false or nil" do
+            let(:params) { { param1: "value1", param2: "value2" } }
+            let(:checksum) {
+              # the hash can be sorted differently depending on the ruby version
+              if params.map{ |k, v| k }.join =~ /^param1/
+                "67882ae54f49600f56f358c10d24697ef7d8c6b2"
+              else
+                "85a54e28e4ec18bfdcb214a73f74d35b09a84176"
+              end
+            }
+            subject { api.get_url(:join, params)[0] }
+            it('uses SHA1') { subject.should match(/checksum=#{checksum}$/) }
+          end
+
+          context "when @sha256 flag is true" do
+            let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger, true) }
+            let(:params) { { param1: "value1", param2: "value2" } }
+            let(:checksum) {
+              # the hash can be sorted differently depending on the ruby version
+              if params.map{ |k,v| k }.join =~ /^param1/
+                "0e7b1611809fad890a114dddae1a37fecf14c28971afc10ee3eac432da5b8b41"
+              else
+                "21bf2d24c27251c4b2b2f0d5dd4b966a2f16fbfc7882e102b44c6d67f728f0c8"
+              end
+            }
+            subject { api.get_url(:join, params)[0] }
+            it('uses SHA256') { subject.should match(/checksum=#{checksum}$/) }
+          end
         end
       end
     end
