@@ -57,11 +57,11 @@ When /^the response is an error with the key "(.*)"$/ do |key|
 end
 
 When /^the response is successful$/ do
-  @req.response[:returncode].should be_true
+  @req.response[:returncode].should be true
 end
 
 When /^the response is successful with no messages$/ do
-  @req.response[:returncode].should be_true
+  @req.response[:returncode].should be true
   @req.response[:messageKey].should == ""
   @req.response[:message].should == ""
 end
@@ -83,9 +83,9 @@ When /^the response is successful and well formatted$/ do
 end
 
 When /^the response to the create method is successful and well formatted$/ do
-  @req.response[:returncode].should be_true
+  @req.response[:returncode].should be true
   @req.response[:meetingID].should == @req.id
-  @req.response[:hasBeenForciblyEnded].should be_false
+  @req.response[:hasBeenForciblyEnded].should be false
   @req.response[:messageKey].should == ""
   @req.response[:message].should == ""
 
@@ -111,12 +111,12 @@ When /^the response to the create method is successful and well formatted$/ do
 end
 
 When /^the response to the end method is successful and well formatted$/ do
-  @req.response[:returncode].should be_true
+  @req.response[:returncode].should be true
   @req.response[:messageKey].should == "sentEndMeetingRequest"
   @req.response[:message].should_not be_empty
 end
 
 When /^the response to the get_recordings method is successful and well formatted$/ do
-  @req.response[:returncode].should be_true
+  @req.response[:returncode].should be true
   @req.response[:recordings].should == []
 end
