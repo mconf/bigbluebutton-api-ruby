@@ -465,31 +465,55 @@ describe BigBlueButton::BigBlueButtonApi do
         end
 
         context "includes the checksum" do
-          context "when @sha256 is false or nil" do
-            let(:params) { { param1: "value1", param2: "value2" } }
-            let(:checksum) {
-              # the hash can be sorted differently depending on the ruby version
-              if params.map{ |k, v| k }.join =~ /^param1/
-                "67882ae54f49600f56f358c10d24697ef7d8c6b2"
-              else
-                "85a54e28e4ec18bfdcb214a73f74d35b09a84176"
-              end
-            }
+          let(:method) { "join" }
+          let(:params) { { param1: "value1", param2: "value2" } }
+          let(:params_string) { params.map{ |k,v| "#{k}=" + URI.encode_www_form_component(v.to_s) unless k.nil? || v.nil? }.join("&") }
+          let(:checksum_param) { method.to_s + params_string + secret }
+
+          context "when @algorithm is false or nil" do
+            let(:checksum) { Digest::SHA1.hexdigest(checksum_param ) }
+
             subject { api.get_url(:join, params)[0] }
             it('uses SHA1') { subject.should match(/checksum=#{checksum}$/) }
           end
 
-          context "when @sha256 flag is true" do
+          context "when @algorithm is is set to 'sha1'" do
+            let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger, "sha1") }
+            let(:checksum) { Digest::SHA1.hexdigest(checksum_param ) }
+
+            subject { api.get_url(:join, params)[0] }
+            it('uses SHA1') { subject.should match(/checksum=#{checksum}$/) }
+          end
+
+          context "when @algorithm flag is set to 'sha2'" do
+            let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger, "sha2") }
+            let(:checksum) { Digest::SHA256.hexdigest(checksum_param ) }
+
+            subject { api.get_url(:join, params)[0] }
+            it('uses SHA256') { subject.should match(/checksum=#{checksum}$/) }
+          end
+
+          context "when @algorithm flag is set to 'sha256'" do
+            let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger, "sha256") }
+            let(:checksum) { Digest::SHA256.hexdigest(checksum_param ) }
+
+            subject { api.get_url(:join, params)[0] }
+            it('uses SHA256') { subject.should match(/checksum=#{checksum}$/) }
+          end
+
+          context "when @algorithm flag is set to 'sha512'" do
+            let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger, "sha512") }
+            let(:checksum) { Digest::SHA512.hexdigest(checksum_param ) }
+
+            subject { api.get_url(:join, params)[0] }
+            it('uses SHA256') { subject.should match(/checksum=#{checksum}$/) }
+          end
+
+          # Ensure legacy support
+          context "when @algorithm flag is true" do
             let(:api) { BigBlueButton::BigBlueButtonApi.new(url, secret, version, logger, true) }
-            let(:params) { { param1: "value1", param2: "value2" } }
-            let(:checksum) {
-              # the hash can be sorted differently depending on the ruby version
-              if params.map{ |k,v| k }.join =~ /^param1/
-                "0e7b1611809fad890a114dddae1a37fecf14c28971afc10ee3eac432da5b8b41"
-              else
-                "21bf2d24c27251c4b2b2f0d5dd4b966a2f16fbfc7882e102b44c6d67f728f0c8"
-              end
-            }
+            let(:checksum) { Digest::SHA256.hexdigest(checksum_param ) }
+
             subject { api.get_url(:join, params)[0] }
             it('uses SHA256') { subject.should match(/checksum=#{checksum}$/) }
           end

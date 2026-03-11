@@ -67,15 +67,15 @@ module BigBlueButton
     # secret::    Shared secret for this server
     # version::   API version e.g. 0.81
     # logger::    Logger object to log actions (so apps can use their own loggers)
-    # sha256::    Flag to use sha256 when hashing url contents for checksum
-    def initialize(url, secret, version=nil, logger=nil, sha256=false)
+    # algorithm:: Define which algorithm to use [sha1, sha256, sha512]
+    def initialize(url, secret, version=nil, logger=nil, algorithm="sha1")
       @supported_versions = ['0.8', '0.81', '0.9', '1.0']
       @url = url.chomp('/')
       @secret = secret
       @timeout = 10         # default timeout for api requests
       @request_headers = {} # http headers sent in all requests
       @logger = logger
-      @sha256 = sha256
+      @algorithm = algorithm
       # If logger is not informed, it defaults to STDOUT with INFO level
       if logger.nil?
         @logger = Logger.new(STDOUT)
@@ -604,7 +604,7 @@ module BigBlueButton
       # checksum calc
       checksum_param = params_string + @secret
       checksum_param = method.to_s + checksum_param
-      checksum = @sha256 ? Digest::SHA256.hexdigest(checksum_param) : Digest::SHA1.hexdigest(checksum_param)
+      checksum = calculate_checksum(checksum_param)
 
       url = "#{@url}/#{method}?"
       url += "#{params_string}&" unless params_string.empty?
@@ -721,5 +721,15 @@ module BigBlueButton
       end
     end
 
+    def calculate_checksum(checksum_param)
+      case @algorithm
+      when "sha512"
+        Digest::SHA512.hexdigest(checksum_param)
+      when "sha2", "sha256", true # checks true for legacy support
+        Digest::SHA256.hexdigest(checksum_param)
+      else
+        Digest::SHA1.hexdigest(checksum_param)
+      end
+    end
   end
 end
